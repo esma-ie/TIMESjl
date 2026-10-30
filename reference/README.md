@@ -94,6 +94,13 @@ powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Set all    
 powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Set M1.1       # M1.1 models only
 ```
 
+Every reference is made with GAMS 54 (James, 30 Oct 2026). The script stops
+if the GAMS it finds (PATH, then the newest install under `C:\GAMS`, or
+`-Gams`) is another major version, and `-Resume` treats a run made with
+another version as not done, so `-Set all -Resume` brings every reference
+to GAMS 54. `-GamsMajor ''` turns the check off for experiments that are not
+compared or published.
+
 The suite has two tiers (`tier` in `suite.toml`; James, 30 Oct 2026). The
 **core** tier is the everyday development loop: one baseline case per model
 (BAU or Reference), so a batch stays short enough to rerun every cycle. The

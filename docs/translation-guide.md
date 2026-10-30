@@ -248,3 +248,9 @@ those checks, their figures and their crafted cases are not published
   reference case each (OTCGEN-gc_ref, OTNYC-s1_nyc_ref), pinned by commit.
   Both preprocess under v4.9.7 (GAMS 54.6.1, no solve); references to follow
   on James's workstation.
+- 30 Oct 2026: GAMS 54 is the reference GAMS for every run (James).
+  run_references.ps1 0.1.17 stops on another major version and -Resume
+  redoes runs made with one. On 30 Oct the core references of demo12,
+  TIMES-NZ-steady-v308, OTUS9r-reference (reduce_off) and TIM were already
+  GAMS 54.6.1; TIMES-NZ-shift-v308, OTUS9r-reference as_run and
+  OTUS9r-tax1_wo_mou were GAMS 52.1.0, to be rerun.
