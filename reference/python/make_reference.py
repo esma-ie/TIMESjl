@@ -325,6 +325,8 @@ def main(argv=None):
     p.add_argument("--work", type=Path, default=None, help="scratch directory for GAMS runs (default <out>/_work)")
     p.add_argument("--root", action="append", default=[], help="name=path for {name} placeholders in the suite")
     p.add_argument("--model", action="append", default=[], help="model name(s) from the suite; default all")
+    p.add_argument("--tier", choices=["core", "milestone"], default=None,
+                   help="without --model: only the models of this suite tier (default: every model)")
     p.add_argument("--variant", action="append", choices=list(VARIANTS), default=[])
     p.add_argument("--solvers", default="CPLEX", help="comma-separated; the first is the reference solver")
     p.add_argument("--gams", default="gams", help="GAMS executable")
@@ -352,7 +354,7 @@ def main(argv=None):
     if "times_source" not in suite["roots"]:
         raise SystemExit("pass --root times_source=<path to TIMES_model @ d9a6a25>")
     source_info = check_source(Path(suite["roots"]["times_source"]), a.allow_other_version)
-    models = a.model or list(suite["models"])
+    models = a.model or [n for n, m in suite["models"].items() if a.tier is None or m.get("tier", "core") == a.tier]
     variants = a.variant or list(VARIANTS)
     check_roots(suite, models)
     results = {}

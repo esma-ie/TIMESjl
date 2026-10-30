@@ -239,3 +239,6 @@ those checks, their figures and their crafted cases are not published
   (EQ(l)_UCRTP, EQN_UCRTC). The repository is published as esma-ie/TIMESjl
   with a fresh history, and OTUS9r as esma-ie/OTUS9r (the EPA original at tag
   epaus9rt-v20.4, the DD export in dd/); the suite pins OTUS9r by commit.
+  The suite gets two tiers: core (one baseline case per model, the default
+  batch) and milestone (policy and secondary scenarios, very large models);
+  OTUS9r-tax1_wo_mou is paused in the milestone tier.

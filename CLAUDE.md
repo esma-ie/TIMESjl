@@ -52,6 +52,11 @@ Any mismatch blocks the merge. Justified differences go in
   machine. Pre-solve dumps need no solve and work under the demo licence.
 - Full batch on Windows with GAMS and CPLEX: `scripts/run_references.ps1`
   (clones and pins every model repo, runs the suite, then the M1.0 gate).
+  It runs the **core** tier by default: one baseline case per model, for fast
+  development cycles (James, 30 Oct 2026). Policy and secondary scenarios and
+  the very large models are in the **milestone** tier (`-Set milestone`),
+  run at milestone gates or when a change reaches a feature only they have.
+  `tier` is set per model in `reference/suite.toml`.
 - Single model by hand, from the repo root: pass a `--root` for every
   placeholder that model uses (see `reference/suite.toml`), e.g.
   `python reference/python/make_reference.py --out ../timesjl-reference --solvers CPLEX,HIGHS --root times_source=../TIMES_model --root times_demo=../TIMES_Demo --model TIMES_Demo-demo12`

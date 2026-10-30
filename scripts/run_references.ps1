@@ -26,11 +26,17 @@
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1
-    Whole suite with CPLEX and HiGHS.
+    The core tier (reference/suite.toml: one baseline case per model) with CPLEX
+    and HiGHS: the everyday development loop.
+
+.EXAMPLE
+    powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Set milestone
+    The milestone tier: policy and secondary scenarios and the very large models
+    (-Set all for both tiers).
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Set M1.1
-    Only the models M1.1 needs: TIMES_Demo demo12 (TIM returns once re-sourced).
+    Only the models M1.1 needs: TIMES_Demo demo12.
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Models TIMES_Demo-demo12 -Resume
@@ -55,8 +61,9 @@
 param(
     [string]$Workspace = '',
     [string]$Out = '',
-    [ValidateSet('all', 'M1.1')]
-    [string]$Set = 'all',
+    # Tiers of reference/suite.toml (James, 30 Oct 2026): core by default.
+    [ValidateSet('core', 'milestone', 'all', 'M1.1')]
+    [string]$Set = 'core',
     [string[]]$Models = @(),
     [string]$Solvers = 'CPLEX,HIGHS',
     [string]$Gams = '',
@@ -73,7 +80,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$ScriptVersion = '0.1.14'
+$ScriptVersion = '0.1.15'
 
 $OnWindows = ($PSVersionTable.PSEdition -eq 'Desktop') -or $IsWindows
 $Repo = Split-Path -Parent $PSScriptRoot
@@ -345,7 +352,18 @@ if (Test-Venv) {
 if ($Models.Count -eq 0) {
     if ($Set -eq 'M1.1') { $Models = $M11Models }
     else {
-        $Models = Select-String -Path $Suite -Pattern '^name\s*=\s*"([^"]+)"' | ForEach-Object { $_.Matches[0].Groups[1].Value }
+        # one entry per [[model]] block, in suite order, with its tier (core when absent)
+        $entries = foreach ($b in ((Get-Content -Raw $Suite) -split '\[\[model\]\]' | Select-Object -Skip 1)) {
+            if ($b -match '(?m)^name\s*=\s*"([^"]+)"') {
+                $n = $Matches[1]
+                $t = 'core'
+                if ($b -match '(?m)^tier\s*=\s*"([^"]+)"') { $t = $Matches[1] }
+                [pscustomobject]@{ Name = $n; Tier = $t }
+            }
+        }
+        if ($Set -eq 'all') { $Models = @($entries | ForEach-Object { $_.Name }) }
+        else { $Models = @($entries | Where-Object { $_.Tier -eq $Set } | ForEach-Object { $_.Name }) }
+        Write-Host ("tier {0}: {1}" -f $Set, ($Models -join ', '))
     }
 }
 $Julia = $null
