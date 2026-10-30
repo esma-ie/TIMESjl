@@ -60,6 +60,8 @@ conditions:
 | TIMES_Demo demo12 (`etsap-TIMES/TIMES_Demo` @ 962db86) | CC-BY-4.0 (data), GPL-3.0 (code) | IEA-ETSAP | references and public fixtures |
 | TIMES-NZ 3.0.8, cases steady-v308 and shift-v308 (`EECA-NZ/TIMES-NZ-Model-Files` main 8165e1d through the esma-ie fork; DD export of 28 Oct 2026 in `timesjl-sources/TIMES-NZ/dd/`) | MIT | EECA | references and public fixtures (from M1.2, 29 Oct 2026) |
 | OTUS9r, cases reference and tax1_wo_mou (`esma-ie/OTUS9r` @ `598e179`, public from 30 Oct 2026; the DD export of 28 Oct 2026 in its `dd/`) | CC-BY-SA-4.0 (ESMA), over US EPA EPAUS9rT_v20.4 (US public domain) | ESMA | references and public fixtures (from M1.2, 29 Oct 2026) |
+| OTCGEN, case gc_ref (`esma-ie/OTCGEN` @ `08af95f`, public from 30 Oct 2026; the DD export of 30 Oct 2026 in its `dd/`) | CC-BY-SA-4.0 (ESMA), over US EPA Generative COMET v0.0.0 (US public domain) | ESMA | references and public fixtures (from M1.2, 30 Oct 2026) |
+| OTNYC, case s1_nyc_ref (`esma-ie/OTNYC` @ `bc1d276`, public from 30 Oct 2026; the DD export of 30 Oct 2026 in its `dd/`) | CC-BY-SA-4.0 (ESMA), over US EPA COMET-NYC v16.0.1 (US public domain) | ESMA | references and public fixtures (from M1.2, 30 Oct 2026) |
 | TIM, cases bau, mitigation_cb2024-300mt and its myopic variant (`esma-ie/times-ireland-model-marei`; James's DD export of 28 Oct 2026 in `timesjl-sources/TIM/dd/`) | CC-BY-NC-SA-4.0 | MaREI, UCC | the named exception: James's machine only, nothing derived committed |
 | JRC-EU-TIMES, PSI WIMBY version, scenario cli_ll (`gitea.psi.ch/WIMBY/JRC-EU-TIMES` @ c18a076; DD and run files extracted from its dumps into `timesjl-sources/JRC-EU-TIMES`) | GPL-3.0-or-later (WIMBY), over JRC-EU-TIMES data (CC-BY-4.0) | WIMBY project (PSI); data JRC | large-model reference, summary results only (James, 29 Oct 2026) |
 
@@ -68,7 +70,7 @@ export of the esma-ie fork (local source `tim`, never committed).
 
 ### Model repositories maintained by ESMA
 
-ESMA's forks and models (TIMES-NZ, TIM, OTUS9r, DEVTAI) use one layout so
+ESMA's forks and models (TIMES-NZ, TIM, OTUS9r, OTCGEN, OTNYC, DEVTAI) use one layout so
 the harness can treat them alike:
 
 ```
@@ -88,8 +90,8 @@ original authors); GDX, LST and VD outputs are not committed.
 
 Each suite case has a `tier` (`reference/suite.toml`; James, 30 Oct 2026).
 The core tier is one baseline case per model (TIMES_Demo demo12,
-TIMES-NZ-steady-v308, OTUS9r-reference, TIM-bau), rerun in every development
-cycle. The milestone tier (TIMES-NZ-shift-v308, OTUS9r-tax1_wo_mou, the TIM
+TIMES-NZ-steady-v308, OTCGEN-gc_ref, OTNYC-s1_nyc_ref, OTUS9r-reference,
+TIM-bau), rerun in every development cycle. The milestone tier (TIMES-NZ-shift-v308, OTUS9r-tax1_wo_mou, the TIM
 carbon-budget cases, JRC-EU-TIMES-cli_ll) runs at milestone gates, or when a
 change reaches a feature only those cases have. OTUS9r-tax1_wo_mou is paused
 there: its REDUCE-on CPLEX solve did not leave crossover in 9 h, and its
@@ -115,12 +117,23 @@ OTUS9r:
   nine regions it is a local reference; a reduced CI variant made from the
   same open data can be a fixture.
 
-Exported on 28 Oct 2026 but held back (no licence stated at the source yet; the
-DD check is in `C:\claude\TIMESjlTests\_inventory`): OTCgen (from EPA's
-Generative COMET; three cases compile and preprocess cleanly) and OTNYC (from
-EPA's COMET-NYC; its export needs redoing, one folder per case, with the
-TS_GROUP/TS_MAP blocks). Both join once their esma-ie repositories carry the
-licence James decides on.
+In the suite from 30 Oct 2026, beside the primary models:
+
+- **OTCGEN** and **OTNYC** (ESMA): published on 30 Oct 2026 as
+  `esma-ie/OTCGEN` and `esma-ie/OTNYC` (CC BY-SA 4.0), in the same way as
+  OTUS9r. They are redeveloped from the US EPA's Generative COMET v0.0.0
+  (DOI 10.23719/1532263; the EPA release is populated for New York City) and
+  COMET-NYC v16.0.1 (DOI 10.23719/1532264), both published by EPA ORD on
+  data.gov under the EPA ScienceHub licence (US public domain unless
+  otherwise specified; checked 30 Oct 2026). The EPA originals are committed
+  unchanged at tags `gcomet-v0.0.0` and `comet-nyc-v16.0.1`, with the EPA
+  archives attached to the releases; `dd/` holds the reference case of each
+  (GC_REF, S1_NYC_REF), exported on 30 Oct 2026 from workbooks checked
+  against the tags. Both are small (2 and 7 regions) and set no MID_YEAR,
+  OBLONG or VARCOST switch, the second objective configuration on real
+  models; OTNYC is the only open model whose data reach TIMES's FLO_SHARE
+  auto-relax step (`pp_qafs.mod`). Their policy cases were exported and
+  checked on 30 Oct 2026 and can join the milestone tier later.
 
 Candidates, not yet in the suite: OTAI (CC-BY-SA-4.0, ESMA; no TIM data,
 James 27 Oct 2026), DEVTAI (ESMA's two-region power model; needs a LICENSE),

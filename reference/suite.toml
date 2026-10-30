@@ -13,6 +13,16 @@
 #              epaus9rt-v20.4)                               export of 28 Oct 2026, dd/manifest.json
 #                                                            SHA-256 d9cbd18e43a4659a411248eb2addc7d7
 #                                                            f736ac7faf6ff024c29fb28d5529d70c)
+# otcgen       github.com/esma-ie/OTCGEN                    08af95f (public from 30 Oct 2026;
+#              (CC-BY-SA-4.0; EPA original, Generative       dd/ added in 34bb69d: the Veda DD
+#              COMET v0.0.0, at tag gcomet-v0.0.0)           export of 30 Oct 2026, dd/manifest.json
+#                                                            SHA-256 bb6ef325c52b06d45a6707044f576100
+#                                                            a339913ba4699920b3ce92a0827f9e5c)
+# otnyc        github.com/esma-ie/OTNYC                     bc1d276 (public from 30 Oct 2026;
+#              (CC-BY-SA-4.0; EPA original, COMET-NYC        dd/ added in 46f1994: the Veda DD
+#              v16.0.1, at tag comet-nyc-v16.0.1)            export of 30 Oct 2026, dd/manifest.json
+#                                                            SHA-256 8a16fb67e5fa2f6752a46996fa8ac0c3
+#                                                            aeb6ba340d738b73f8182178a50e899b)
 # times_nz_dd  local folder timesjl-sources/TIMES-NZ         TIMES-NZ 3.0.8 (EECA main 8165e1d)
 #              (DD export of 28 Oct 2026 for the esma-ie     SHA-256 of dd/manifest.json:
 #              fork of EECA-NZ/TIMES-NZ-Model-Files)         a4b7514e65143c5aebf4dcf48b2ca0e9
@@ -36,7 +46,7 @@
 # if any is missing, if the licence is not open (unless the entry names an
 # `exception`), or if the source is on the blocked list below.
 #
-# Licences (checked 27 Oct 2026; JRC-EU-TIMES 29 Oct 2026). `redistribute` says
+# Licences (checked 27 Oct 2026; JRC-EU-TIMES 29 Oct; OTCGEN, OTNYC 30 Oct). `redistribute` says
 # what may be published with this repository:
 #   "public"   references and fixtures derived from the model;
 #   "summary"  only summary results: model size, solve status, objective values,
@@ -46,6 +56,8 @@
 #   TIMES_Demo   data CC-BY-4.0, code GPL-3.0 (IEA-ETSAP)   redistribute = public
 #   TIMES-NZ     MIT (EECA; 3.0.8 DD export, esma-ie fork)    redistribute = public
 #   OTUS9r       CC-BY-SA-4.0 (ESMA; EPA EPAUS9rT origin)     redistribute = public
+#   OTCGEN       CC-BY-SA-4.0 (ESMA; EPA Generative COMET)    redistribute = public
+#   OTNYC        CC-BY-SA-4.0 (ESMA; EPA COMET-NYC origin)    redistribute = public
 #   JRC-EU-TIMES GPL-3.0-or-later (PSI WIMBY, "Copyright      redistribute = summary
 #                (C) 2025 WIMBY"), over JRC-EU-TIMES data (JRC, CC BY 4.0)
 #                (James, 29 Oct 2026: publish only the summary results)
@@ -74,7 +86,8 @@
 #
 # Milestone at which each model joins the parity suite:
 #   M1.1  TIMES_Demo-demo12; TIM (research exception, local only)
-#   M1.2  TIMES-NZ 3.0.8, OTUS9r (DD exports of 28 Oct 2026), JRC-EU-TIMES cli_ll
+#   M1.2  TIMES-NZ 3.0.8, OTUS9r (DD exports of 28 Oct 2026), JRC-EU-TIMES cli_ll;
+#         OTCGEN, OTNYC (DD exports of 30 Oct 2026, in the suite from 30 Oct 2026)
 #   M1.4  OTAI (see "Planned" below)
 #
 # Notes
@@ -88,10 +101,6 @@
 #   (all .dd files and <scenario>.run) with provenance in dd/README.md.
 #
 # Planned, not yet in the suite:
-#   otcgen     ESMA's OTCgen (from EPA's Generative COMET), DD files exported 28 Oct 2026;
-#              joins when its esma-ie repository states its licence
-#   otnyc      ESMA's OTNYC (from EPA's COMET-NYC); same, and its export needs redoing
-#              (one folder per case; base.dd lacks TS_GROUP/TS_MAP: TIMESjlTests/_inventory)
 #   devtai     ESMA's two-region power model, dd/ once published with an open licence
 #   otai       github.com/esma-ie/OTAI            8f2351c   CC-BY-SA-4.0 (ESMA), M1.4
 #   jrc_eu     JRC-EU-TIMES v1.1.1 (Zenodo, Veda Excel)     CC-BY-4.0, candidate, M1.4
@@ -143,6 +152,54 @@ kind = "run"
 run_file = "{times_nz_dd}/dd/shift-v308/shift-v308.run"
 idirs = ["{times_nz_dd}/dd/shift-v308"]
 solver_opt_dir = "{times_nz_dd}/dd/shift-v308"
+
+# OTCGEN (ESMA; CC-BY-SA-4.0 in esma-ie/OTCGEN, from the US EPA's Generative COMET
+# v0.0.0, US public domain; the EPA release is populated for New York City). Its
+# reference case GC_REF, exported by James on 30 Oct 2026 (Veda2 v5.0.0.0) from a clone
+# at tag gcomet-v0.0.0 whose workbooks are byte-identical to the tag (dd/README.md).
+# 2 regions (CITY, EGRID), 16 time slices, 24 milestones 2019-2100; REDUCE YES,
+# OBJ AUTO, TIMESED NO, BOTIME 1980 and no MID_YEAR, OBLONG or VARCOST switch: the
+# second objective configuration on a real model. Has STG_LOSS and STGOUT_BND.
+# Preprocesses under v4.9.7 with no domain violations and all QA checks passed
+# (30 Oct 2026). 11 MB of DD files. The EPA's policy cases (GC_REF_SUB, GC_REF_ZEV,
+# GC_TAX, GC_NZ, GC_REF_nocons) were exported and checked too; they can join the
+# milestone tier later.
+[[model]]
+name = "OTCGEN-gc_ref"
+tier = "core"
+source_repo = "esma-ie/OTCGEN"
+licence_url = "https://github.com/esma-ie/OTCGEN/blob/main/LICENSE"
+licence_checked = "2026-10-30"
+licence = "CC-BY-SA-4.0"
+redistribute = "public"
+kind = "run"
+run_file = "{otcgen}/dd/gc_ref/gc_ref.run"
+idirs = ["{otcgen}/dd/gc_ref"]
+solver_opt_dir = "{otcgen}/dd/gc_ref"
+
+# OTNYC (Open TIMES New York City, ESMA; CC-BY-SA-4.0 in esma-ie/OTNYC, from the US
+# EPA's COMET-NYC v16.0.1, US public domain). Its reference case S1_NYC_REF, exported by
+# James on 30 Oct 2026 (Veda2 v5.0.0.0, one folder per case, replacing the 28 Oct
+# export) from a clone at tag comet-nyc-v16.0.1 (dd/README.md).
+# 7 regions, 16 time slices, 11 milestones 2010-2055; the same objective switches as
+# OTCGEN. Preprocesses under v4.9.7 with no domain violations. QA: 50 *07 "Defective
+# sum of FX and UP FLO_SHAREs in Group" (process TPELCCR11, R2-R6, a lone UP share of
+# 0.12056; EPA data as released) that TIMES auto-relaxes in preprocessing
+# (pp_qafs.mod L66-89), the only open model reaching that branch, and 47 *01
+# "DEM commodity with missing COM_PROJ". 18 MB of DD files. The EPA's other cases
+# (S2-S5, IRA, LSR, CLCPA, NZ50) were exported and checked too.
+[[model]]
+name = "OTNYC-s1_nyc_ref"
+tier = "core"
+source_repo = "esma-ie/OTNYC"
+licence_url = "https://github.com/esma-ie/OTNYC/blob/main/LICENSE"
+licence_checked = "2026-10-30"
+licence = "CC-BY-SA-4.0"
+redistribute = "public"
+kind = "run"
+run_file = "{otnyc}/dd/s1_nyc_ref/s1_nyc_ref.run"
+idirs = ["{otnyc}/dd/s1_nyc_ref"]
+solver_opt_dir = "{otnyc}/dd/s1_nyc_ref"
 
 # OTUS9r (Open TIMES US 9R, ESMA; CC-BY-SA-4.0 in esma-ie/OTUS9r, from the US EPA's
 # EPAUS9rT_v20.4, US public domain). Two Veda cases exported on 28 Oct 2026 from the

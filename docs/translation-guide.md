@@ -242,3 +242,9 @@ those checks, their figures and their crafted cases are not published
   The suite gets two tiers: core (one baseline case per model, the default
   batch) and milestone (policy and secondary scenarios, very large models);
   OTUS9r-tax1_wo_mou is paused in the milestone tier.
+- 30 Oct 2026, evening: OTCGEN (from the US EPA's Generative COMET v0.0.0) and
+  OTNYC (from COMET-NYC v16.0.1) are published as esma-ie/OTCGEN and
+  esma-ie/OTNYC in the same way as OTUS9r, and join the core tier with one
+  reference case each (OTCGEN-gc_ref, OTNYC-s1_nyc_ref), pinned by commit.
+  Both preprocess under v4.9.7 (GAMS 54.6.1, no solve); references to follow
+  on James's workstation.
