@@ -8,11 +8,11 @@
 #              (DD and run files extracted from the dumps    SHA-256 of dd/manifest.json:
 #              in gitea.psi.ch/WIMBY/JRC-EU-TIMES @ c18a076) 3bfa3fde0a832f798d15b72782a36bc5
 #                                                            9f86247a77c6318e714ca4aaf8db9ac4
-# otus         local folder timesjl-sources/OTUS9r          Veda DD export of 28 Oct 2026 for
-#              (esma-ie/OTUS9r, CC-BY-SA-4.0; the dd/ files  esma-ie/OTUS9r; pinned by SHA-256
-#              join that repository when it is published)    of dd/manifest.json:
-#                                                            d9cbd18e43a4659a411248eb2addc7d7
-#                                                            f736ac7faf6ff024c29fb28d5529d70c
+# otus         github.com/esma-ie/OTUS9r                    598e179 (public from 30 Oct 2026;
+#              (CC-BY-SA-4.0; EPA original at tag            dd/ added in 68588a6: the Veda DD
+#              epaus9rt-v20.4)                               export of 28 Oct 2026, dd/manifest.json
+#                                                            SHA-256 d9cbd18e43a4659a411248eb2addc7d7
+#                                                            f736ac7faf6ff024c29fb28d5529d70c)
 # times_nz_dd  local folder timesjl-sources/TIMES-NZ         TIMES-NZ 3.0.8 (EECA main 8165e1d)
 #              (DD export of 28 Oct 2026 for the esma-ie     SHA-256 of dd/manifest.json:
 #              fork of EECA-NZ/TIMES-NZ-Model-Files)         a4b7514e65143c5aebf4dcf48b2ca0e9
@@ -132,15 +132,17 @@ idirs = ["{times_nz_dd}/dd/shift-v308"]
 solver_opt_dir = "{times_nz_dd}/dd/shift-v308"
 
 # OTUS9r (Open TIMES US 9R, ESMA; CC-BY-SA-4.0 in esma-ie/OTUS9r, from the US EPA's
-# EPAUS9rT_v20.4, US public domain). Two Veda cases exported on 28 Oct 2026; the
-# Reference case was checked record by record against the input of the 27 Oct run.
+# EPAUS9rT_v20.4, US public domain). Two Veda cases exported on 28 Oct 2026 from the
+# unchanged EPA workbooks (tag epaus9rt-v20.4) and published in the repository's dd/
+# (30 Oct 2026); the Reference case was checked record by record against the input of
+# the 27 Oct run.
 # 10 regions, 21 time slices, milestones to 2060 (reference) and 2077 (tax1_wo_mou);
 # REDUCE YES, VARCOST LIN, MID_YEAR and OBLONG YES. 51 MB of DD files per case.
 [[model]]
 name = "OTUS9r-reference"
 source_repo = "esma-ie/OTUS9r"
 licence_url = "https://github.com/esma-ie/OTUS9r/blob/main/LICENSE"
-licence_checked = "2026-10-29"
+licence_checked = "2026-10-30"
 licence = "CC-BY-SA-4.0"
 redistribute = "public"
 kind = "run"
@@ -152,7 +154,7 @@ solver_opt_dir = "{otus}/dd/reference"
 name = "OTUS9r-tax1_wo_mou"
 source_repo = "esma-ie/OTUS9r"
 licence_url = "https://github.com/esma-ie/OTUS9r/blob/main/LICENSE"
-licence_checked = "2026-10-29"
+licence_checked = "2026-10-30"
 licence = "CC-BY-SA-4.0"
 redistribute = "public"
 kind = "run"
