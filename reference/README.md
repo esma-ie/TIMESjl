@@ -45,7 +45,7 @@ model attributes. Each change to the run file is recorded in the manifest.
 | `times_source` | `etsap-TIMES/TIMES_model` | `d9a6a25` (v4.9.7; checked) |
 | `times_demo` | `etsap-TIMES/TIMES_Demo` | `962db86` |
 | `times_nz_dd` | local folder `timesjl-sources/TIMES-NZ` (DD export of EECA main 8165e1d, TIMES-NZ 3.0.8) | pinned by the SHA-256 of `dd/manifest.json` |
-| `otus` | local folder `timesjl-sources/OTUS9r` (DD export for `esma-ie/OTUS9r`) | pinned by the SHA-256 of `dd/manifest.json` |
+| `otus` | `esma-ie/OTUS9r` (`dd/`: the Veda DD export of 28 Oct 2026; EPA original at tag `epaus9rt-v20.4`) | `598e179` |
 | `tim` | local folder `timesjl-sources/TIM` (James's export; the licence exception, local only) | pinned by the SHA-256 of `dd/manifest.json` |
 | `jrc_eu_times` | local folder `timesjl-sources/JRC-EU-TIMES`: DD and run files extracted from the dumps in `gitea.psi.ch/WIMBY/JRC-EU-TIMES` @ `c18a076` | not git; pinned by the SHA-256 of `dd/manifest.json` (`reference/suite.toml` header) |
 

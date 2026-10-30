@@ -237,4 +237,5 @@ those checks, their figures and their crafted cases are not published
   29.6 M records at 1e-9, no mismatch (docs/dashboard/suite-public.json).
   Layer 2 is refused on TIMES-NZ (EQ(l)_FLOMRK, EQ_SLSIFT) and OTUS9r
   (EQ(l)_UCRTP, EQN_UCRTC). The repository is published as esma-ie/TIMESjl
-  with a fresh history.
+  with a fresh history, and OTUS9r as esma-ie/OTUS9r (the EPA original at tag
+  epaus9rt-v20.4, the DD export in dd/); the suite pins OTUS9r by commit.

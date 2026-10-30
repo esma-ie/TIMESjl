@@ -84,7 +84,7 @@ Any mismatch blocks the merge. Justified differences go in
   `test/fixtures/public_fixtures.toml`.
 - Primary test models (27 Oct 2026): TIMES_Demo demo12 (CC BY 4.0; CI
   fixtures), TIM (exception, below) and OTUS9r (ESMA, from EPA's public-domain
-  EPAUS9rT; joins once published with an open licence).
+  EPAUS9rT; `esma-ie/OTUS9r`, CC BY-SA 4.0, public from 30 Oct 2026).
 - One named exception: TIM (CC BY-NC-SA 4.0; public source, non-commercial
   licence), kept by James on 27 Oct 2026 for research use only, never for
   commercial work. Its source is an esma-ie fork of

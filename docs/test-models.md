@@ -59,7 +59,7 @@ conditions:
 | --- | --- | --- | --- |
 | TIMES_Demo demo12 (`etsap-TIMES/TIMES_Demo` @ 962db86) | CC-BY-4.0 (data), GPL-3.0 (code) | IEA-ETSAP | references and public fixtures |
 | TIMES-NZ 3.0.8, cases steady-v308 and shift-v308 (`EECA-NZ/TIMES-NZ-Model-Files` main 8165e1d through the esma-ie fork; DD export of 28 Oct 2026 in `timesjl-sources/TIMES-NZ/dd/`) | MIT | EECA | references and public fixtures (from M1.2, 29 Oct 2026) |
-| OTUS9r, cases reference and tax1_wo_mou (`esma-ie/OTUS9r`; DD export of 28 Oct 2026 in `timesjl-sources/OTUS9r/dd/`, to join that repository when it is published) | CC-BY-SA-4.0 (ESMA), over US EPA EPAUS9rT_v20.4 (US public domain) | ESMA | references and public fixtures (from M1.2, 29 Oct 2026) |
+| OTUS9r, cases reference and tax1_wo_mou (`esma-ie/OTUS9r` @ `598e179`, public from 30 Oct 2026; the DD export of 28 Oct 2026 in its `dd/`) | CC-BY-SA-4.0 (ESMA), over US EPA EPAUS9rT_v20.4 (US public domain) | ESMA | references and public fixtures (from M1.2, 29 Oct 2026) |
 | TIM, cases bau, mitigation_cb2024-300mt and its myopic variant (`esma-ie/times-ireland-model-marei`; James's DD export of 28 Oct 2026 in `timesjl-sources/TIM/dd/`) | CC-BY-NC-SA-4.0 | MaREI, UCC | the named exception: James's machine only, nothing derived committed |
 | JRC-EU-TIMES, PSI WIMBY version, scenario cli_ll (`gitea.psi.ch/WIMBY/JRC-EU-TIMES` @ c18a076; DD and run files extracted from its dumps into `timesjl-sources/JRC-EU-TIMES`) | GPL-3.0-or-later (WIMBY), over JRC-EU-TIMES data (CC-BY-4.0) | WIMBY project (PSI); data JRC | large-model reference, summary results only (James, 29 Oct 2026) |
 
@@ -93,13 +93,16 @@ OTUS9r:
   request.
 - **TIM**: James's machine only (the exception above); its results are not
   committed.
-- **OTUS9r** (Open TIMES US 9R, ESMA): joins the suite once it is published
-  with an open licence. It is redeveloped from the US EPA's EPAUS9rT v20.4
-  (EPA ORD, data.gov, DOI 10.23719/1528539), which EPA publishes as US public
-  domain by default. Check the archive's own metadata for any stated
-  restriction before relying on that, and credit EPAUS9rT in OTUS9r's NOTICE.
-  At nine regions it is likely a local reference; a reduced CI variant made
-  from the same open data can be a fixture.
+- **OTUS9r** (Open TIMES US 9R, ESMA): published on 30 Oct 2026 as
+  `esma-ie/OTUS9r` (CC BY-SA 4.0). It is redeveloped from the US EPA's
+  EPAUS9rT v20.4 (EPA ORD, data.gov, DOI 10.23719/1528539): the EPA original
+  is committed unchanged at tag `epaus9rt-v20.4` (archive SHA-256 in the
+  commit message and the release), and `dd/` holds the Veda DD export of the
+  two suite cases. The data.gov record gives the EPA ScienceHub licence (US
+  public domain unless otherwise specified), access level public, and states
+  no restriction (checked 30 Oct 2026); OTUS9r's README credits EPAUS9rT. At
+  nine regions it is a local reference; a reduced CI variant made from the
+  same open data can be a fixture.
 
 Exported on 28 Oct 2026 but held back (no licence stated at the source yet; the
 DD check is in `C:\claude\TIMESjlTests\_inventory`): OTCgen (from EPA's
