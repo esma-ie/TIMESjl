@@ -86,9 +86,19 @@ with 12.
 and the run itself, one model at a time, small models first:
 
 ```
-powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1            # whole suite
-powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Set M1.1  # M1.1 models only
+powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1                 # core tier
+powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Set milestone  # milestone tier
+powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Set all        # whole suite
+powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Set M1.1       # M1.1 models only
 ```
+
+The suite has two tiers (`tier` in `suite.toml`; James, 30 Oct 2026). The
+**core** tier is the everyday development loop: one baseline case per model
+(BAU or Reference), so a batch stays short enough to rerun every cycle. The
+**milestone** tier holds the policy and secondary scenarios and the very large
+models; it runs at milestone gates, or when a change touches a feature only
+those cases reach. `make_reference.py --tier core|milestone` selects the same
+way.
 
 It checks that CPLEX (and HiGHS) solve a one-row LP under your licence, clones
 and pins every repository above into `..\timesjl-sources` (your own clones are

@@ -81,6 +81,26 @@ class SuiteTests(unittest.TestCase):
                 self.assertRegex(model["licence_url"], r"^https://")
                 self.assertRegex(model["licence_checked"], r"^\d{4}-\d{2}-\d{2}$")
 
+    def test_every_model_has_a_tier(self):
+        # reference/suite.toml header, "Tiers" (James, 30 Oct 2026).
+        suite = load_suite(SUITE, {r: f"/roots/{r}" for r in ROOTS})
+        for name, model in suite["models"].items():
+            with self.subTest(model=name):
+                self.assertIn(model.get("tier"), ("core", "milestone"))
+        self.assertEqual(suite["models"]["TIMES_Demo-demo12"]["tier"], "core")
+
+    def test_at_most_one_core_case_per_model(self):
+        # The core tier is the everyday loop: one baseline case per model, where a
+        # model is the source root its run file comes from.
+        suite = load_suite(SUITE, {r: f"/roots/{r}" for r in ROOTS})
+        core = {}
+        for name, model in suite["models"].items():
+            if model.get("tier") != "core":
+                continue
+            root = re.match(r"\{([a-z_]+)\}", model.get("run_file") or model.get("dd_dir", "")).group(1)
+            self.assertNotIn(root, core, f"{name} and {core.get(root)} are both core cases of {root}")
+            core[root] = name
+
     def test_blocked_sources_are_not_used(self):
         # Outside comments, no model, root or path may point at a blocked source.
         text = "\n".join(l for l in SUITE.read_text().splitlines() if not l.lstrip().startswith("#"))

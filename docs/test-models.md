@@ -84,6 +84,17 @@ dd/
 The repository root keeps the upstream LICENSE (and a NOTICE crediting the
 original authors); GDX, LST and VD outputs are not committed.
 
+### Tiers
+
+Each suite case has a `tier` (`reference/suite.toml`; James, 30 Oct 2026).
+The core tier is one baseline case per model (TIMES_Demo demo12,
+TIMES-NZ-steady-v308, OTUS9r-reference, TIM-bau), rerun in every development
+cycle. The milestone tier (TIMES-NZ-shift-v308, OTUS9r-tax1_wo_mou, the TIM
+carbon-budget cases, JRC-EU-TIMES-cli_ll) runs at milestone gates, or when a
+change reaches a feature only those cases have. OTUS9r-tax1_wo_mou is paused
+there: its REDUCE-on CPLEX solve did not leave crossover in 9 h, and its
+REDUCE-off optimum has unscaled infeasibilities.
+
 ### Primary test models
 
 From 27 Oct 2026 the primary test models are TIMES_Demo demo12, TIM and
