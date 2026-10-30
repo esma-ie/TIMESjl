@@ -1,0 +1,79 @@
+$TITLE  TIMES.jl reference run -- {RUN_NAME}
+* Adapted from xl2times' gams_scaffold/scenario.run (etsap-TIMES/xl2times),
+* which its CI uses to run benchmark models from DD files. Settings are
+* unchanged so that references match the way such models are normally run.
+* The original is under the MIT License:
+*   Copyright (c) 2022-2023 Microsoft Corporation.
+*   Permission is hereby granted, free of charge, to any person obtaining a
+*   copy of this software and associated documentation files (the
+*   "Software"), to deal in the Software without restriction, including
+*   without limitation the rights to use, copy, modify, merge, publish,
+*   distribute, sublicense, and/or sell copies of the Software, and to permit
+*   persons to whom the Software is furnished to do so, subject to the
+*   following conditions: The above copyright notice and this permission
+*   notice shall be included in all copies or substantial portions of the
+*   Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+*   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+*   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+*   NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+*   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+*   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+*   USE OR OTHER DEALINGS IN THE SOFTWARE.
+OPTION RESLIM=50000, PROFILE=1, SOLVEOPT=REPLACE;
+OPTION ITERLIM=999999, LIMROW=0, LIMCOL=0, SOLPRINT=OFF;
+OPTION THREADS=-1;
+
+$OFFLISTING
+
+* activate validation to force VAR_CAP/COMPRD
+$SET VALIDATE 'NO'
+* reduction of equation system
+$SET REDUCE   'YES'
+*--------------------------------------------------------------*
+* BATINCLUDE calls should all be with lower case file names!!! *
+*--------------------------------------------------------------*
+
+* initialize the environment variables
+$ SET DSCAUTO YES
+$   SET VDA YES
+$   SET DEBUG                          'NO'
+$   SET DUMPSOL                        'NO'
+$   SET SOLVE_NOW                      'YES'
+$   SET MODEL_NAME                     'TIMES'
+$   IF DECLARED REG      $SET STARTRUN 'RESTART'
+$   IF NOT DECLARED REG  $SET STARTRUN 'SCRATCH'
+$SET XTQA YES
+* VAR_UC being set so that non-binding constraints appear in results
+$SET VAR_UC YES
+ OPTION BRATIO=1;
+$ SET OBJ AUTO
+$ SET MID_YEAR YES
+$ SET OBLONG YES
+$SET DAMAGE NO
+$ SET STAGES NO
+$SET SOLVEDA 'YES'
+$SET VARCOST LIN
+$SET DATAGDX YES
+
+* merge declarations & data
+$   ONMULTI
+
+* the times-slices MUST come 1st to ensure ordering OK
+$BATINCLUDE ts.dd
+
+
+* perform fixed declarations
+$SET BOTIME 1929
+$BATINCLUDE initsys.mod
+
+* declare the (system/user) empties
+$   BATINCLUDE initmty.mod
+$IF NOT DECLARED REG_BNDCST $Abort "You need to use TIMES v2.3.1 or higher"
+
+$BATINCLUDE output.dd
+$BATINCLUDE milestonyr.dd
+
+$ SET VEDAVDD 'YES'
+
+* do the rest
+$ BATINCLUDE maindrv.mod mod

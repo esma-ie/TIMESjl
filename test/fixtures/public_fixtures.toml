@@ -1,0 +1,64 @@
+# Whole-model parity fixtures, from openly licensed test models only
+# (CLAUDE.md "Test-model licences"; docs/test-models.md).
+# test/unit/test_public_parity.jl runs every entry and fails if its model is
+# not in reference/suite.toml with redistribute = "public".
+#
+# Make a fixture from a reference run (reference/README.md), from the repo root:
+#   julia --project=test scripts/make_m11_fixture.jl <reference>/<model>/<variant> <prefix>
+#   julia --project=test scripts/make_m12_fixture.jl <reference>/<model>/<variant> <prefix>
+# then add an entry below. Each layer runs when its files exist:
+#   <prefix>_presolve, <prefix>_matrix   layer 2: the whole matrix vs CONVERT, 1e-9
+#   <prefix>_solution.json               layer 3: objective and both optima, 1e-6
+#   <prefix>_ppm, <prefix>_coef          layer 1: coef_cpt!, coef_nio!, coef_ptr!,
+#                                        on the symbols listed in coef_symbols, 1e-9
+#
+# Example (not yet made; needs a licensed GAMS run of TIMES_Demo demo12):
+#
+# [[fixture]]
+# prefix   = "demo12_off"
+# model    = "TIMES_Demo-demo12"      # name in reference/suite.toml
+# variant  = "reduce_off"
+# reduce   = false                    # REDUCE is not translated yet (M1.3)
+# switches = { OBJ = "MOD", VDA = "YES", DSCAUTO = "YES" }   # the run file's $SET switches
+# # optional: expected sizes, checked when given
+# rows = 0
+# cols = 0
+# nonzeros = 0
+# # optional: layer 1 of the coefficient files; symbols that later GAMS code
+# # does not reassign on this model (TIMES.later_overwrites handles coef_ext.vda)
+# coef_symbols = ["COEF_AF", "COEF_ICOM", "COEF_OCOM", "COEF_PTRAN"]
+
+# TIMES_Demo demo12 (etsap-TIMES/TIMES_Demo @ 962db86, CC BY 4.0), from the
+# licensed reference run of 21 Oct 2026 (GAMS 52.1.0 + CPLEX on James's
+# workstation; TIMES v4.9.7 @ d9a6a25). GAMS/HiGHS failed under that licence
+# (no HiGHS above 2,000 rows), so the solution file holds the CPLEX optimum only.
+[[fixture]]
+prefix   = "demo12_off"
+model    = "TIMES_Demo-demo12"
+variant  = "reduce_off"
+reduce   = false
+# every $SET of the run file the harness generated (_work/.../presolve/tjl_reference.run)
+# (one line: a multi-line inline table is TOML 1.1, which Julia 1.10's parser rejects)
+switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "NO", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "NO", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
+rows = 8695
+cols = 9669
+nonzeros = 31391
+# layer 1 of the whole coefficient stage: coef_cpt, coef_nio, coef_ptr, coef_obj
+# (with filparam.gms and fillcost.gms), coef_alt, coef_shp and coef_ext.vda; with
+# OBJ MOD (%CTST% **0) COEF_CPT comes from coef_alt.lin, so it is listed with
+# that file's symbols
+coef_symbols = ["SOW", "SW_T", "B", "E", "M", "D", "MY_TS", "NCAP_AF", "NCAP_AFS", "COEF_AF", "RTPS_BD", "NCAP_AFBX",
+                "RTP_ISHPR", "COEF_ICOM", "COEF_OCOM", "COEF_RCOM", "NCAP_OCOM", "NCAP_CLAG", "NCAP_CLED", "RPC_CAPFLO",
+                "COEF_PTRAN", "RPCC_FFUNC", "PRC_CG", "KEEP_FLOF", "ACT_FLO", "CGTEST", "CGTES2",
+                "TS_ANN", "EACHYEAR", "Y", "YK", "Y_EOH", "YR_V1", "YR_VL", "ACL", "G_DRATE", "OBJ_DISC", "G_DYEAR",
+                "G_RCUR", "OBJ_PVT", "COEF_PVT", "OBJ_RFR", "OBJ_COMNT", "OBJ_COMPD", "OBJ_IPRIC", "FLO_COST",
+                "FLO_DELIV", "OBJ_VFLO", "NCAP_ISPCT", "OB_ICOST", "OB_ISUB", "OB_ITAX", "OB_FOM", "OB_FSB", "OB_FTX",
+                "OB_DCC", "OB_DLC", "OB_ACT", "OB_FCOS", "OB_FDEL", "OB_FTAX", "OBJ_FSUB", "RPC_CUR", "X_RP", "OB_COM",
+                "OB_IRE", "SHEDJ", "SHAPED", "FIL",
+                "PERDINV", "TPULSEYR", "TPULSE", "OBJ_LINT", "OBJ_ALTV", "RTP_CAPVL", "RB", "R_DF", "COEF_CPT", "PASTSUM",
+                "YK1", "FIL2", "MY_ARRAY", "FPD", "NCAP_ILED",
+                "OPYEAR", "AGEJ", "Z", "FLO_FUNCX", "NCAP_CPX", "RTP_CAPYR", "RTP_FFCX", "RTP_CPX", "PRC_YMIN", "PRC_YMAX",
+                "TRACKP", "RVPRL", "RP_GRP", "RTP_CGC", "COEF_CAP",
+                "NCAP_PASTI", "PRC_RESID", "RTFORC", "RP_STL", "COEF_AFUPS", "ACT_CSTUP", "RCS_COMBAL", "RTCS_VARC",
+                "RPC_CONLY", "TOP_IRE", "TRACKC", "RCS", "UC_TIME", "UC_ON", "R_UC", "ACT_EFF", "TRACKPC", "CG_GRP",
+                "RP_DCGG", "RPCG_PTRAN", "UNCD7", "VDA_DISC", "COEF_ILED"]

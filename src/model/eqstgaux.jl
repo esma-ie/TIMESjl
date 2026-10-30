@@ -1,0 +1,99 @@
+# EQ_STGAUX: auxiliary flows of storage processes, tied to the storage level
+# (PRC_ACTFLO of the auxiliary commodity), to the charging flows or to the
+# discharging flows (COEF_PTRAN, from FLO_FUNC/FLO_SUM).
+#
+# GAMS: eqstgaux.mod L14-42, v4.9.7, included from eqmain.mod L170 as
+# `$BATINCLUDE eqstgaux.%OBJ%`, with %OBJ% = mod unless the run sets OBJ LIN
+# (eqmain.mod L33; eqstgaux.lin differs from eqstgaux.mod only in the
+# inter-period storage terms, refused); declared eqdeclr.mod L90
+# (R,ALLYEAR,ALLYEAR,P,C,S), =E=.
+#
+#   EQ_STGAUX(RTP_VINTYR(R,V,T,P),C,RTS(S))$((RPCS_VAR(R,P,C,S)*(NOT RPC_STG(R,P,C)+RPC_EMIS(R,P,C)))$RP_STG(R,P))..
+#     VAR_FLO(R,V,T,P,C,S)
+#     =E=
+#     SUM(ANNUAL(SL), PRC_ACTFLO(R,V,P,C) *
+#         (SUM(PRC_TS(R,P,TS)$TS_MAP(R,TS,S), VAR_ACT(R,V,T,P,TS)/RS_STGPRD(R,TS)) * G_YRFR(R,S)
+#          - [PRC_STGIPS in/outflows in the latter half of the period, refused]
+#         ) * (1+[...]$PRC_MAP(R,'STK',P)))
+#     + SUM((COM_GMAP(R,CG,COM),TOP(RPC_STG(R,P,COM),'IN'),RPCS_VAR(R,P,COM,TS))$COEF_PTRAN(R,V,P,CG,COM,C,TS),
+#           (VAR_SIN(R,V,T,P,COM,TS)*COEF_PTRAN(R,V,P,CG,COM,C,TS))$((NOT PRC_MAP(R,'NST',P))+PRC_NSTTS(R,P,TS)) *
+#           RS_FR(R,S,TS)*(1+RTCS_FR(R,T,C,S,TS)))
+#     + SUM((COM_GMAP(R,CG,C),TOP(RPC_STG(R,P,COM),'OUT'),RPCS_VAR(R,P,COM,TS))$COEF_PTRAN(R,V,P,CG,C,COM,S),
+#           (VAR_SOUT(R,V,T,P,COM,TS)*(1/COEF_PTRAN(R,V,P,CG,C,COM,S)))$(PRC_NSTTS(R,P,TS) EQV RPC_STGN(R,P,COM,'OUT')) *
+#           RS_FR(R,S,TS)*(1+RTCS_FR(R,T,C,S,TS)));
+#
+# The domain condition reads `NOT (RPC_STG + RPC_EMIS)`: NOT binds more
+# loosely than + (docs/discrepancies.md G19), so the auxiliary commodity is
+# neither stored nor an RPC_EMIS emission. `SUM(ANNUAL(SL), ...)` is a sum
+# over the one element ANNUAL, so the level term is counted once. Macro
+# expansions as in eqstgtss.jl.
+#
+# Not translated yet; data that needs it raises UnportedError:
+# - inter-period storage (PRC_MAP(R,'STK',P) / PRC_STGIPS), L25-32.
+
+"""
+    eq_stgaux!(tm::TimesModel) -> Int
+
+Generate every EQ_STGAUX row (eqmain.mod L170) from `tm.data`. Returns the
+number of rows generated.
+
+GAMS: eqstgaux.mod L14-42, v4.9.7.
+"""
+function eq_stgaux!(tm::TimesModel)
+    x = stg_context(tm)
+    isempty(x.rp_stg) && return 0
+    one = GNum(1.0)
+    rpc_emis = gset(tm, "RPC_EMIS")
+    com_gmap = gset(tm, "COM_GMAP")
+    g_yrfr = gparam(tm, "G_YRFR")
+    rs_stgprd = gparam(tm, "RS_STGPRD")
+    coef_ptran = gparam(tm, "COEF_PTRAN")
+    aux_of_rp = indexby(x.rpcs_var, (1, 2))                       # (r,p) -> RPCS_VAR(r,p,c,s)
+    ts_of_rp = indexby(x.prc_ts, (1, 2))                          # (r,p) -> PRC_TS(r,p,ts)
+    ts_map = gset(tm, "TS_MAP")
+    ptran_in = indexby(coef_ptran, (1, 2, 3, 6))                  # (r,v,p,c) -> COEF_PTRAN(r,v,p,cg,com,c,ts)
+    ptran_out = indexby(coef_ptran, (1, 2, 3, 5, 7))              # (r,v,p,c,s) -> COEF_PTRAN(r,v,p,cg,c,com,s)
+    varts_of = indexby(x.rpcs_var, (1, 2, 3))                     # (r,p,com) -> RPCS_VAR(r,p,com,ts)
+    n = 0
+    for (r, v, t, p) in gset(tm, "RTP_VINTYR")
+        (r, p) in x.rp_stg || continue
+        stk = (r, "STK", p) in x.prc_map
+        nst = (r, "NST", p) in x.prc_map
+        for (_, _, c, s) in get(aux_of_rp, (r, p), NTuple{4,String}[])
+            ((r, p, c) in x.rpc_stg_set || (r, p, c) in rpc_emis) && continue
+            stk && throw(UnportedError("eqstgaux.mod L25-32: inter-period storage terms of EQ_STGAUX for ($r, $p)"))
+            lhs = JuMP.AffExpr(0.0)
+            addterm!(lhs, one, tm, "VAR_FLO", r, v, t, p, c, s)                              # L17
+            rhs = JuMP.AffExpr(0.0)
+            # Storage level, L22-24 (the IPS terms L25-32 vanish without STK/PRC_STGIPS).
+            af = gv(x.prc_actflo, (r, v, p, c))
+            if !iszero(af)
+                for (_, _, ts) in get(ts_of_rp, (r, p), NTuple{3,String}[])
+                    (r, ts, s) in ts_map || continue
+                    addterm!(rhs, af * (one / gv(rs_stgprd, (r, ts)) * gv(g_yrfr, (r, s))), tm, "VAR_ACT", r, v, t, p, ts)
+                end
+            end
+            # Charging flows, L35-37.
+            for (_, _, _, cg, com, _, ts) in get(ptran_in, (r, v, p, c), NTuple{7,String}[])
+                ((r, cg, com) in com_gmap && (r, p, com, "IN") in x.top && (r, p, com) in x.rpc_stg_set &&
+                 (r, p, com, ts) in x.rpcs_var) || continue
+                (!nst || (r, p, ts) in x.prc_nstts) || continue
+                k = gv(coef_ptran, (r, v, p, cg, com, c, ts)) * (gv(x.rs_fr, (r, s, ts)) * (one + gv(x.rtcs_fr, (r, t, c, s, ts))))
+                addterm!(rhs, k, tm, "VAR_SIN", r, v, t, p, com, ts)
+            end
+            # Discharging flows, L38-40.
+            for (_, _, _, cg, _, com, _) in get(ptran_out, (r, v, p, c, s), NTuple{7,String}[])
+                ((r, cg, c) in com_gmap && (r, p, com, "OUT") in x.top && (r, p, com) in x.rpc_stg_set) || continue
+                stgn_out = (r, p, com, "OUT") in x.rpc_stgn
+                inv = one / gv(coef_ptran, (r, v, p, cg, c, com, s))
+                for (_, _, _, ts) in get(varts_of, (r, p, com), NTuple{4,String}[])
+                    ((r, p, ts) in x.prc_nstts) == stgn_out || continue
+                    k = inv * (gv(x.rs_fr, (r, s, ts)) * (one + gv(x.rtcs_fr, (r, t, c, s, ts))))
+                    addterm!(rhs, k, tm, "VAR_SOUT", r, v, t, p, com, ts)
+                end
+            end
+            gconstraint!(tm, "EQ_STGAUX", (r, v, t, p, c, s), "E", lhs, rhs) === nothing || (n += 1)
+        end
+    end
+    return n
+end

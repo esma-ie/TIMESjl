@@ -1,0 +1,8 @@
+*==============================================================================*
+* TIMES.jl reference harness hook (not part of TIMES).
+* Included by main_ext.mod for stage coef_ext when 'TJLREF' is passed to
+* initmty.mod, i.e. right after coefmain and the standard extensions' coef_ext
+* (maindrv.mod L72-73, v4.9.7), before variables and equations are declared.
+* Dumps every symbol so TIMES.jl can be checked against GAMS coefficients.
+*==============================================================================*
+$IF NOT SET TJL_NODUMP execute_unload 'tjl_coef.gdx';

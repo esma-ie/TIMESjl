@@ -1,0 +1,226 @@
+# TIMES.jl reference suite. Paths use {root} placeholders filled from
+# --root name=path on the make_reference.py command line.
+#
+# Root         Repository                                   Commit used
+# times_source github.com/etsap-TIMES/TIMES_model           d9a6a25 (v4.9.7, required)
+# times_demo   github.com/etsap-TIMES/TIMES_Demo            962db86
+# jrc_eu_times local folder timesjl-sources/JRC-EU-TIMES    not a git repository; pinned by
+#              (DD and run files extracted from the dumps    SHA-256 of dd/manifest.json:
+#              in gitea.psi.ch/WIMBY/JRC-EU-TIMES @ c18a076) 3bfa3fde0a832f798d15b72782a36bc5
+#                                                            9f86247a77c6318e714ca4aaf8db9ac4
+# otus         local folder timesjl-sources/OTUS9r          Veda DD export of 28 Oct 2026 for
+#              (esma-ie/OTUS9r, CC-BY-SA-4.0; the dd/ files  esma-ie/OTUS9r; pinned by SHA-256
+#              join that repository when it is published)    of dd/manifest.json:
+#                                                            d9cbd18e43a4659a411248eb2addc7d7
+#                                                            f736ac7faf6ff024c29fb28d5529d70c
+# times_nz_dd  local folder timesjl-sources/TIMES-NZ         TIMES-NZ 3.0.8 (EECA main 8165e1d)
+#              (DD export of 28 Oct 2026 for the esma-ie     SHA-256 of dd/manifest.json:
+#              fork of EECA-NZ/TIMES-NZ-Model-Files)         a4b7514e65143c5aebf4dcf48b2ca0e9
+#                                                            8076545bd4f1b1516d2785fe7e081b45
+# tim          local folder timesjl-sources/TIM              James's DD export of 28 Oct 2026
+#              (exception: research use, James's machine     from the esma-ie fork of
+#              only; nothing derived is committed)           MaREI-EPMG/times-ireland-model;
+#                                                            SHA-256 of dd/manifest.json:
+#                                                            3ccfc10e1b8df9b6b428988107930d45
+#                                                            b2e8790d74abccd547c66fc1dd3f93ef
+#
+# Test-model rule (CLAUDE.md "Test-model licences", docs/test-models.md):
+# the translation is developed and tested only on models released under a
+# clearly stated open-source or open-data licence that allows redistribution
+# and derivative works. A model with no stated licence, or a closed-source
+# model, is never used: not for references, fixtures, crafted cases, timings,
+# profiling or debugging. Users may later run TIMES.jl on proprietary models;
+# the translation and its improvement do not learn from them.
+# Every [[model]] states `licence` (SPDX id), `source_repo`, `licence_url`
+# and `licence_checked` (YYYY-MM-DD); reference/python/test_suite.py fails
+# if any is missing, if the licence is not open (unless the entry names an
+# `exception`), or if the source is on the blocked list below.
+#
+# Licences (checked 27 Oct 2026; JRC-EU-TIMES 29 Oct 2026). `redistribute` says
+# what may be published with this repository:
+#   "public"   references and fixtures derived from the model;
+#   "summary"  only summary results: model size, solve status, objective values,
+#              timings, gate verdicts and differences (summary.csv). References,
+#              dumps and fixtures stay on James's machine and are not committed;
+#   "private"  nothing (the TIM exception).
+#   TIMES_Demo   data CC-BY-4.0, code GPL-3.0 (IEA-ETSAP)   redistribute = public
+#   TIMES-NZ     MIT (EECA; 3.0.8 DD export, esma-ie fork)    redistribute = public
+#   OTUS9r       CC-BY-SA-4.0 (ESMA; EPA EPAUS9rT origin)     redistribute = public
+#   JRC-EU-TIMES GPL-3.0-or-later (PSI WIMBY, "Copyright      redistribute = summary
+#                (C) 2025 WIMBY"), over JRC-EU-TIMES data (JRC, CC BY 4.0)
+#                (James, 29 Oct 2026: publish only the summary results)
+#
+# TIM (CC-BY-NC-SA-4.0, MaREI, UCC) is a named exception for research use only
+# (James, 27 Oct 2026): in the suite from 29 Oct 2026 as a local source (`tim`),
+# it runs on James's machine only and nothing derived from it is committed or
+# published (redistribute = private).
+#
+# Blocked sources, never used: the esma-cgep archive (an archived Columbia
+# institution, kept for transparency only; this includes esma-cgep/tim-gams);
+# the DemoS step-by-step models (olejandro/demos-dd, Model_Demo_Adv_Veda; no
+# licence stated, removed 27 Oct 2026; DemoS_012 stays as TIMES_Demo demo12);
+# TIMES-GEO (olejandro/times-geo-gams, no licence file); ETSAP-TIAM.
+# Olexandr Balyk's PROTO (olejandro/times.jl, AGPL-3.0) is code, not a test model.
+#
+# Milestone at which each model joins the parity suite:
+#   M1.1  TIMES_Demo-demo12; TIM (research exception, local only)
+#   M1.2  TIMES-NZ 3.0.8, OTUS9r (DD exports of 28 Oct 2026), JRC-EU-TIMES cli_ll
+#   M1.4  OTAI (see "Planned" below)
+#
+# Notes
+# - "dd" models (none at present) run through reference/templates/scenario.run.
+# - The demo12 run file sets DSCAUTO YES, which loads the DSC extension in
+#   every run (initmty.mod L453). TIMES_Demo demo12 has no NCAP_DISC or
+#   NCAP_SEMI data, so it does not depend on DSC being ported.
+# - TIMES_Demo bundles TIMES v4.7.3 in its source/ folder. That folder is never
+#   on the include path: times_source (v4.9.7) is always idir1.
+# - ESMA model repositories keep their GAMS-ready files in dd/<scenario>/
+#   (all .dd files and <scenario>.run) with provenance in dd/README.md.
+#
+# Planned, not yet in the suite:
+#   otcgen     ESMA's OTCgen (from EPA's Generative COMET), DD files exported 28 Oct 2026;
+#              joins when its esma-ie repository states its licence
+#   otnyc      ESMA's OTNYC (from EPA's COMET-NYC); same, and its export needs redoing
+#              (one folder per case; base.dd lacks TS_GROUP/TS_MAP: TIMESjlTests/_inventory)
+#   devtai     ESMA's two-region power model, dd/ once published with an open licence
+#   otai       github.com/esma-ie/OTAI            8f2351c   CC-BY-SA-4.0 (ESMA), M1.4
+#   jrc_eu     JRC-EU-TIMES v1.1.1 (Zenodo, Veda Excel)     CC-BY-4.0, candidate, M1.4
+#              (the PSI WIMBY version, from DD files, is in the suite below)
+# TIMES_Demo model-ge (demo12 with MACRO MLF) waits for the MACRO extension,
+# after M1.7.
+
+# IEA-ETSAP training model. Its own run file (REDUCE YES, VDA, DSCAUTO, OBJ MOD,
+# SOLVEDA) with milestone years trimmed to fit the GAMS community licence.
+[[model]]
+name = "TIMES_Demo-demo12"
+source_repo = "etsap-TIMES/TIMES_Demo"
+licence_url = "https://github.com/etsap-TIMES/TIMES_Demo/blob/master/NOTICE-CC-BY-4.0.txt"
+licence_checked = "2026-10-27"
+licence = "CC-BY-4.0"
+redistribute = "public"
+kind = "run"
+run_file = "{times_demo}/model/demo12.run"
+idirs = ["{times_demo}/model"]
+
+# TIMES-NZ 3.0.8 (EECA, MIT): the two Veda cases of EECA's main branch 8165e1d,
+# exported to DD files by James on 28 Oct 2026 (checked in TIMESjlTests/_inventory:
+# complete, 84 domain-violation records per case that DATAGDX filters, 20 "No way
+# to identify PCG" QA entries from newtechs_ind.dd, an upstream data issue).
+# Replaces the olejandro fork's kea/tui v2.1.3 entries of 27 Oct.
+[[model]]
+name = "TIMES-NZ-steady-v308"
+source_repo = "esma-ie/TIMES-NZ-Model-Files (fork of EECA-NZ/TIMES-NZ-Model-Files @ 8165e1d)"
+licence_url = "https://github.com/EECA-NZ/TIMES-NZ-Model-Files/blob/main/LICENSE"
+licence_checked = "2026-10-27"
+licence = "MIT"
+redistribute = "public"
+kind = "run"
+run_file = "{times_nz_dd}/dd/steady-v308/steady-v308.run"
+idirs = ["{times_nz_dd}/dd/steady-v308"]
+solver_opt_dir = "{times_nz_dd}/dd/steady-v308"
+
+[[model]]
+name = "TIMES-NZ-shift-v308"
+source_repo = "esma-ie/TIMES-NZ-Model-Files (fork of EECA-NZ/TIMES-NZ-Model-Files @ 8165e1d)"
+licence_url = "https://github.com/EECA-NZ/TIMES-NZ-Model-Files/blob/main/LICENSE"
+licence_checked = "2026-10-27"
+licence = "MIT"
+redistribute = "public"
+kind = "run"
+run_file = "{times_nz_dd}/dd/shift-v308/shift-v308.run"
+idirs = ["{times_nz_dd}/dd/shift-v308"]
+solver_opt_dir = "{times_nz_dd}/dd/shift-v308"
+
+# OTUS9r (Open TIMES US 9R, ESMA; CC-BY-SA-4.0 in esma-ie/OTUS9r, from the US EPA's
+# EPAUS9rT_v20.4, US public domain). Two Veda cases exported on 28 Oct 2026; the
+# Reference case was checked record by record against the input of the 27 Oct run.
+# 10 regions, 21 time slices, milestones to 2060 (reference) and 2077 (tax1_wo_mou);
+# REDUCE YES, VARCOST LIN, MID_YEAR and OBLONG YES. 51 MB of DD files per case.
+[[model]]
+name = "OTUS9r-reference"
+source_repo = "esma-ie/OTUS9r"
+licence_url = "https://github.com/esma-ie/OTUS9r/blob/main/LICENSE"
+licence_checked = "2026-10-29"
+licence = "CC-BY-SA-4.0"
+redistribute = "public"
+kind = "run"
+run_file = "{otus}/dd/reference/reference.run"
+idirs = ["{otus}/dd/reference"]
+solver_opt_dir = "{otus}/dd/reference"
+
+[[model]]
+name = "OTUS9r-tax1_wo_mou"
+source_repo = "esma-ie/OTUS9r"
+licence_url = "https://github.com/esma-ie/OTUS9r/blob/main/LICENSE"
+licence_checked = "2026-10-29"
+licence = "CC-BY-SA-4.0"
+redistribute = "public"
+kind = "run"
+run_file = "{otus}/dd/tax1_wo_mou/tax1_wo_mou.run"
+idirs = ["{otus}/dd/tax1_wo_mou"]
+solver_opt_dir = "{otus}/dd/tax1_wo_mou"
+
+# TIM (times-ireland-model, MaREI, UCC; CC-BY-NC-SA-4.0): the named research-use
+# exception (James, 27 Oct 2026). James's DD export of 28 Oct 2026 from the esma-ie
+# fork; BAU and the 300 Mt carbon-budget case, plus its myopic variant (TIMESTEP 12,
+# G_OVERLAP 5: stepped solves, M1.5). Runs on James's machine only; nothing derived
+# from it is committed, published or made a fixture.
+[[model]]
+name = "TIM-bau"
+source_repo = "esma-ie/times-ireland-model-marei (fork of MaREI-EPMG/times-ireland-model)"
+licence_url = "https://github.com/MaREI-EPMG/times-ireland-model/blob/main/LICENSE"
+licence_checked = "2026-10-27"
+licence = "CC-BY-NC-SA-4.0"
+exception = "research use only, local to James's machine (CLAUDE.md, Test-model licences)"
+redistribute = "private"
+kind = "run"
+run_file = "{tim}/dd/bau/bau.run"
+idirs = ["{tim}/dd/bau"]
+solver_opt_dir = "{tim}/dd/bau"
+
+[[model]]
+name = "TIM-mitigation_cb2024-300mt"
+source_repo = "esma-ie/times-ireland-model-marei (fork of MaREI-EPMG/times-ireland-model)"
+licence_url = "https://github.com/MaREI-EPMG/times-ireland-model/blob/main/LICENSE"
+licence_checked = "2026-10-27"
+licence = "CC-BY-NC-SA-4.0"
+exception = "research use only, local to James's machine (CLAUDE.md, Test-model licences)"
+redistribute = "private"
+kind = "run"
+run_file = "{tim}/dd/mitigation_cb2024-300mt/mitigation_cb2024-300mt.run"
+idirs = ["{tim}/dd/mitigation_cb2024-300mt"]
+solver_opt_dir = "{tim}/dd/mitigation_cb2024-300mt"
+
+[[model]]
+name = "TIM-mitigation_cb2024-300mt-myopic"
+source_repo = "esma-ie/times-ireland-model-marei (fork of MaREI-EPMG/times-ireland-model)"
+licence_url = "https://github.com/MaREI-EPMG/times-ireland-model/blob/main/LICENSE"
+licence_checked = "2026-10-27"
+licence = "CC-BY-NC-SA-4.0"
+exception = "research use only, local to James's machine (CLAUDE.md, Test-model licences)"
+redistribute = "private"
+kind = "run"
+run_file = "{tim}/dd/mitigation_cb2024-300mt-myopic/mitigation_cb2024-300mt-myopic.run"
+idirs = ["{tim}/dd/mitigation_cb2024-300mt-myopic"]
+solver_opt_dir = "{tim}/dd/mitigation_cb2024-300mt-myopic"
+
+# JRC-EU-TIMES, PSI WIMBY version (James, 29 Oct 2026: one scenario for now).
+# EU27 + CH, NO, UK; 12 time slices; milestone years 2019-2050; TIMES v4.8.3 at PSI.
+# PSI's repository holds only GAMS DUMPOPT=11 dumps of nine scenarios; the DD files
+# were cut unchanged out of them and the run files rebuilt (provenance, checks and
+# the 28 Oct 2026 solves in {jrc_eu_times}/dd/README.md). Large: 13.5 M rows,
+# 19.0 M columns as run (all nine scenarios are the same size); CPLEX barrier ~2.4 h
+# at 5 threads (PSI's cplex.opt: barrier, no crossover). cli_ll (James, 29 Oct 2026):
+# the scenario closest to PSI's objective on 28 Oct (relative 4.8e-9).
+# Listed last so that a full-suite run finishes the small models first.
+[[model]]
+name = "JRC-EU-TIMES-cli_ll"
+source_repo = "gitea.psi.ch/WIMBY/JRC-EU-TIMES"
+licence_url = "https://gitea.psi.ch/WIMBY/JRC-EU-TIMES/src/branch/main/LICENSE"
+licence_checked = "2026-10-29"
+licence = "GPL-3.0-or-later"
+redistribute = "summary"
+kind = "run"
+run_file = "{jrc_eu_times}/dd/cli_ll/cli_ll.run"
+idirs = ["{jrc_eu_times}/dd/cli_ll"]
+solver_opt_dir = "{jrc_eu_times}/dd/cli_ll"

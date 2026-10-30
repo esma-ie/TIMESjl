@@ -1,0 +1,8 @@
+/Manifest*.toml
+/test/Manifest*.toml
+__pycache__/
+*.pyc
+/reference-output/
+/_work/
+*.gdx
+*.lst

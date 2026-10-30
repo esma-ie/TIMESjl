@@ -1,0 +1,234 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<coef_alt.lin VAR**0 on test/unit/coef_alt_case.jl: pasti>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "PERDINV",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALLYEAR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 46,
+   "file": "PERDINV.arrow"
+  },
+  {
+   "name": "TPULSEYR",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "T",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 88,
+   "file": "TPULSEYR.arrow"
+  },
+  {
+   "name": "TPULSE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALLYEAR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 88,
+   "file": "TPULSE.arrow"
+  },
+  {
+   "name": "OBJ_LINT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "T",
+    "ALLYEAR",
+    "CUR"
+   ],
+   "description": "",
+   "records": 32,
+   "file": "OBJ_LINT.arrow"
+  },
+  {
+   "name": "OBJ_ALTV",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "T"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RTP_CAPVL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "YEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RB",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "T"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "RB.arrow"
+  },
+  {
+   "name": "R_DF",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 18,
+   "file": "R_DF.arrow"
+  },
+  {
+   "name": "COEF_CPT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "T",
+    "PRC"
+   ],
+   "description": "",
+   "records": 3650,
+   "file": "COEF_CPT.arrow"
+  },
+  {
+   "name": "PASTSUM",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "YK1",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALLYEAR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "FIL2",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "FIL2.arrow"
+  },
+  {
+   "name": "MY_ARRAY",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "MY_ARRAY.arrow"
+  },
+  {
+   "name": "FPD",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "FPD.arrow"
+  },
+  {
+   "name": "OBJ_PVT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "YEAR",
+    "CUR"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "OBJ_PVT.arrow"
+  },
+  {
+   "name": "COEF_PVT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "T"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "COEF_PVT.arrow"
+  },
+  {
+   "name": "NCAP_ILED",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 2,
+   "file": "NCAP_ILED.arrow"
+  }
+ ]
+}

@@ -1,0 +1,614 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<coef_obj.mod on test/unit/coef_obj_case.jl>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "TS_ANN",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "S",
+    "S"
+   ],
+   "description": "",
+   "records": 13,
+   "file": "TS_ANN.arrow"
+  },
+  {
+   "name": "EACHYEAR",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 112,
+   "file": "EACHYEAR.arrow"
+  },
+  {
+   "name": "Y",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 109,
+   "file": "Y.arrow"
+  },
+  {
+   "name": "YK",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALLYEAR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 6322,
+   "file": "YK.arrow"
+  },
+  {
+   "name": "Y_EOH",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 49,
+   "file": "Y_EOH.arrow"
+  },
+  {
+   "name": "YR_V1",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "YR_V1.arrow"
+  },
+  {
+   "name": "YR_VL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "YR_VL.arrow"
+  },
+  {
+   "name": "ACL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "ACL.arrow"
+  },
+  {
+   "name": "G_DRATE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "CUR"
+   ],
+   "description": "",
+   "records": 627,
+   "file": "G_DRATE.arrow"
+  },
+  {
+   "name": "OBJ_DISC",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "CUR"
+   ],
+   "description": "",
+   "records": 616,
+   "file": "OBJ_DISC.arrow"
+  },
+  {
+   "name": "G_DYEAR",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "G_DYEAR.arrow"
+  },
+  {
+   "name": "G_RCUR",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "REG",
+    "CUR"
+   ],
+   "description": "",
+   "records": 2,
+   "file": "G_RCUR.arrow"
+  },
+  {
+   "name": "OBJ_PVT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "YEAR",
+    "CUR"
+   ],
+   "description": "",
+   "records": 24,
+   "file": "OBJ_PVT.arrow"
+  },
+  {
+   "name": "COEF_PVT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "T"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "COEF_PVT.arrow"
+  },
+  {
+   "name": "OBJ_RFR",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "YEAR",
+    "CUR"
+   ],
+   "description": "",
+   "records": 43,
+   "file": "OBJ_RFR.arrow"
+  },
+  {
+   "name": "OBJ_COMNT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "C",
+    "S",
+    "COSTYPE",
+    "CUR"
+   ],
+   "description": "",
+   "records": 48,
+   "file": "OBJ_COMNT.arrow"
+  },
+  {
+   "name": "OBJ_COMPD",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "C",
+    "S",
+    "COSTYPE",
+    "CUR"
+   ],
+   "description": "",
+   "records": 48,
+   "file": "OBJ_COMPD.arrow"
+  },
+  {
+   "name": "OBJ_IPRIC",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 7,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "C",
+    "S",
+    "IE",
+    "CUR"
+   ],
+   "description": "",
+   "records": 3748,
+   "file": "OBJ_IPRIC.arrow"
+  },
+  {
+   "name": "FLO_COST",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "COM",
+    "TS",
+    "CUR"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "FLO_COST.arrow"
+  },
+  {
+   "name": "FLO_DELIV",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "COM",
+    "TS",
+    "CUR"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "FLO_DELIV.arrow"
+  },
+  {
+   "name": "OBJ_VFLO",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "CUR",
+    "UC_COST"
+   ],
+   "description": "",
+   "records": 4,
+   "file": "OBJ_VFLO.arrow"
+  },
+  {
+   "name": "NCAP_ISPCT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "NCAP_ISPCT.arrow"
+  },
+  {
+   "name": "OB_ICOST",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 4872,
+   "file": "OB_ICOST.arrow"
+  },
+  {
+   "name": "OB_ISUB",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 116,
+   "file": "OB_ISUB.arrow"
+  },
+  {
+   "name": "OB_ITAX",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "OB_FOM",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 4036,
+   "file": "OB_FOM.arrow"
+  },
+  {
+   "name": "OB_FSB",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "OB_FTX",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "OB_DCC",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "OB_DLC",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "OB_ACT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 1488,
+   "file": "OB_ACT.arrow"
+  },
+  {
+   "name": "OB_FCOS",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "S",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 48,
+   "file": "OB_FCOS.arrow"
+  },
+  {
+   "name": "OB_FDEL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "S",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 48,
+   "file": "OB_FDEL.arrow"
+  },
+  {
+   "name": "OB_FTAX",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "S",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 48,
+   "file": "OB_FTAX.arrow"
+  },
+  {
+   "name": "OBJ_FSUB",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "C",
+    "S",
+    "CUR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RPC_CUR",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "COM",
+    "CUR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "X_RP",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "OB_COM",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "C",
+    "S",
+    "COSTYPE",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "OB_IRE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 7,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "S",
+    "IE",
+    "CUR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "SHEDJ",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "LIM",
+    "J"
+   ],
+   "description": "Elastic demand shape indexes",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "SHAPED",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "BD",
+    "J",
+    "AGE"
+   ],
+   "description": "Elastic demand shape curves",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "FIL",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 48,
+   "file": "FIL.arrow"
+  }
+ ]
+}

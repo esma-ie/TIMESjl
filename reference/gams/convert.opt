@@ -1,0 +1,9 @@
+* TIMES.jl reference harness: CONVERT options for the matrix (layer 2) dump.
+* Read because TIMES sets <model>.OPTFILE = OPTFILEID = 1 (initsys.mod L168,
+* solve.mod L14, v4.9.7). PermuteEqus/PermuteVars stay at their default 0.
+DumpGDX tjl_matrix.gdx
+GDXNames 1
+GDXUELs 1
+DictMap tjl_dictmap.gdx
+Dict tjl_dict.txt
+CplexMPS tjl_model.mps

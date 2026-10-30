@@ -1,0 +1,116 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "make_test_fixture.py",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "REG",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "*"
+   ],
+   "description": "regions",
+   "records": 2,
+   "file": "REG.arrow"
+  },
+  {
+   "name": "TOP",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "IO"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "TOP.arrow"
+  },
+  {
+   "name": "NCAP_COST",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "CUR"
+   ],
+   "description": "",
+   "records": 4,
+   "file": "NCAP_COST.arrow"
+  },
+  {
+   "name": "G_DYEAR",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "discount base year",
+   "records": 1,
+   "file": "G_DYEAR.arrow"
+  },
+  {
+   "name": "VAR_ACT",
+   "kind": "variable",
+   "type": "positive",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "ALLYEAR",
+    "P",
+    "S"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "VAR_ACT.arrow"
+  },
+  {
+   "name": "EQE_COMBAL",
+   "kind": "equation",
+   "type": "eq",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "C",
+    "S"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "EQE_COMBAL.arrow"
+  },
+  {
+   "name": "EMPTYPAR",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "P"
+   ],
+   "description": "no records",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "ALL_R",
+   "kind": "alias",
+   "alias_with": "REG",
+   "dimension": 1,
+   "domain": [
+    "*"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  }
+ ]
+}

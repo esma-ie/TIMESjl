@@ -1,0 +1,324 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<coef_shp.mod on test/unit/coef_shp_case.jl: ptran>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "OPYEAR",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "AGE",
+    "LIFE"
+   ],
+   "description": "",
+   "records": 210,
+   "file": "OPYEAR.arrow"
+  },
+  {
+   "name": "AGEJ",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "J",
+    "AGE"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "AGEJ.arrow"
+  },
+  {
+   "name": "Z",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "Z.arrow"
+  },
+  {
+   "name": "FLO_FUNCX",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 9,
+   "file": "FLO_FUNCX.arrow"
+  },
+  {
+   "name": "NCAP_CPX",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RTP_CAPYR",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "YEAR",
+    "YEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 29,
+   "file": "RTP_CAPYR.arrow"
+  },
+  {
+   "name": "RTP_FFCX",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 16,
+   "file": "RTP_FFCX.arrow"
+  },
+  {
+   "name": "RTP_CPX",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "LL"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "COEF_CPT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "T",
+    "PRC"
+   ],
+   "description": "",
+   "records": 3650,
+   "file": "COEF_CPT.arrow"
+  },
+  {
+   "name": "PRC_YMIN",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "REG",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PRC_YMAX",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "REG",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "TRACKP",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RVPRL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "YEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_GRP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RTP_CGC",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "YEAR",
+    "P",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "COEF_CAP",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "LL",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "COEF_CIO",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "T",
+    "P",
+    "C",
+    "IO"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RPC_CONLY",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PASTSUM",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "FIL2",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "FIL2.arrow"
+  },
+  {
+   "name": "COEF_OCOM",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "T",
+    "PRC",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "COEF_RCOM",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "LL",
+    "LL",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+*==============================================================================*
+* TIMES.jl reference harness hook (not part of TIMES).
+* Included by main_ext.mod for stage ppm_ext when 'TJLREF' is passed to
+* initmty.mod, i.e. right after ppmain and the standard extensions' ppm_ext
+* (maindrv.mod L58, v4.9.7) - the same point as the DEBUG dump (maindrv.mod L62).
+* Dumps every symbol so TIMES.jl can be checked against GAMS preprocessing.
+*==============================================================================*
+$IF NOT SET TJL_NODUMP execute_unload 'tjl_ppm.gdx';

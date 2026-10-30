@@ -1,0 +1,501 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<coef_ext.vda on test/unit/coef_ext_case.jl: misc>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "COEF_CPT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "T",
+    "PRC"
+   ],
+   "description": "",
+   "records": 3650,
+   "file": "COEF_CPT.arrow"
+  },
+  {
+   "name": "NCAP_PASTI",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 77,
+   "file": "NCAP_PASTI.arrow"
+  },
+  {
+   "name": "PRC_RESID",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 382,
+   "file": "PRC_RESID.arrow"
+  },
+  {
+   "name": "RTFORC",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "LL",
+    "LL",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_STL",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "TSL",
+    "L"
+   ],
+   "description": "",
+   "records": 2,
+   "file": "RP_STL.arrow"
+  },
+  {
+   "name": "COEF_AFUPS",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "YEAR",
+    "P",
+    "S"
+   ],
+   "description": "",
+   "records": 10,
+   "file": "COEF_AFUPS.arrow"
+  },
+  {
+   "name": "ACT_CSTUP",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "TSLVL",
+    "CUR"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "ACT_CSTUP.arrow"
+  },
+  {
+   "name": "RCS_COMBAL",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "C",
+    "S",
+    "LIM"
+   ],
+   "description": "",
+   "records": 996,
+   "file": "RCS_COMBAL.arrow"
+  },
+  {
+   "name": "RTCS_VARC",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "C",
+    "ALL_TS"
+   ],
+   "description": "",
+   "records": 1002,
+   "file": "RTCS_VARC.arrow"
+  },
+  {
+   "name": "RPC_CONLY",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "RPC_CONLY.arrow"
+  },
+  {
+   "name": "TOP_IRE",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "ALL_REG",
+    "COM",
+    "ALL_REG",
+    "COM",
+    "PRC"
+   ],
+   "description": "",
+   "records": 75,
+   "file": "TOP_IRE.arrow"
+  },
+  {
+   "name": "TRACKC",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "TRACKP",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RCS",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "COM",
+    "TS"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UC_TIME",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "UC_N",
+    "ALL_R",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "UC_TIME.arrow"
+  },
+  {
+   "name": "UC_ON",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALL_R",
+    "UC_N"
+   ],
+   "description": "",
+   "records": 2,
+   "file": "UC_ON.arrow"
+  },
+  {
+   "name": "R_UC",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALL_R",
+    "UC_N"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "COEF_PTRAN",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 7,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "C",
+    "CG",
+    "TS"
+   ],
+   "description": "",
+   "records": 2734,
+   "file": "COEF_PTRAN.arrow"
+  },
+  {
+   "name": "ACT_EFF",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "REG",
+    "YEAR",
+    "PRC",
+    "CG",
+    "TS"
+   ],
+   "description": "",
+   "records": 104,
+   "file": "ACT_EFF.arrow"
+  },
+  {
+   "name": "RPCC_FFUNC",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 237,
+   "file": "RPCC_FFUNC.arrow"
+  },
+  {
+   "name": "RP_CGC",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG",
+    "COM"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "TRACKPC",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_GRP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "CG_GRP",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_DCGG",
+   "kind": "set",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "CG",
+    "CG",
+    "L"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RTP_CAPYR",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "YEAR",
+    "YEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RPCG_PTRAN",
+   "kind": "set",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "P",
+    "COM",
+    "C",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UNCD7",
+   "kind": "set",
+   "type": "",
+   "dimension": 7,
+   "domain": [
+    "*",
+    "*",
+    "*",
+    "*",
+    "*",
+    "*",
+    "*"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "COEF_PVT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "T"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "COEF_PVT.arrow"
+  },
+  {
+   "name": "VDA_DISC",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "VDA_DISC.arrow"
+  },
+  {
+   "name": "COEF_ILED",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 4,
+   "file": "COEF_ILED.arrow"
+  },
+  {
+   "name": "ACT_FLO",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "S"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RTP_FFCX",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  }
+ ]
+}
