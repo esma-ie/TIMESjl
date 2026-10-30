@@ -80,7 +80,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$ScriptVersion = '0.1.15'
+$ScriptVersion = '0.1.16'
 
 $OnWindows = ($PSVersionTable.PSEdition -eq 'Desktop') -or $IsWindows
 $Repo = Split-Path -Parent $PSScriptRoot
@@ -96,7 +96,11 @@ $Sources = @(
     @{ Root = 'times_source'; Dir = 'TIMES_model';          Commit = 'd9a6a25'; Url = 'https://github.com/etsap-TIMES/TIMES_model.git' },
     @{ Root = 'times_demo';   Dir = 'TIMES_Demo';           Commit = '962db86'; Url = 'https://github.com/etsap-TIMES/TIMES_Demo.git' },
     # OTUS9r, public from 30 Oct 2026: dd/ added in 68588a6 (EPA original at tag epaus9rt-v20.4)
-    @{ Root = 'otus';         Dir = 'OTUS9r';               Commit = '598e179'; Url = 'https://github.com/esma-ie/OTUS9r.git' }
+    @{ Root = 'otus';         Dir = 'OTUS9r';               Commit = '598e179'; Url = 'https://github.com/esma-ie/OTUS9r.git' },
+    # OTCGEN and OTNYC, public from 30 Oct 2026: dd/ of the reference cases (EPA originals
+    # at tags gcomet-v0.0.0 and comet-nyc-v16.0.1)
+    @{ Root = 'otcgen';       Dir = 'OTCGEN';               Commit = '08af95f'; Url = 'https://github.com/esma-ie/OTCGEN.git' },
+    @{ Root = 'otnyc';        Dir = 'OTNYC';                Commit = 'bc1d276'; Url = 'https://github.com/esma-ie/OTNYC.git' }
 )
 # Local sources: folders kept in timesjl-sources that are not git repositories,
 # pinned by the SHA-256 of a manifest file (header of reference/suite.toml). A

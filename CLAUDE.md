@@ -90,6 +90,9 @@ Any mismatch blocks the merge. Justified differences go in
 - Primary test models (27 Oct 2026): TIMES_Demo demo12 (CC BY 4.0; CI
   fixtures), TIM (exception, below) and OTUS9r (ESMA, from EPA's public-domain
   EPAUS9rT; `esma-ie/OTUS9r`, CC BY-SA 4.0, public from 30 Oct 2026).
+  OTCGEN and OTNYC (ESMA, from EPA's public-domain Generative COMET and
+  COMET-NYC; `esma-ie/OTCGEN`, `esma-ie/OTNYC`, CC BY-SA 4.0) joined the
+  suite's core tier on 30 Oct 2026.
 - One named exception: TIM (CC BY-NC-SA 4.0; public source, non-commercial
   licence), kept by James on 27 Oct 2026 for research use only, never for
   commercial work. Its source is an esma-ie fork of
