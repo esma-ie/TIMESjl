@@ -49,7 +49,11 @@ Any mismatch blocks the merge. Justified differences go in
 - The PyPI GAMS demo licence solves only models under 2,000 rows and columns;
   no suite model fits (TIMES_Demo demo12 has 8,695 rows with REDUCE off), so
   solves, CONVERT exports and all timings come from a licensed GAMS on one
-  machine. Pre-solve dumps need no solve and work under the demo licence.
+  machine. Pre-solve dumps need no solve and work under the demo licence, and
+  so do the M1.3 checkpoint dumps (`input/`, `init/`, `prep/`, `prelv/`,
+  harness 0.3.0): `make_reference.py --only presolve` adds them, with `ppm/`
+  and `coef/` where missing, to any reference (`run_references.ps1
+  -Checkpoints` on James's workstation, which stays the reference of record).
 - Full batch on Windows with GAMS and CPLEX: `scripts/run_references.ps1`
   (clones and pins every model repo, runs the suite, then the M1.0 gate).
   It runs the **core** tier by default: one baseline case per model, for fast

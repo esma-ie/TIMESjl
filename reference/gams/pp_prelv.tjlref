@@ -1,0 +1,10 @@
+*==============================================================================*
+* TIMES.jl reference harness hook (not part of TIMES).
+* Included by main_ext.mod for stage pp_prelv when 'TJLREF' is passed to
+* initmty.mod, i.e. at the extensions' pp_prelv (ppmain.mod L615, v4.9.7):
+* after pp_prelv.vda, once RPCS_VAR and PRC_CAPACT are set and before the QA
+* of FLO_SHAR and the levelising. An M1.3 checkpoint: dumps every symbol
+* declared so far, only in runs the harness starts with --TJL_CHECKPOINTS=1
+* (the pre-solve run).
+*==============================================================================*
+$IF SET TJL_CHECKPOINTS execute_unload 'tjl_prelv.gdx';

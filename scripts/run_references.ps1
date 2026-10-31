@@ -42,6 +42,13 @@
     powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Models TIMES_Demo-demo12 -Resume
     One model; -Resume skips model/variant runs that already finished OK.
 
+.EXAMPLE
+    powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Checkpoints -Resume
+    M1.3 checkpoints only (harness 0.3.0): the pre-solve run of each core model and
+    variant again, adding input/, init/, prep/ and prelv/ to the references that
+    exist (make_reference.py --only presolve). No solve; -Resume skips references
+    that already have them. No gate, no zips.
+
 .PARAMETER Python
     Use only this interpreter for the venv (path to python.exe).
 
@@ -80,6 +87,8 @@ param(
     [switch]$Resume,
     [switch]$SkipGate,
     [switch]$SkipPack,
+    # M1.3 checkpoints only: make_reference.py --only presolve (no solve, no gate, no zips)
+    [switch]$Checkpoints,
     # Local run limits (James, 29 Oct 2026; reference/python/runlimits.py): solver
     # threads per run, and GAMS runs at a time on this machine. 0 disables a limit.
     [int]$Threads = 12,
@@ -88,7 +97,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$ScriptVersion = '0.1.17'
+$ScriptVersion = '0.1.18'
+if ($Checkpoints) { $SkipGate = $true; $SkipPack = $true }
 
 $OnWindows = ($PSVersionTable.PSEdition -eq 'Desktop') -or $IsWindows
 $Repo = Split-Path -Parent $PSScriptRoot
@@ -398,7 +408,8 @@ if (-not $SkipGate) {
 
 $Packed = Join-Path $Out '_packed'
 New-Item -ItemType Directory -Force -Path $Packed | Out-Null
-$SummaryCsv = Join-Path $Out 'summary.csv'
+# a -Checkpoints pass keeps summary.csv as the last full batch left it
+if ($Checkpoints) { $SummaryCsv = Join-Path $Out 'summary-checkpoints.csv' } else { $SummaryCsv = Join-Path $Out 'summary.csv' }
 $Summary = New-Object System.Collections.ArrayList
 $started = Get-Date
 
@@ -434,6 +445,20 @@ function Test-RunOK([string]$dir) {
     return $true
 }
 
+# M1.3 checkpoints (harness 0.3.0): made by the pre-solve run, so a reference has
+# them when every checkpoint dump is there and that run was made with -GamsMajor.
+$CheckpointDumps = @('input', 'init', 'prep', 'prelv', 'presolve')
+function Test-Checkpoints([string]$dir) {
+    $mf = Join-Path $dir 'manifest.json'
+    if (-not (Test-Path $mf)) { return $false }
+    $m = Get-Content -Raw $mf | ConvertFrom-Json
+    foreach ($d in $CheckpointDumps) { if ($null -eq (Get-Prop $m.dumps $d)) { return $false } }
+    $p = Get-Prop $m.runs 'presolve'
+    if ($null -eq $p -or $p.returncode -ne 0) { return $false }
+    if ($GamsMajor -and -not ("$(Get-Prop $p 'gams_version')" -match "GAMS\s+$GamsMajor\.")) { return $false }
+    return $true
+}
+
 $i = 0
 foreach ($model in $Models) {
     $i++
@@ -444,11 +469,16 @@ foreach ($model in $Models) {
         Write-Host "skipped: its source folder ($($needs -join ', ')) is not in $SrcRoot" -ForegroundColor Yellow
         continue
     }
-    $todo = @($Variants | Where-Object { -not ($Resume -and (Test-RunOK (Join-Path (Join-Path $Out $model) $_))) })
+    if ($Checkpoints) {
+        $todo = @($Variants | Where-Object { -not ($Resume -and (Test-Checkpoints (Join-Path (Join-Path $Out $model) $_))) })
+    } else {
+        $todo = @($Variants | Where-Object { -not ($Resume -and (Test-RunOK (Join-Path (Join-Path $Out $model) $_))) })
+    }
     if ($todo.Count -gt 0) {
         $mrArgs = @((Join-Path (Join-Path (Join-Path $Repo 'reference') 'python') 'make_reference.py'),
                     '--suite', $Suite, '--out', $Out, '--solvers', ($okSolvers -join ','), '--gams', $Gams,
                     '--model', $model, '--threads', $Threads, '--max-parallel', $MaxParallel) + $RootArgs
+        if ($Checkpoints) { $mrArgs += @('--only', 'presolve') }
         foreach ($v in $todo) { $mrArgs += @('--variant', $v) }
         $code = Invoke-Native $VenvPy (@('-u') + $mrArgs) '' (Join-Path $Logs "$model.log")
         if ($code -ne 0) { Write-Host "make_reference reported CHECK for $model (see $Logs\$model.log)." -ForegroundColor Yellow }

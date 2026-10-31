@@ -13,7 +13,11 @@ extension mechanism instead:
 
 So passing ``TJLREF`` to ``initmty.mod`` makes TIMES include our
 ``ppm_ext.tjlref`` right after preprocessing (maindrv.mod L58) and
-``coef_ext.tjlref`` right after coefficient calculation (maindrv.mod L73).
+``coef_ext.tjlref`` right after coefficient calculation (maindrv.mod L73), and,
+for the M1.3 checkpoints, ``init_ext.tjlref`` (maindrv.mod L55),
+``prep_ext.tjlref`` (preppm.mod L217) and ``pp_prelv.tjlref`` (ppmain.mod L615).
+The first checkpoint, the state before preprocessing, has no extension stage:
+the patcher puts its dump just before ``$BATINCLUDE maindrv.mod``.
 File names are lower-cased by GAMS ``filecase=4``, as in the xl2times run
 scripts.
 """
@@ -40,6 +44,13 @@ def _set_line(name: str) -> re.Pattern:
         re.IGNORECASE,
     )
 
+
+# M1.3 input checkpoint: every symbol as the run file leaves it (DD files read,
+# switches set), just before maindrv.mod; only with --TJL_CHECKPOINTS=1.
+INPUT_BLOCK = """\
+{mark} M1.3 input checkpoint: the state the main driver starts from
+$IF SET TJL_CHECKPOINTS execute_unload 'tjl_input.gdx';
+"""
 
 SOLVEINFO_BLOCK = """\
 {mark} solve information for timing and parity checks
@@ -68,6 +79,7 @@ class PatchReport:
     overrides: dict = field(default_factory=dict)
     removed_lp_options: list = field(default_factory=list)
     solveinfo_after: str = ""
+    input_before: str = ""
 
 
 class RunFileError(ValueError):
@@ -90,7 +102,9 @@ def patch_run(text: str, overrides: dict | None = None, strip_lp_option: bool = 
       just before ``$BATINCLUDE initsys.mod``;
     - comments out ``option LP=...;`` statements so the solver chosen on the
       command line is used (TIMES-NZ hard-codes ``option LP=cplex;``);
-    - appends the solve-information block after ``$BATINCLUDE maindrv.mod``.
+    - appends the solve-information block after ``$BATINCLUDE maindrv.mod``;
+    - puts the M1.3 input checkpoint (``execute_unload 'tjl_input.gdx'`` under
+      ``$IF SET TJL_CHECKPOINTS``) just before ``$BATINCLUDE maindrv.mod``.
 
     Overrides only reach ``$SET`` lines in the run file itself, not in files it
     includes (for example a scenario file).
@@ -134,6 +148,10 @@ def patch_run(text: str, overrides: dict | None = None, strip_lp_option: bool = 
     report.solveinfo_after = lines[k].strip()
     block = SOLVEINFO_BLOCK.format(mark=MARK).splitlines()
     lines[k + 1:k + 1] = block
+
+    # 5. input checkpoint before maindrv
+    report.input_before = lines[k].strip()
+    lines[k:k] = INPUT_BLOCK.format(mark=MARK).splitlines()
 
     return newline.join(lines) + newline, report
 
