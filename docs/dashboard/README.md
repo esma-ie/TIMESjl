@@ -42,10 +42,12 @@ or as the private artifact James keeps.
   | `suite-public.json` | `report-suite` | demo12, TIMES-NZ steady and shift, OTUS9r reference and tax1_wo_mou | a8c17bd (pre-publication history), 30 Oct 05:51 |
   | `suite-public-core.json` | `report-suite-core` | demo12, TIMES-NZ steady, OTUS9r reference (core tier) | 6f3d91e, 30 Oct 20:03 |
   | `suite-public-otc.json` | `report-suite-otc` | OTCGEN gc_ref, OTNYC s1_nyc_ref (core tier) | 2fde1e3, 31 Oct 00:12 |
+  | `suite-public-weekend.json` | `report-suite-weekend` | demo12, TIMES-NZ steady and shift, OTCGEN gc_ref, OTNYC s1_nyc_ref, OTUS9r reference, on the GAMS 54 references (`run_weekend_gams54_v2.ps1`) | a7bff7f, 31 Oct 13:48 |
 
-  `src/` is the same at 6f3d91e and 2fde1e3. TIMES-NZ shift and OTUS9r
-  tax1_wo_mou (milestone tier) show their 30 Oct 05:51 results until a
-  milestone run probes them again.
+  `src/` is the same at 6f3d91e and 2fde1e3. The weekend report supersedes
+  the earlier ones for its six runs. OTUS9r tax1_wo_mou (milestone tier,
+  paused) shows its 30 Oct 05:51 result until a milestone run probes it
+  again.
 
 - Local runs (TIM, on James's machine) are reported the same way from a
   reference directory and loaded into the open page with its "Load results
@@ -54,8 +56,9 @@ or as the private artifact James keeps.
 
       julia --project=test scripts/parity_report.jl tim.json --ref ../timesjl-reference TIM-bau TIM-mitigation_cb2024-300mt TIM-mitigation_cb2024-300mt-myopic
 
-- The pipeline strip (GAMS files and their status), the M1.1 timings and the
-  suite's models not yet reported are written into the page by hand
+- The pipeline strip (GAMS files and their status), the coefficient-stage
+  timings (M1.2, workstation) and the suite's models not yet reported are
+  written into the page by hand
   (`PIPELINE`, `TIMINGS`, `PLANNED_RUNS` in its script); update them when a
   file is translated, `docs/timings.md` changes or the suite changes. Only
   open models go in `TIMINGS`: TIM's timings stay on James's machine.

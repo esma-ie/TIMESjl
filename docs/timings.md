@@ -11,7 +11,38 @@ From 29 Oct 2026 local runs on James's workstation keep to the run limits in
 Timings made before then used each solver's own setting (GAMS default: one
 solver thread) and are not directly comparable with later ones.
 
-## M1.2 coefficient stage, 31 Oct 2026 (indicative: same machine, the cloud workspace)
+## M1.2 coefficient stage, 31 Oct 2026, same machine (James's workstation)
+
+The M1.2 figures of record. `scripts/m12_timing.jl` as in the section below,
+both sides on James's workstation (2x Intel Xeon Gold 6256, Windows 11 Pro
+for Workstations), under the run limits:
+
+- GAMS: GAMS 54.6.1 (licensed), the profile of each model's CPLEX reference
+  solve (`raw/tjl_solve_cplex_profile.txt`, written 30 Oct 12:13 to 31 Oct
+  00:04 and kept by the weekend batch's `-Resume`, being GAMS 54 already).
+  TIMES.jl was timed on 31 Oct by `run_weekend_gams54_v2.ps1`.
+- TIMES.jl: Julia 1.13.2, one thread (`JULIA_NUM_THREADS` unset; the log's
+  "48 threads" is `Sys.CPU_THREADS`, the machine's logical cpus), main at
+  a7bff7f.
+- Log: `C:\git\esma\timesjl-reference\_probes\weekend-m12timing-public-2026-10-31-1128.log`.
+
+| Model (reduce_off) | Rows | coef_cpt | coef_ptr | coef_obj | coef_alt | coef_shp | coef_ext | Stage, TIMES.jl warm | Stage, GAMS | Ratio |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| TIMES_Demo-demo12 | 8,695 | 0.251 | 0.039 | 0.415 | 0.103 | 0.086 | 0.236 | 1.13 s | 0.015 s | 75 |
+| TIMES-NZ-steady-v308 | 1,408,361 | 90.61 | 1.721 | 2.950 | 6.588 | 5.929 | 57.40 | 165.2 s | 0.98 s | 168 |
+| OTCGEN-gc_ref | 1,257,132 | 114.0 | 433.5 | 77.22 | 0.116 | 39.58 | 541.9 | 1,206.3 s | 3.36 s | 359 |
+| OTNYC-s1_nyc_ref | 504,698 | 28.30 | 41.70 | 18.71 | 0.008 | 7.734 | 78.63 | 175.1 s | 1.02 s | 172 |
+| OTUS9r-reference | 2,174,010 | 216.0 | 325.5 | 67.95 | 69.87 | 70.00 | 413.4 | 1,162.7 s | 5.44 s | 214 |
+
+TIMES.jl seconds per file (warm; coef_nio is 0.001 s or less, and 0 in
+GAMS). The GAMS profile on Windows counts in steps of 1/64 s (15.6 ms, the
+system timer): demo12's whole stage is one step, so its ratio is rough; the
+large models span 60 to 350 steps. On the large models the first pass and
+the warm pass take about the same time (compilation is small next to the
+data handling), and coef_ext, coef_ptr and coef_cpt lead, as on the cloud
+workspace below. TIMES-NZ shift (milestone tier) was not timed.
+
+## M1.2 coefficient stage, 31 Oct 2026 (indicative: same machine, the cloud workspace; superseded by the section above)
 
 `scripts/m12_timing.jl`: each coefficient file of TIMES.jl on the ppm dump
 (first pass with compilation, then warm), against the GAMS profile of the
@@ -20,8 +51,8 @@ includes with their file; the harness's dumps left out). Both sides on one
 machine, the cloud workspace (Linux, 2 cpus, 8 GB): GAMS 54.6.1 from PyPI
 (the pre-solve run of `make_reference.py --only presolve`, demo licence: no
 solve needed), Julia 1.13.3, main at 6ac29e4. Both sides run this stage on
-one thread. The workstation measurement (the M1.2 gate's) is still to come:
-`julia --project=test scripts\m12_timing.jl C:\git\esma\timesjl-reference --root ... <model>`.
+one thread. The workstation measurement (the M1.2 gate's) is the section
+above.
 
 | Model (reduce_off) | coef_cpt | coef_ptr | coef_obj | coef_alt | coef_shp | coef_ext | Stage, TIMES.jl warm | Stage, GAMS | Ratio |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
