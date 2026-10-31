@@ -82,7 +82,9 @@
 # the rest); reference/python/test_suite.py allows at most one core case per model.
 # OTUS9r-tax1_wo_mou is paused in the milestone tier: its REDUCE-on CPLEX solve did
 # not leave crossover in 9 h (29-30 Oct 2026), and its REDUCE-off optimum has unscaled
-# infeasibilities; layer 1 passed on it (30 Oct 2026).
+# infeasibilities; layer 1 passed on it (30 Oct 2026). It stays paused, and
+# JRC-EU-TIMES-cli_ll is deferred, until later Phase 1 milestones (James, 31 Oct
+# 2026): neither ran for the M1.2 gate.
 #
 # Milestone at which each model joins the parity suite:
 #   M1.1  TIMES_Demo-demo12; TIM (research exception, local only)

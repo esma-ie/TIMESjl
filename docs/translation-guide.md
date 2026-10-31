@@ -265,3 +265,19 @@ those checks, their figures and their crafted cases are not published
   paths of coef_ptr.mod pass layer 1 on two crafted demo12 states run
   through coef_ptr.mod by GAMS 54.6.1 (test/unit/coef_ptr_case.jl, CI), the
   check that went with the removed models on 27 Oct.
+- 31 Oct 2026: references of the core tier and TIMES-NZ shift on GAMS 54.6.1
+  (the weekend batch: every run PASSes the M1.0 gate, reduce_off and
+  as_run). Every coefficient file passes layer 1 on all six public runs,
+  with no mismatch; OTCGEN and OTNYC, after the YK1 fix (coef_alt.lin L32),
+  also cover the OBLONG NO path of coef_cpt.mod (L19-21, G23)
+  (docs/dashboard/suite-public-weekend.json). The coefficient stage is timed
+  against GAMS on James's workstation (docs/timings.md): 75x on demo12 (one
+  1/64 s step of the GAMS profile) to 359x on OTCGEN, a Phase 2 matter.
+- 31 Oct 2026: **M1.2 gate PASS** (James). Every translated coefficient file
+  passes layer 1 at 1e-9 on demo12 with nothing excluded and on the crafted
+  states (CI), on every public reference run of the core tier and on
+  TIMES-NZ shift; TIM was checked locally (its results stay on James's
+  machine); the stage is timed against GAMS. Paths still refused are listed
+  in docs/m12-plan.md. OTUS9r-tax1_wo_mou (paused) and JRC-EU-TIMES-cli_ll
+  were not run for the gate: James defers both to later Phase 1 milestones.
+  M1.3 starts.

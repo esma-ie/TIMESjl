@@ -54,9 +54,11 @@ No new GAMS runs are needed: every reference zip already has ppm/ and coef/.
 
 ## Findings so far
 
-- (1) coef_cpt.mod: with OBLONG YES or OBJ MOD (every reference run but an
-  OBLONG NO case, for which no open-model check exists yet) `%CTST%` is `**0`, `NOT 0**0` is false
-  (G23) and COEF_CPT is not computed until coef_alt.lin (change 5). COEF_CPT
+- (1) coef_cpt.mod: with OBLONG YES or OBJ MOD `%CTST%` is `**0`, `NOT 0**0`
+  is false (G23) and COEF_CPT is not computed until coef_alt.lin (change 5).
+  OTCGEN and OTNYC (OBJ AUTO without OBLONG, `%CTST%` empty) take L19-21:
+  there `scripts/m12_probe.jl` compares COEF_CPT at the coef_cpt step, and
+  it passes on both (GAMS 54.6.1, 31 Oct 2026). COEF_CPT
   at the PYR_S vintages of processes with a positive PRC_RESID is
   overwritten by coef_ext.vda L19-23 (change 7); scripts/m12_probe.jl leaves
   those records out until then (`later_overwrites`).
@@ -158,10 +160,16 @@ No new GAMS runs are needed: every reference zip already has ppm/ and coef/.
   (RPC_FFUNC, RPCG_PTRAN: L62-69, refused by coef_ptr too), unit-commitment
   data (eqlducs.vda L12-41), FLO_ASHAR (eqashar.vda L16-33, pp_lvlfc.mod),
   COM_CSTBAL (powerflo.vda L372-396).
-- M1.2 gate (to declare, James): every translated coefficient file passes
-  layer 1 on demo12 with no exclusion (CI) and on TIM locally
-  (scripts/m12_probe.jl; TIM results stay on James's machine); the stage's
-  timing against GAMS's coefficient stage goes in docs/timings.md. Left for
+- M1.2 gate: **PASS**, declared by James on 31 Oct 2026. Every translated
+  coefficient file passes layer 1 on demo12 with no exclusion (CI), on the
+  crafted states (coef_ptr, coef_obj, coef_alt, coef_shp, coef_ext; CI),
+  and on every public reference run of the core tier and TIMES-NZ shift on
+  GAMS 54 (docs/dashboard/suite-public-weekend.json); TIM was checked
+  locally (scripts/m12_probe.jl; TIM results stay on James's machine); the
+  stage is timed against GAMS on James's workstation (docs/timings.md).
+  OTUS9r-tax1_wo_mou (paused; its reference is GAMS 52.1.0) and
+  JRC-EU-TIMES-cli_ll were not run for the gate: James defers both to later
+  Phase 1 milestones. Left for
   later changes, all refused explicitly: capacity-related commodity flows
   (coef_nio L15-71, coef_shp L39-42/L77-96), shaped availabilities
   (coef_cpt/pp_shapr), reduced flows (coef_ptr L38-42, coef_ext L62-69),
