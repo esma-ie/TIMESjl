@@ -29,10 +29,10 @@ const M12_STEPS = [
       "NCAP_ISPCT", "OB_ICOST", "OB_ISUB", "OB_ITAX", "OB_FOM", "OB_FSB", "OB_FTX", "OB_DCC", "OB_DLC", "OB_ACT",
       "OB_FCOS", "OB_FDEL", "OB_FTAX", "OBJ_FSUB", "RPC_CUR", "X_RP", "OB_COM", "OB_IRE", "SHEDJ", "SHAPED", "FIL"],
      tm -> String[]),
-    ("coef_alt", coef_alt!,
-     ["PERDINV", "TPULSEYR", "TPULSE", "OBJ_LINT", "OBJ_ALTV", "RTP_CAPVL", "RB", "R_DF", "COEF_CPT", "PASTSUM", "YK1",
-      "FIL2", "MY_ARRAY", "FPD", "OBJ_PVT", "COEF_PVT", "NCAP_ILED"],
-     tm -> String[]),
+    ("coef_alt", coef_alt!,                                 # L31-58 (every path)
+     ["PERDINV", "TPULSEYR", "TPULSE", "OBJ_LINT", "OBJ_ALTV", "YK1", "FPD", "OBJ_PVT", "COEF_PVT"],
+     tm -> ctst(tm) == "" ? String[] :                      # %CTST% empty: the include ends at L59
+           ["RTP_CAPVL", "RB", "R_DF", "COEF_CPT", "PASTSUM", "FIL2", "MY_ARRAY", "NCAP_ILED"]),   # L65-87, L160
     ("coef_shp", coef_shp!,
      ["OPYEAR", "AGEJ", "Z", "FLO_FUNCX", "NCAP_CPX", "RTP_CAPYR", "RTP_FFCX", "RTP_CPX", "COEF_CPT", "PRC_YMIN", "PRC_YMAX",
       "TRACKP", "RVPRL", "RP_GRP", "RTP_CGC", "COEF_CAP"],

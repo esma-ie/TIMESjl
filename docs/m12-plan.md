@@ -99,6 +99,17 @@ No new GAMS runs are needed: every reference zip already has ppm/ and coef/.
   (`later_overwrites`) (the earlier note that no reference run has shapes was about
   NCAP_AFX/FLO_FUNCX; it stands for those). G33: L79 leaves past-vintage
   records alone, which can be negative.
+  OTCGEN and OTNYC (31 Oct 2026) are the first suite models with OBJ AUTO and
+  no OBLONG: %CTST% is empty, so the include ends at L59 and YK1 keeps the
+  (T,Y_EOH) pairs L32 sets (L66 and L160, which clear it, are not reached).
+  coef_alt! stored YK1 only at L160, so 1,261 (OTCGEN) and 280 (OTNYC) YK1
+  records were in GAMS only; it now stores it at L32. On that path the file
+  writes nothing of L65-87, so `scripts/m12_probe.jl` compares those symbols
+  (RTP_CAPVL, RB, R_DF, COEF_CPT, PASTSUM, FIL2, MY_ARRAY, NCAP_ILED) only when
+  %CTST% is set: MY_ARRAY in the coef dump is then the scratch of the last
+  fillcost.gms call (L28) in coef_obj.mod L120-151, which every later reader
+  (coef_alt.lin L75, eqobjfix.mod L67, eqobjinv.mod L119) assigns before reading. A fifth
+  crafted case (OBJ AUTO, OBLONG NO) checks the L59 exit against GAMS.
   (31 Oct 2026) The layer-1 check of the files before coef_shp.mod again
   leaves out the COEF_CPT records that coef_shp.mod L73 rescales (the
   NCAP_CPX that L52 keeps): the rule was dropped when change 6 merged, but
