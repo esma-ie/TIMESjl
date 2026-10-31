@@ -1,0 +1,148 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<coef_ptr.mod on test/unit/coef_ptr_case.jl: flofunc>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "COEF_PTRAN",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 7,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "C",
+    "CG",
+    "TS"
+   ],
+   "description": "",
+   "records": 753,
+   "file": "COEF_PTRAN.arrow"
+  },
+  {
+   "name": "RPCC_FFUNC",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 5,
+   "file": "RPCC_FFUNC.arrow"
+  },
+  {
+   "name": "PRC_CG",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "PRC",
+    "COM_GRP"
+   ],
+   "description": "",
+   "records": 1192,
+   "file": "PRC_CG.arrow"
+  },
+  {
+   "name": "KEEP_FLOF",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "ACT_FLO",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "S"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "CGTEST",
+   "kind": "set",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "C",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "CGTES2",
+   "kind": "set",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "C",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "CG_GRP",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_GRP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  }
+ ]
+}

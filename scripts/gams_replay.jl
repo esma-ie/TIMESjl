@@ -108,10 +108,12 @@ Write the state of `tm` that the GAMS files `includes` (pairs file =>
 batinclude arguments, files in `times_dir`) and the files they include
 (`also_scan`) name, run them with `\$SETGLOBAL`s
 `setglobals`, unload `outputs` and return them as a dump (converted with
-reference/python/gdx2arrow.py).
+reference/python/gdx2arrow.py). The Python is `python3`, or the one named by
+the environment variable `TJL_PYTHON` (on Windows the harness venv's
+`python.exe`, which has the GAMS Python API).
 """
 function gams_replay(tm, includes, outputs; times_dir, also_scan=String[], skip=Set{String}(), setglobals=Dict{String,String}(),
-                     gams=joinpath(readchomp(`python3 -c "import gamspy_base;print(gamspy_base.directory)"`), "gams"),
+                     gams=joinpath(readchomp(`$(replay_python()) -c "import gamspy_base;print(gamspy_base.directory)"`), "gams"),
                      workdir=mktempdir())
     files = [joinpath(times_dir, f) for f in vcat([f for (f, _) in includes], also_scan)]
     write(joinpath(workdir, "state.gms"), replay_state(tm, gams_identifiers(files); skip))
@@ -132,6 +134,8 @@ function gams_replay(tm, includes, outputs; times_dir, also_scan=String[], skip=
     rc = run(ignorestatus(Cmd(`$gams run.gms lo=2 idir1=$(abspath(times_dir))`; dir=workdir)))
     rc.exitcode == 0 || error("GAMS failed (", rc.exitcode, "); see ", joinpath(workdir, "run.lst"))
     out = joinpath(workdir, "out")
-    run(`python3 $(joinpath(dirname(@__DIR__), "reference", "python", "gdx2arrow.py")) $(joinpath(workdir, "out.gdx")) $out`)
+    run(`$(replay_python()) $(joinpath(dirname(@__DIR__), "reference", "python", "gdx2arrow.py")) $(joinpath(workdir, "out.gdx")) $out`)
     return TIMES.DumpData(out)
 end
+
+replay_python() = get(ENV, "TJL_PYTHON", "python3")

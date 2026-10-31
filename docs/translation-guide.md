@@ -261,3 +261,7 @@ those checks, their figures and their crafted cases are not published
   each checked from GAMS's own state; `--only presolve` adds them to existing
   references, under the demo licence too. demo12 checkpoint fixtures in CI;
   `scripts/m13_inventory.jl` and `scripts/m13_probe.jl`.
+- 31 Oct 2026: M1.2 (3) re-earned on an open model: the FLO_FUNC and FLO_SUM
+  paths of coef_ptr.mod pass layer 1 on two crafted demo12 states run
+  through coef_ptr.mod by GAMS 54.6.1 (test/unit/coef_ptr_case.jl, CI), the
+  check that went with the removed models on 27 Oct.
