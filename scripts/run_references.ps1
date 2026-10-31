@@ -53,6 +53,12 @@
     GAMS runs at a time on this machine, across all harness processes
     (default 4; shared slot files, see reference/python/runlimits.py).
 
+.PARAMETER GamsMajor
+    GAMS major version every reference run must be made with (default 54, the
+    reference GAMS from 30 Oct 2026, James). The run stops if the GAMS found is
+    another major version, and -Resume redoes runs made with another one. ''
+    turns the check off (not for references that are compared or published).
+
 .PARAMETER GamsApiVersion
     gamsapi version to install; default is your GAMS version. Only for testing
     or when PyPI has no gamsapi release for your exact GAMS version.
@@ -69,6 +75,8 @@ param(
     [string]$Gams = '',
     [string]$Python = '',
     [string]$GamsApiVersion = '',
+    # Reference GAMS (James, 30 Oct 2026): every reference is made with GAMS 54.
+    [string]$GamsMajor = '54',
     [switch]$Resume,
     [switch]$SkipGate,
     [switch]$SkipPack,
@@ -80,7 +88,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$ScriptVersion = '0.1.16'
+$ScriptVersion = '0.1.17'
 
 $OnWindows = ($PSVersionTable.PSEdition -eq 'Desktop') -or $IsWindows
 $Repo = Split-Path -Parent $PSScriptRoot
@@ -260,6 +268,9 @@ if ($okSolvers.Count -eq 0) { Fail 'No solver passed the preflight.' }
 if ($okSolvers[0] -ne 'CPLEX') { Write-Host "NOTE: reference solver (first) is $($okSolvers[0])." -ForegroundColor Yellow }
 if (-not $GamsVersion) { Fail "Could not read the GAMS version; see $pre." }
 Write-Host "GAMS version: $GamsVersion"
+if ($GamsMajor -and ($GamsVersion.Split('.')[0] -ne $GamsMajor)) {
+    Fail "GAMS $GamsVersion ($Gams) is not GAMS $GamsMajor, the reference GAMS (James, 30 Oct 2026). Pass -Gams <path to the GAMS $GamsMajor gams.exe>, or put it first on PATH."
+}
 
 # ---------------------------------------------------------------- 2. sources
 Write-Step "Cloning and pinning model repositories in $SrcRoot"
@@ -395,11 +406,29 @@ $started = Get-Date
 # (20 Oct 2026); a run from an older harness lacks it, so -Resume redoes it.
 $RequiredDumps = @('ppm', 'coef', 'final', 'presolve', 'matrix', 'matrix_dictmap')
 
+# GAMS major version of each GAMS run in a manifest (runs.<tag>.gams_version holds
+# the first .lst line naming GAMS, e.g. 'GAMS 54.6.1 ...'). A run made with another
+# major version than -GamsMajor, or with none recorded, is not finished for -Resume.
+function Test-RunGams($m) {
+    if (-not $GamsMajor) { return $true }
+    $seen = 0
+    foreach ($r in @($m.runs.PSObject.Properties)) {
+        $gv = Get-Prop $r.Value 'gams_version'
+        if (-not $gv) { continue }
+        if ($gv -match 'GAMS\s+(\d+)\.') {
+            $seen++
+            if ($Matches[1] -ne $GamsMajor) { return $false }
+        }
+    }
+    return ($seen -gt 0)
+}
+
 function Test-RunOK([string]$dir) {
     $mf = Join-Path $dir 'manifest.json'
     if (-not (Test-Path $mf)) { return $false }
     $m = Get-Content -Raw $mf | ConvertFrom-Json
     foreach ($d in $RequiredDumps) { if ($null -eq (Get-Prop $m.dumps $d)) { return $false } }
+    if (-not (Test-RunGams $m)) { return $false }
     foreach ($p in $m.dumps.PSObject.Properties) { if ($null -eq $p.Value) { return $false } }
     foreach ($p in $m.runs.PSObject.Properties) { if ($p.Value.returncode -ne 0) { return $false } }
     return $true

@@ -57,6 +57,11 @@ Any mismatch blocks the merge. Justified differences go in
   the very large models are in the **milestone** tier (`-Set milestone`),
   run at milestone gates or when a change reaches a feature only they have.
   `tier` is set per model in `reference/suite.toml`.
+- Reference GAMS (James, 30 Oct 2026): every reference run is made with GAMS 54
+  (54.6.1 on James's workstation), so solves, dumps and timings compare across
+  the suite. `run_references.ps1` stops if the GAMS it finds is another major
+  version (`-GamsMajor`, default 54), and `-Resume` redoes any run made with
+  another version. References made with GAMS 52.1.0 are rerun.
 - Single model by hand, from the repo root: pass a `--root` for every
   placeholder that model uses (see `reference/suite.toml`), e.g.
   `python reference/python/make_reference.py --out ../timesjl-reference --solvers CPLEX,HIGHS --root times_source=../TIMES_model --root times_demo=../TIMES_Demo --model TIMES_Demo-demo12`
