@@ -8,6 +8,7 @@ robustness). Phase 1 changes none of them unless a parity check needs it.
 | # | Item | Raised | Notes |
 | --- | --- | --- | --- |
 | P2-1 | Tighter solver and parity tolerances | 21 Oct 2026, James (with K1) | 1e-6 is loose for optimality. Run the GAMS references with tighter CPLEX tolerances (feasibility and optimality, e.g. `eprhs`/`epopt` 1e-9) and HiGHS likewise, then tighten the layer-3 cross-evaluation and retire K1's "as feasible as in its own LP" rule (scripts/m11_probe.jl `as_feasible_as`). |
+| P2-2 | Coefficient-stage speed | 31 Oct 2026 (M1.2 timings) | On OTNYC (0.5 M rows) the coefficient stage takes 119 s warm against 0.79 s in GAMS on one machine (docs/timings.md); coef_ext, coef_ptr and coef_cpt lead. The same data access as the slow generators (below): string-tuple keys, per-record dictionaries; integer labels and columnar sets would serve both. |
 
 ## Model generation: where the time goes (21 Oct 2026)
 

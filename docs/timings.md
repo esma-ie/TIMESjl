@@ -11,6 +11,33 @@ From 29 Oct 2026 local runs on James's workstation keep to the run limits in
 Timings made before then used each solver's own setting (GAMS default: one
 solver thread) and are not directly comparable with later ones.
 
+## M1.2 coefficient stage, 31 Oct 2026 (indicative: same machine, the cloud workspace)
+
+`scripts/m12_timing.jl`: each coefficient file of TIMES.jl on the ppm dump
+(first pass with compilation, then warm), against the GAMS profile of the
+same coefficient stage summed over each file's listing lines (nested
+includes with their file; the harness's dumps left out). Both sides on one
+machine, the cloud workspace (Linux, 2 cpus, 8 GB): GAMS 54.6.1 from PyPI
+(the pre-solve run of `make_reference.py --only presolve`, demo licence: no
+solve needed), Julia 1.13.3, main at 6ac29e4. Both sides run this stage on
+one thread. The workstation measurement (the M1.2 gate's) is still to come:
+`julia --project=test scripts\m12_timing.jl C:\git\esma\timesjl-reference --root ... <model>`.
+
+| Model (reduce_off) | coef_cpt | coef_ptr | coef_obj | coef_alt | coef_shp | coef_ext | Stage, TIMES.jl warm | Stage, GAMS | Ratio |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| TIMES_Demo-demo12 | 0.165 | 0.023 | 0.282 | 0.044 | 0.055 | 0.151 | 0.72 s | 0.016 s | 45 |
+| OTNYC-s1_nyc_ref | 17.95 | 30.61 | 13.50 | 0.004 | 5.05 | 51.98 | 119.1 s | 0.79 s | 152 |
+
+TIMES.jl seconds per file (warm; coef_nio is 0 on both). On OTNYC
+(504,698 rows) the stage takes two minutes against under a second in GAMS:
+coef_ext (52 s against 0.15 s), coef_ptr (31 s against 0.22 s) and
+coef_cpt (18 s against 0.22 s) lead. It is the same data-handling cost as
+the M1.1 generators (docs/phase2-notes.md: string-tuple keys, untyped
+caches, per-record dictionaries), at a larger scale: against the Phase 1
+target (generation incl. preprocessing within 5x GAMS) the coefficient stage
+alone is 30 times over. Phase 2 work; nothing in Phase 1 changes for it.
+OTCGEN (1.26 M rows) does not fit the workspace's 8 GB.
+
 ## M1.1, 21 Oct 2026, same machine (James's workstation)
 
 Both sides on one machine: 2x Intel Xeon Gold 6256 (24 cores, 48 threads,
