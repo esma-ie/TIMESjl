@@ -99,6 +99,13 @@ No new GAMS runs are needed: every reference zip already has ppm/ and coef/.
   (`later_overwrites`) (the earlier note that no reference run has shapes was about
   NCAP_AFX/FLO_FUNCX; it stands for those). G33: L79 leaves past-vintage
   records alone, which can be negative.
+  (31 Oct 2026) The layer-1 check of the files before coef_shp.mod again
+  leaves out the COEF_CPT records that coef_shp.mod L73 rescales (the
+  NCAP_CPX that L52 keeps): the rule was dropped when change 6 merged, but
+  `scripts/m12_probe.jl` checks every file against the one coef dump, which
+  holds the rescaled values, so it applies until coef_shp has run
+  (`later_overwrites(tm; after=<file>)`). No public suite model has NCAP_CPX;
+  `test/unit/test_coef_shp.jl` checks the rule on the crafted "cpt" state.
 - (6) coef_shp.mod L10-37, L43-74 (28 Oct 2026): OPYEAR, the FLO_FUNCX shapes
   (RTP_CAPYR, RTP_FFCX) and the NCAP_CPX rescaling of COEF_CPT (RTP_CPX). demo12
   has neither FLO_FUNCX nor NCAP_CPX, so its layer 1 confirms OPYEAR (210

@@ -5,14 +5,18 @@
 # ...) is not changed by any coefficient file before that statement.
 
 """
-    later_overwrites(tm) -> Dict{String,Function}
+    later_overwrites(tm; after="coef_shp") -> Dict{String,Function}
 
-Per symbol, a predicate on a record's key: true when a coefficient file not
-yet translated assigns that record after the files translated so far, so
-the coef dump holds the later value.
+Per symbol, a predicate on a record's key: true when a coefficient file run
+after `after` (the last file that has run on `tm`, in coefmain.mod order)
+assigns that record, so the coef dump holds the later value. A file's layer-1
+check leaves those records out; the later file's own check compares them.
 
 - COEF_CPT at the PYR_S vintages of processes with a positive PRC_RESID
   (coef_ext.vda L21-27).
+- COEF_CPT at the (R,V,P) with a capacity shape NCAP_CPX that coef_shp.mod
+  L52 keeps (|NCAP_CPX - Z| <= Z - 1.5, Z = CARD(J)/2 + 1), which L73
+  rescales, when `after` comes before coef_shp (coef_cpt to coef_alt).
 - RTP_CAPYR everywhere (coef_ext.vda L76 clears it) and RTP_FFCX where
   coef_ext.vda L68-69 rewrite it: the activity-group rows (ACTCG) of
   processes with a reduced flow, and the (CG,C) rows that RP_DCGG names
@@ -29,9 +33,20 @@ the coef dump holds the later value.
   and OBJ_PVT, COEF_PVT everywhere when `%CTST%` is `**EPS` (coef_alt.lin
   L47, LINFLO).
 
-GAMS: coef_ext.vda L21-27, L60-76, L81; coef_alt.lin L42-47, v4.9.7.
+GAMS: coef_ext.vda L21-27, L60-76, L81; coef_alt.lin L42-47; coef_shp.mod L51-52, L73, v4.9.7.
 """
-function later_overwrites(tm)
+function later_overwrites(tm; after::AbstractString="coef_shp")
+    order = ("coef_cpt", "coef_nio", "coef_ptr", "coef_obj", "coef_alt", "coef_shp", "coef_ext")
+    k_after = findfirst(==(after), order)
+    k_after === nothing && throw(ArgumentError("after = \"$after\": not a coefficient file ($(join(order, ", ")))"))
+    after == "coef_ext" && return Dict{String,Function}()       # the last file: nothing comes later
+    # coef_shp.mod L51-52: the NCAP_CPX that survive the clean-up; L73 rescales their COEF_CPT
+    cpx = if k_after < findfirst(==("coef_shp"), order)
+        z = length(gset(tm, "J").keys) / 2 + 1
+        Set((k[1], k[2], k[3]) for (k, x) in gparam_opt(tm.data, "NCAP_CPX", 3).values if abs(x - z) <= z - 1.5)
+    else
+        Set{NTuple{3,String}}()
+    end
     pyr = Set(k[1] for k in gset(tm, "PYR_S").keys)
     resid = Set((r, p) for ((r, t, p), v) in gparam(tm, "PRC_RESID").values if v > 0)
 
@@ -56,7 +71,7 @@ function later_overwrites(tm)
     coef_pvt = gparam_opt(tm.data, "COEF_PVT", 2)
     linflo = ctst(tm) == "**EPS"
     return Dict{String,Function}(
-        "COEF_CPT" => k -> k[2] in pyr && (k[1], k[4]) in resid,
+        "COEF_CPT" => k -> (k[2] in pyr && (k[1], k[4]) in resid) || (k[1], k[2], k[4]) in cpx,
         "RTP_CAPYR" => k -> true,
         "RTP_FFCX" => k -> (k[5] in actcg && (k[1], k[4], k[6]) in rpc_ffunc) ||
                            ((k[1], k[4], k[5]) in dcgg_cg && (k[1], k[4], k[6]) in rpc_act),

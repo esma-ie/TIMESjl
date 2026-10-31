@@ -49,7 +49,7 @@ function layer1_checks!(checks, run, ppm, coef, switches)
         try
             t = @elapsed f(tm)
             names = vcat(syms, extra(tm))
-            later = name == "coef_ext" ? Dict{String,Function}() : later_overwrites(tm)
+            later = later_overwrites(tm; after=name)
             r = layer1(tm, ref, names; exclude=later)
             nleft(n) = !haskey(later, n) ? 0 : ref.dump.symbols[n].kind == :set ?
                        count(later[n], TIMES.gset(ref, n).keys) : count(later[n], keys(TIMES.gparam(ref, n).values))

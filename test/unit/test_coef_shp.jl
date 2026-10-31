@@ -105,3 +105,19 @@ end
     gput!(tm, "RCAP_OCAP", Dict(("REG1", "2010", "ELCTNGAS01", "ELC") => 5.0))
     @test occursin("L96", only(coef_shp_unported(tm)))
 end
+
+@testset "later_overwrites: COEF_CPT that coef_shp.mod L73 rescales" begin
+    # The layer-1 check of a file before coef_shp compares COEF_CPT with the coef dump, which
+    # holds coef_shp.mod's rescaled values (L73) for the NCAP_CPX processes that L52 keeps:
+    # those records are left out until coef_shp's own check (scripts/m12_probe.jl).
+    tm = coef_shp_start(PPM_DEMO12, "cpt")                      # the state coef_alt leaves, plus NCAP_CPX
+    ref = DumpData(joinpath(FIXTURES, "coefshp_unit_gams", "cpt"))   # coef_shp.mod run by GAMS on it
+    @test !all(ispass, layer1(tm, ref, ["COEF_CPT"]))
+    lo = later_overwrites(tm; after="coef_alt")
+    @test all(ispass, layer1(tm, ref, ["COEF_CPT"]; exclude=lo))
+    @test lo["COEF_CPT"](("REG1", "2010", "2015", "ELCTNGAS01")) && !lo["COEF_CPT"](("REG1", "2010", "2015", "ELCTECOA00"))
+    # from coef_shp on, the shaped records are compared (only coef_ext.vda's rules remain)
+    @test !later_overwrites(tm; after="coef_shp")["COEF_CPT"](("REG1", "2010", "2015", "ELCTNGAS01"))
+    @test isempty(later_overwrites(tm; after="coef_ext"))
+    @test_throws ArgumentError later_overwrites(tm; after="coef_xyz")
+end
