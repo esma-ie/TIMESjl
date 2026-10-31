@@ -95,7 +95,9 @@ TIM-bau), rerun in every development cycle. The milestone tier (TIMES-NZ-shift-v
 carbon-budget cases, JRC-EU-TIMES-cli_ll) runs at milestone gates, or when a
 change reaches a feature only those cases have. OTUS9r-tax1_wo_mou is paused
 there: its REDUCE-on CPLEX solve did not leave crossover in 9 h, and its
-REDUCE-off optimum has unscaled infeasibilities.
+REDUCE-off optimum has unscaled infeasibilities. It stays paused, and
+JRC-EU-TIMES-cli_ll is deferred, until later Phase 1 milestones (James, 31 Oct
+2026); neither ran for the M1.2 gate.
 
 ### Primary test models
 
