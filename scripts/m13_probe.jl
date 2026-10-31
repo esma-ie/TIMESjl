@@ -14,18 +14,25 @@
 #
 # A step is compared on the symbols it settles that nothing later in its
 # segment changes (`symbols`, plus `extra(tm)` for those that depend on the
-# model's switches or data). Nothing is translated yet: change 1 adds the
-# first step (init_ext).
+# model's switches or data). A step that ends its segment is compared on
+# every set and parameter of the dump (`all_symbols`), so a side effect on a
+# symbol it should leave alone shows too. Both variants (reduce_off, as_run)
+# are probed.
 
 include(joinpath(@__DIR__, "m11_probe.jl"))      # run_switches, runfile_of, suite_switches, parse_probe_args
-using TIMES: DumpData, layer1
+using TIMES: DumpData, layer1, init_ext!
 using TIMES.Reference: ispass
 
 "The four segments: (first checkpoint, next checkpoint)."
 const M13_SEGMENTS = [("input", "init"), ("init", "prep"), ("prep", "prelv"), ("prelv", "ppm")]
 
+"Every set and parameter of the dump `tm` started from."
+all_symbols(tm) = sort([i.name for i in values(tm.data.dump.symbols) if i.kind in (:set, :parameter)])
+
 "Translated steps in execution order: (segment start, name, function, symbols, symbols by model)."
-const M13_STEPS = Tuple{String,String,Function,Vector{String},Function}[]
+const M13_STEPS = Tuple{String,String,Function,Vector{String},Function}[
+    ("input", "init_ext", init_ext!, String[], all_symbols),          # maindrv.mod L55: the whole input -> init segment
+]
 
 function probe13(refdir, model; roots=Dict{String,String}(), variant="reduce_off", steps=M13_STEPS)
     dir = joinpath(refdir, model, variant)
@@ -36,6 +43,7 @@ function probe13(refdir, model; roots=Dict{String,String}(), variant="reduce_off
                                           " (make_reference.py --only presolve, harness 0.3.0)")
     rf = runfile_of(refdir, model, variant)
     sw = rf === nothing ? suite_switches(model, m, roots) : run_switches(rf)
+    model = string(model, "/", variant)
     for (a, b) in M13_SEGMENTS
         seg = filter(s -> s[1] == a, steps)
         if isempty(seg)
@@ -66,7 +74,7 @@ end
 
 if abspath(PROGRAM_FILE) == @__FILE__
     refdir, roots, models = parse_probe_args(ARGS)
-    for model in models
-        probe13(refdir, model; roots)
+    for model in models, variant in ("reduce_off", "as_run")
+        probe13(refdir, model; roots, variant)
     end
 end
