@@ -243,19 +243,19 @@
   },
   {
    "detail": [],
-   "gams_in_mine_violation": 8.830102160573006e-8,
-   "gams_objective": 2.3960685737007696e7,
-   "gams_point_objective_in_mine": 2.3960685737007696e7,
-   "julia_objective": 2.3960685737007853e7,
+   "gams_in_mine_violation": 8.830102160573006e-08,
+   "gams_objective": 23960685.737007696,
+   "gams_point_objective_in_mine": 23960685.737007696,
+   "julia_objective": 23960685.737007853,
    "julia_solver": "HiGHS",
    "layer": 3,
-   "mine_in_gams_violation": 2.08092387765646e-9,
+   "mine_in_gams_violation": 2.08092387765646e-09,
    "n_compared": 1,
    "n_excluded": 0,
    "n_mismatch": 0,
    "rel_diff": 6.529954703831444e-15,
    "run": "demo12_off",
-   "solve_seconds": 2.3,
+   "solve_seconds": 0.97,
    "status": "pass",
    "unit": "CPLEX"
   },
@@ -266,7 +266,7 @@
    "n_excluded": 0,
    "n_mismatch": 0,
    "run": "demo12_off",
-   "seconds": 4.209,
+   "seconds": 1.794,
    "status": "pass",
    "symbols": [
     {
@@ -357,7 +357,7 @@
    "n_excluded": 0,
    "n_mismatch": 0,
    "run": "demo12_off",
-   "seconds": 0.624,
+   "seconds": 0.234,
    "status": "pass",
    "symbols": [
     {
@@ -412,7 +412,7 @@
    "n_excluded": 2283,
    "n_mismatch": 0,
    "run": "demo12_off",
-   "seconds": 1.848,
+   "seconds": 0.819,
    "status": "pass",
    "symbols": [
     {
@@ -467,7 +467,7 @@
    "n_excluded": 0,
    "n_mismatch": 0,
    "run": "demo12_off",
-   "seconds": 9.816,
+   "seconds": 3.948,
    "status": "pass",
    "symbols": [
     {
@@ -732,7 +732,7 @@
    "n_excluded": 212,
    "n_mismatch": 0,
    "run": "demo12_off",
-   "seconds": 3.098,
+   "seconds": 1.359,
    "status": "pass",
    "symbols": [
     {
@@ -847,7 +847,7 @@
    "n_excluded": 212,
    "n_mismatch": 0,
    "run": "demo12_off",
-   "seconds": 3.038,
+   "seconds": 1.228,
    "status": "pass",
    "symbols": [
     {
@@ -956,7 +956,7 @@
    "n_excluded": 0,
    "n_mismatch": 0,
    "run": "demo12_off",
-   "seconds": 3.534,
+   "seconds": 1.646,
    "status": "pass",
    "symbols": [
     {
@@ -1162,16 +1162,17 @@
   }
  ],
  "meta": {
-  "commit": "f27858c1b",
-  "date": "2026-10-28T17:55:40.886",
+  "commit": "2fde1e34b",
+  "date": "2026-10-31T07:11:34.291",
   "host": "vm",
-  "julia": "1.13.2",
+  "julia": "1.13.3",
+  "threads": 12,
   "times_version": "4.9.7 @ d9a6a25"
  },
  "runs": [
   {
    "cols": 9669,
-   "generate_seconds": 18.363,
+   "generate_seconds": 6.509,
    "id": "demo12_off",
    "licence": "CC-BY-4.0",
    "model": "TIMES_Demo-demo12",
