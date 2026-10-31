@@ -46,4 +46,7 @@ const FIXTURES = joinpath(@__DIR__, "fixtures")
     @testset "Coefficients: coef_ext.vda (M1.2)" begin
         include("unit/test_coef_ext.jl")
     end
+    @testset "Preprocessing: checkpoint fixtures (M1.3)" begin
+        include("unit/test_m13_checkpoints.jl")
+    end
 end

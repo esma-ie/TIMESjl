@@ -1,0 +1,10 @@
+*==============================================================================*
+* TIMES.jl reference harness hook (not part of TIMES).
+* Included by main_ext.mod for stage prep_ext when 'TJLREF' is passed to
+* initmty.mod, i.e. at the extensions' prep_ext in the interpolation stage
+* (preppm.mod L217, v4.9.7): after prep_ext.vda, before the SHAPE preparation
+* of preppm.mod L218-253. An M1.3 checkpoint: dumps every symbol declared so
+* far, only in runs the harness starts with --TJL_CHECKPOINTS=1 (the pre-solve
+* run).
+*==============================================================================*
+$IF SET TJL_CHECKPOINTS execute_unload 'tjl_prep.gdx';

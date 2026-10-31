@@ -13,6 +13,7 @@ For each model and variant, under `<out>/<model>/<variant>/`:
 | `ppm/` | Every symbol after preprocessing (after `ppm_ext`, the point of the `DEBUG` dump) | Layer 1, M1.3 |
 | `coef/` | Every symbol after coefficient calculation (after `coef_ext`) | Layer 1, M1.2 |
 | `presolve/` | Every symbol just before the SOLVE statement: a third run with `SOLVE_NOW=NO`, so `solve.mod` L22 skips the solve and `maindrv.mod` L114 the reports. The state equations are generated from, after `eqmain`, `bndmain`, `pp_qack` and `pp_clean` | Input data for M1.1; layer 1 for sets the equation files compute (e.g. `AFS`) |
+| `input/`, `init/`, `prep/`, `prelv/` | M1.3 checkpoints (harness 0.3.0), written by the pre-solve run: every symbol before `$BATINCLUDE maindrv.mod` (the state preprocessing starts from: DD files read, switches set), after the extensions' `init_ext` (`maindrv.mod` L55), at their `prep_ext` (`preppm.mod` L217) and at their `pp_prelv` (`ppmain.mod` L615). With `ppm/` they split preprocessing into four segments (`scripts/m13_inventory.jl`) | Input data and layer 1 for M1.3 (`docs/m13-plan.md`); `input/` is also what the M1.4 DD reader must reproduce |
 | `final/` | Every symbol at the end of the run (`gdx=`), including levels and marginals | Layers 3–4 |
 | `matrix/`, `matrix_dictmap/` | CONVERT `DumpGDX` and `DictMap` of the scalar model | Layer 2 |
 | `raw/` | CONVERT dictionary and MPS file, listings, logs, GAMS profile, each run's patched run file (`tjl_<run>.run`, harness 0.2.2+) | Debugging, timings, switches for `scripts/m11_probe.jl` |
@@ -32,6 +33,35 @@ then includes [`gams/ppm_ext.tjlref`](gams/ppm_ext.tjlref) and
 [`gams/coef_ext.tjlref`](gams/coef_ext.tjlref) after the standard extensions
 at those two stages. A short block after `$BATINCLUDE maindrv.mod` saves the
 model attributes. Each change to the run file is recorded in the manifest.
+
+The M1.3 checkpoints use the same mechanism at three more stages TIMES
+already offers its extensions: [`gams/init_ext.tjlref`](gams/init_ext.tjlref)
+(`maindrv.mod` L55), [`gams/prep_ext.tjlref`](gams/prep_ext.tjlref)
+(`preppm.mod` L217) and [`gams/pp_prelv.tjlref`](gams/pp_prelv.tjlref)
+(`ppmain.mod` L615). `TJLREF` is the last extension in the list, so each dump
+follows the standard extensions' file at that stage (`init_ext.vda`,
+`prep_ext.vda`, `pp_prelv.vda`). The first checkpoint has no stage: the run-file
+patch puts `execute_unload 'tjl_input.gdx'` just before `$BATINCLUDE
+maindrv.mod`. All four dump only when GAMS is started with
+`--TJL_CHECKPOINTS=1`, which the harness passes to the pre-solve run alone.
+
+`execute_unload` with no symbol list writes every symbol the compiled program
+declares, so even the input dump holds symbols TIMES declares later in its
+source with data (and empty ones); the pre-solve run skips the reports
+(`maindrv.mod` L114), so its dumps lack the report-only symbols the solve run's
+`ppm/` has.
+
+### Checkpoints for references that exist: `--only presolve`
+
+`make_reference.py --only presolve` runs only the pre-solve run and adds its
+dumps (`presolve/` and the four checkpoints) to an existing reference, keeping
+the manifest's other runs and dumps; the pass is recorded under
+`presolve_pass`. Where a reference has no `ppm/` or `coef/` yet, the pass
+writes those too, so it also makes a complete layer-1 reference for M1.2 and
+M1.3. It needs no solve, so it works for every model under the PyPI GAMS demo
+licence (tested with GAMS 54.6.1 on TIMES_Demo demo12, OTCGEN and OTNYC: its
+demo12 `ppm/` equals the licensed reference's at 1e-9). On James's workstation:
+`scripts\run_references.ps1 -Checkpoints -Resume` does it for the core tier.
 
 ## Requirements
 

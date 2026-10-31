@@ -31,8 +31,12 @@ class PatchRunTests(unittest.TestCase):
         self.assertIn("BATINCLUDE initmty.mod TJLREF", patched)
         self.assertIn("execute_unload 'tjl_solveinfo.gdx', TJL_SOLVEINFO;", patched)
         lines = patched.splitlines()
-        k = next(i for i, ln in enumerate(lines) if "maindrv.mod" in ln)
+        k = next(i for i, ln in enumerate(lines) if "batinclude maindrv.mod" in ln.lower())
         self.assertTrue(lines[k + 1].startswith(MARK))
+        # M1.3 input checkpoint just before maindrv, only with TJL_CHECKPOINTS
+        self.assertEqual(lines[k - 1], "$IF SET TJL_CHECKPOINTS execute_unload 'tjl_input.gdx';")
+        self.assertTrue(lines[k - 2].startswith(MARK))
+        self.assertEqual(rep.input_before, lines[k].strip())
 
     def test_existing_extension_args_kept(self):
         text = NZ_LIKE.replace("$   BATINCLUDE initmty.mod\n", "$   BATINCLUDE initmty.mod IER\n")

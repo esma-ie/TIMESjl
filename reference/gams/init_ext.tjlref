@@ -1,0 +1,9 @@
+*==============================================================================*
+* TIMES.jl reference harness hook (not part of TIMES).
+* Included by main_ext.mod for stage init_ext when 'TJLREF' is passed to
+* initmty.mod, i.e. at the extensions' init_ext (maindrv.mod L55, v4.9.7):
+* after init_ext.dsc and init_ext.vda, before ppmain. An M1.3 checkpoint:
+* dumps every symbol declared so far, only in runs the harness starts with
+* --TJL_CHECKPOINTS=1 (the pre-solve run).
+*==============================================================================*
+$IF SET TJL_CHECKPOINTS execute_unload 'tjl_init.gdx';

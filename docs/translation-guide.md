@@ -254,3 +254,10 @@ those checks, their figures and their crafted cases are not published
   TIMES-NZ-steady-v308, OTUS9r-reference (reduce_off) and TIM were already
   GAMS 54.6.1; TIMES-NZ-shift-v308, OTUS9r-reference as_run and
   OTUS9r-tax1_wo_mou were GAMS 52.1.0, to be rerun.
+- 31 Oct 2026: M1.3 change 0 (docs/m13-plan.md), alongside the M1.2
+  close-out (James): harness 0.3.0 dumps four M1.3 checkpoints in the
+  pre-solve run (`input/` before maindrv.mod, `init/` at init_ext, `prep/` at
+  prep_ext, `prelv/` at pp_prelv), so preprocessing splits into four segments
+  each checked from GAMS's own state; `--only presolve` adds them to existing
+  references, under the demo licence too. demo12 checkpoint fixtures in CI;
+  `scripts/m13_inventory.jl` and `scripts/m13_probe.jl`.
