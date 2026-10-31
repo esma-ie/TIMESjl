@@ -110,6 +110,13 @@ No new GAMS runs are needed: every reference zip already has ppm/ and coef/.
   fillcost.gms call (L28) in coef_obj.mod L120-151, which every later reader
   (coef_alt.lin L75, eqobjfix.mod L67, eqobjinv.mod L119) assigns before reading. A fifth
   crafted case (OBJ AUTO, OBLONG NO) checks the L59 exit against GAMS.
+  (31 Oct 2026) The layer-1 check of the files before coef_shp.mod again
+  leaves out the COEF_CPT records that coef_shp.mod L73 rescales (the
+  NCAP_CPX that L52 keeps): the rule was dropped when change 6 merged, but
+  `scripts/m12_probe.jl` checks every file against the one coef dump, which
+  holds the rescaled values, so it applies until coef_shp has run
+  (`later_overwrites(tm; after=<file>)`). No public suite model has NCAP_CPX;
+  `test/unit/test_coef_shp.jl` checks the rule on the crafted "cpt" state.
 - (6) coef_shp.mod L10-37, L43-74 (28 Oct 2026): OPYEAR, the FLO_FUNCX shapes
   (RTP_CAPYR, RTP_FFCX) and the NCAP_CPX rescaling of COEF_CPT (RTP_CPX). demo12
   has neither FLO_FUNCX nor NCAP_CPX, so its layer 1 confirms OPYEAR (210

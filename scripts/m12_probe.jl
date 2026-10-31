@@ -58,7 +58,7 @@ function probe12(refdir, model; roots=Dict{String,String}(), variant="reduce_off
         try
             t = @elapsed f(tm)
             names = vcat(syms, extra(tm))
-            later = name == "coef_ext" ? Dict{String,Function}() : later_overwrites(tm)
+            later = later_overwrites(tm; after=name)
             r = layer1(tm, ref, names; exclude=later)
             bad = filter(!ispass, r)
             # GAMS records left out because a later file (not yet translated) assigns them
