@@ -4,8 +4,10 @@
 # checked against coef_alt.lin run by GAMS itself
 # (scripts/make_coef_alt_unit.jl, test/unit/test_coef_alt.jl).
 #
-# Every reference run has OBJ MOD or OBJ AUTO + OBLONG YES (%CTST% = **0,
-# LINFLO 0, LINACC 0, ALTOBJ 1): the OBLONG branch of the CPT section only.
+# Every reference run but OTCGEN and OTNYC has OBJ MOD or OBJ AUTO + OBLONG
+# YES (%CTST% = **0, LINFLO 0, LINACC 0, ALTOBJ 1): the OBLONG branch of the
+# CPT section only. OTCGEN and OTNYC (OBJ AUTO, no OBLONG) take the L59 exit,
+# as the "plain" case does here.
 # ELCTECOA00 (past vintage 2004 in REG1) and COTNCOA1 (new, 2010) are demo12
 # processes.
 
@@ -17,6 +19,8 @@ initmty.mod L420-432 (1; 2 for ALT; 3 for LIN; -2 for OBLONG + ALT; 0 for
 STD), as the ppm dump would hold it.
 """
 const COEF_ALT_CASES = [
+    # OBJ AUTO without OBLONG: %CTST% empty, the include ends at L59 (YK1 kept from L32)
+    "plain" => (Dict("OBJ" => "AUTO", "OBLONG" => "NO"), 1.0),
     # OBJ ALT without OBLONG: %CTST% **EPS, LINFLO 1, LINACC 0, OBJ_ALTV, L74 RB, L83-86 RTP_CAPVL
     "alt" => (Dict("OBJ" => "ALT", "OBLONG" => "NO"), 2.0),
     # OBJ LIN without OBLONG: LINFLO 1, LINACC 1, no OBJ_ALTV
