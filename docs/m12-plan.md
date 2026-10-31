@@ -69,7 +69,14 @@ No new GAMS runs are needed: every reference zip already has ppm/ and coef/.
   L27 and L34; a FLO_SUM outside the model years, kept by L16, G27; L51) were
   checked before 27 Oct 2026 on a crafted state that GAMS ran through
   coef_ptr.mod itself; that state was built on a model without an open
-  licence and is to be rebuilt on demo12 (no open-model check yet). The
+  licence. Since 31 Oct 2026 they are checked on two crafted demo12 states
+  (test/unit/coef_ptr_case.jl: "flofunc" and "flosum"), each run through
+  coef_ptr.mod by GAMS 54.6.1 (scripts/make_coef_ptr_unit.jl); the nine
+  symbols the file writes or clears match with nothing excluded (CI).
+  demo12 has FLO_SUM only (no FLO_FUNC), so it reaches L15-16 and L34
+  alone. On the way: L19 builds CGTES2 at every vintage of the process
+  once CG_GRP has the group (COEF_PTRAN 1 where nothing was given), and
+  L46-47 replace RPCC_FFUNC with the groups not already in it. The
   reduced-flow conversion (L38-40, L42) needs KEEP_FLOF or RPCG_PTRAN, which
   only REDUCE fills, and is refused. GAMS projection semantics confirmed:
   G26-G28.
