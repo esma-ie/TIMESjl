@@ -25,7 +25,9 @@ function main(times_dir, gams...)
         mkpath(outroot)
         cp(joinpath(work, "out"), out)
         mf = joinpath(out, "manifest.json")
-        write(mf, replace(read(mf, String), joinpath(work, "out.gdx") => "<coef_ptr.mod on test/unit/coef_ptr_case.jl: $name>"))
+        gdx, label = joinpath(work, "out.gdx"), "<coef_ptr.mod on test/unit/coef_ptr_case.jl: $name>"
+        # JSON doubles the backslashes of a Windows path
+        write(mf, replace(read(mf, String), gdx => label, replace(gdx, "\\" => "\\\\") => label))
         println("wrote ", out)
     end
 end
