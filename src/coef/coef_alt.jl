@@ -15,8 +15,9 @@
 #   LINFLO.
 # - L46-47 (LINFLO): FPD, OBJ_PVT, COEF_PVT from the pulses.
 # - L49-53: OBJ_ALTV for |ALTOBJ| = 2 (OBJ ALT); L55-58: OBJ_LINT.
-# - L59: with %CTST% empty (%1 = VAR) the include ends here: COEF_CPT then
-#   comes from coef_cpt.mod L19-21.
+# - L59: with %CTST% empty (%1 = VAR: OBJ AUTO or STD without OBLONG) the
+#   include ends here: COEF_CPT then comes from coef_cpt.mod L19-21, and YK1
+#   keeps the pairs L32 set (L66 and L160, which clear it, are not reached).
 # - L65-79: PASTSUM, R_DF, RB (L74 with LINFLO), COEF_CPT; L80: OBLONG ends
 #   it; L81: a stepped solve (TIMESTEP) ends it; L83-86: RTP_CAPVL otherwise.
 # - L160: PASTSUM and YK1 cleared.
@@ -86,6 +87,7 @@ function coef_alt!(tm)
     gput!(tm, "PERDINV", perdinv)
     # L32: YK1(T,Y_EOH)$(YEARVAL(T)<=YEARVAL(Y_EOH)) = YES
     yk1 = Set((t, y) for t in t_list for y in y_eoh if yv(t) <= yv(y))
+    gput!(tm, "YK1", yk1)                 # GAMS state from here on: the L59 exit leaves it so
     # L34-35
     tpulseyr = Set((t, y) for (t, y) in perdinv if y in y_eoh)
     tpulse = Dict{NTuple{2,String},Float64}()

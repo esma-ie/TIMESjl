@@ -1,9 +1,10 @@
 # M1.2 (5): coef_alt.lin L11-87, L159-161 (v4.9.7), as coefmain.mod L26
 # calls it. Layer 1 on TIMES_Demo demo12 (OBJ MOD: %CTST% **0) against its
-# coef dump, and on four crafted switch settings against coef_alt.lin run by
-# GAMS itself (scripts/make_coef_alt_unit.jl): OBJ ALT, OBJ LIN, OBLONG with
-# ALT, and INT_DEFAULT('PASTI') with past lead times (L69 recomputes a past
-# lead time from the discount factor: 3 becomes 3.159 at 5%).
+# coef dump, and on five crafted switch settings against coef_alt.lin run by
+# GAMS itself (scripts/make_coef_alt_unit.jl): OBJ AUTO without OBLONG (the
+# L59 exit, as OTCGEN and OTNYC take it), OBJ ALT, OBJ LIN, OBLONG with ALT,
+# and INT_DEFAULT('PASTI') with past lead times (L69 recomputes a past lead
+# time from the discount factor: 3 becomes 3.159 at 5%).
 
 using TIMES: TimesModel, DumpData, coef_alt!, coef_alt_unported, later_overwrites, layer1, linflo, linacc, gparam, gset,
              UnportedError
@@ -59,6 +60,12 @@ end
             @test isempty(gparam(tm, "OBJ_ALTV"))
         elseif name == "pasti"
             @test gparam(tm, "NCAP_ILED")[("REG1", "2004", "ELCTECOA00")] ≈ 3.1594622082423074   # L69 recomputes it
+        elseif name == "plain"
+            # L59 exit: YK1 stays as L32 sets it (T <= Y_EOH); nothing of L65-87 runs
+            yk1 = gset(tm, "YK1").keys
+            @test !isempty(yk1) && all(parse(Int, t) <= parse(Int, y) for (t, y) in yk1)
+            @test isempty(gparam(tm, "RTP_CAPVL")) && isempty(gparam(tm, "R_DF")) && isempty(gparam(tm, "RB"))
+            continue                                     # COEF_CPT is coef_cpt.mod's (L19-21)
         end
         # L79 clears small values only at milestone vintages: a past vintage's record may be negative
         @test any(v -> v < 0, values(gparam(tm, "COEF_CPT").values))
