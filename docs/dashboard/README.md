@@ -21,13 +21,24 @@ or as the private artifact James keeps.
       julia --project=test scripts/parity_report.jl docs/dashboard/demo12.json --embed
 
 - `suite-public.json`: the parity report of the reference runs of the public
-  suite models (`redistribute = "public"` in `reference/suite.toml`: TIMES_Demo
-  demo12, TIMES-NZ 3.0.8, OTUS9r), made on James's workstation from
-  `timesjl-reference`, embedded in the page's `report-suite` block
-  (`--embed-as report-suite`; the embedding refuses any run that is not
-  `redistribute = "public"`):
+  suite models (`redistribute = "public"` in `reference/suite.toml`), made on
+  James's workstation from `timesjl-reference`, embedded in the page's
+  `report-suite` block (`--embed-as report-suite`; the embedding refuses any
+  run that is not `redistribute = "public"`). It covers the core tier's public
+  models (`tier = "core"`); milestone-tier models are added when a milestone
+  run makes them:
 
-      julia --project=test scripts/parity_report.jl docs/dashboard/suite-public.json --embed-as report-suite --ref ../timesjl-reference --root otus=../timesjl-sources/OTUS9r --root times_nz_dd=../timesjl-sources/TIMES-NZ TIMES_Demo-demo12 TIMES-NZ-steady-v308 TIMES-NZ-shift-v308 OTUS9r-reference OTUS9r-tax1_wo_mou
+      julia --project=test scripts/parity_report.jl docs/dashboard/suite-public.json --embed-as report-suite --ref ../timesjl-reference --root otus=../timesjl-sources/OTUS9r --root times_nz_dd=../timesjl-sources/TIMES-NZ --root otcgen=../timesjl-sources/OTCGEN --root otnyc=../timesjl-sources/OTNYC TIMES_Demo-demo12 TIMES-NZ-steady-v308 OTUS9r-reference OTCGEN-gc_ref OTNYC-s1_nyc_ref
+
+  A model probed in a separate run gets its own file and block
+  (`suite-public-<name>.json`, `report-suite-<name>`); the page merges every
+  `report*` block, and its header shows the last block's commit and date. The
+  next run that covers all of them writes `suite-public.json` alone and the
+  extra file and block are removed. Before committing a report, set
+  `meta.host` to `"workstation"` (the script records the machine name).
+  Reports of 30 Oct 2026: `suite-public.json` (demo12, TIMES-NZ steady,
+  OTUS9r reference, at 6f3d91e) and `suite-public-otcgen-otnyc.json` (OTCGEN,
+  OTNYC, at 2fde1e3; `src/` is the same at both commits).
 
 - Local runs (TIM, on James's machine) are reported the same way from a
   reference directory and loaded into the open page with its "Load results

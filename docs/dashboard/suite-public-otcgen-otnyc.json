@@ -1,0 +1,1889 @@
+{
+ "checks": [
+  {
+   "detail": [
+    "needs EQ_STGIPS: eqstgips.mod L13 [PRC_STGIPS is not empty]",
+    "needs user constraints, dynamic RHS direction (EQ(l)_UCSU/UCRSU/UCRSUS/UCSUS): equserco.mod L80-106 [UC_DYNDIR has an 'RHS' entry]"
+   ],
+   "layer": 2,
+   "n_compared": 0,
+   "n_excluded": 0,
+   "n_mismatch": 0,
+   "run": "OTCGEN-gc_ref-reduce_off",
+   "status": "refused",
+   "unit": "matrix"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 1438080,
+   "n_excluded": 3278,
+   "n_mismatch": 0,
+   "run": "OTCGEN-gc_ref-reduce_off",
+   "seconds": 101.825,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "SOW",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 24,
+     "name": "SW_T",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 25,
+     "name": "B",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 25,
+     "name": "E",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 25,
+     "name": "M",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 25,
+     "name": "D",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 15,
+     "name": "MY_TS",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 177642,
+     "name": "NCAP_AF",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 276,
+     "name": "NCAP_AFS",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 715352,
+     "name": "COEF_AF",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTPS_BD",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_AFBX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_ISHPR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 544670,
+     "name": "COEF_CPT",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_cpt"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 0,
+   "n_excluded": 0,
+   "n_mismatch": 0,
+   "run": "OTCGEN-gc_ref-reduce_off",
+   "seconds": 0.399,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "COEF_ICOM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "COEF_OCOM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "COEF_RCOM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_OCOM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_CLAG",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_CLED",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RPC_CAPFLO",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_nio"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 2888809,
+   "n_excluded": 565456,
+   "n_mismatch": 0,
+   "run": "OTCGEN-gc_ref-reduce_off",
+   "seconds": 399.073,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 2825748,
+     "name": "COEF_PTRAN",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 12282,
+     "name": "RPCC_FFUNC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 50779,
+     "name": "PRC_CG",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "KEEP_FLOF",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "ACT_FLO",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "CGTEST",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "CGTES2",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_ptr"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 1048300,
+   "n_excluded": 0,
+   "n_mismatch": 0,
+   "run": "OTCGEN-gc_ref-reduce_off",
+   "seconds": 69.322,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 31,
+     "name": "TS_ANN",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 183,
+     "name": "EACHYEAR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 183,
+     "name": "Y",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 16836,
+     "name": "YK",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 85,
+     "name": "Y_EOH",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "YR_V1",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "YR_VL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "ACL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 366,
+     "name": "G_DRATE",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 368,
+     "name": "OBJ_DISC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "G_DYEAR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 2,
+     "name": "G_RCUR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 48,
+     "name": "OBJ_PVT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 48,
+     "name": "COEF_PVT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 50,
+     "name": "OBJ_RFR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_COMNT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_COMPD",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_IPRIC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "FLO_COST",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "FLO_DELIV",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_VFLO",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_ISPCT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 509562,
+     "name": "OB_ICOST",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_ISUB",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_ITAX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 503819,
+     "name": "OB_FOM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_FSB",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_FTX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_DCC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_DLC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 16632,
+     "name": "OB_ACT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_FCOS",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_FDEL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_FTAX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_FSUB",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RPC_CUR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "X_RP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_COM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_IRE",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "SHEDJ",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "SHAPED",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 84,
+     "name": "FIL",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_obj"
+  },
+  {
+   "detail": [
+    "only GAMS (\"2027\", \"2027\")",
+    "only GAMS (\"2060\", \"2102\")",
+    "only GAMS (\"2035\", \"2043\")",
+    "only GAMS (\"2024\", \"2079\")",
+    "only GAMS (\"2027\", \"2035\")"
+   ],
+   "layer": 1,
+   "n_compared": 546582,
+   "n_excluded": 3278,
+   "n_mismatch": 1270,
+   "run": "OTCGEN-gc_ref-reduce_off",
+   "seconds": 1.336,
+   "status": "fail",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 82,
+     "name": "PERDINV",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 142,
+     "name": "TPULSEYR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 142,
+     "name": "TPULSE",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 110,
+     "name": "OBJ_LINT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_ALTV",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_CAPVL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RB",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "R_DF",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 544670,
+     "name": "COEF_CPT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "PASTSUM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 1261,
+     "n": 1284,
+     "name": "YK1",
+     "status": "fail"
+    },
+    {
+     "mismatch": 0,
+     "n": 24,
+     "name": "FIL2",
+     "status": "pass"
+    },
+    {
+     "mismatch": 9,
+     "n": 8,
+     "name": "MY_ARRAY",
+     "status": "fail"
+    },
+    {
+     "mismatch": 0,
+     "n": 24,
+     "name": "FPD",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 48,
+     "name": "OBJ_PVT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 48,
+     "name": "COEF_PVT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_ILED",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_alt"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 544687,
+   "n_excluded": 3278,
+   "n_mismatch": 0,
+   "run": "OTCGEN-gc_ref-reduce_off",
+   "seconds": 41.206,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 15,
+     "name": "OPYEAR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "AGEJ",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "Z",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "FLO_FUNCX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_CPX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_CAPYR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_FFCX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_CPX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 544670,
+     "name": "COEF_CPT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "PRC_YMIN",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "PRC_YMAX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "TRACKP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RVPRL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RP_GRP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_CGC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "COEF_CAP",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_shp"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 4063414,
+   "n_excluded": 0,
+   "n_mismatch": 0,
+   "run": "OTCGEN-gc_ref-reduce_off",
+   "seconds": 551.91,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 547948,
+     "name": "COEF_CPT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 327,
+     "name": "NCAP_PASTI",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 4100,
+     "name": "PRC_RESID",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTFORC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RP_STL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "COEF_AFUPS",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "ACT_CSTUP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 16920,
+     "name": "RCS_COMBAL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 28728,
+     "name": "RTCS_VARC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RPC_CONLY",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 89,
+     "name": "TOP_IRE",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "TRACKC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "TRACKP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RCS",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "UC_TIME",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 687,
+     "name": "UC_ON",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "R_UC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 3388170,
+     "name": "COEF_PTRAN",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 61033,
+     "name": "ACT_EFF",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 15316,
+     "name": "RPCC_FFUNC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RP_CGC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "TRACKPC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RP_GRP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "CG_GRP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RP_DCGG",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_CAPYR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RPCG_PTRAN",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "UNCD7",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 48,
+     "name": "COEF_PVT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 48,
+     "name": "VDA_DISC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "COEF_ILED",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "ACT_FLO",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_FFCX",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_ext"
+  },
+  {
+   "detail": [
+    "needs EQ_STGIPS: eqstgips.mod L13 [PRC_STGIPS is not empty]"
+   ],
+   "layer": 2,
+   "n_compared": 0,
+   "n_excluded": 0,
+   "n_mismatch": 0,
+   "run": "OTNYC-s1_nyc_ref-reduce_off",
+   "status": "refused",
+   "unit": "matrix"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 514798,
+   "n_excluded": 2597,
+   "n_mismatch": 0,
+   "run": "OTNYC-s1_nyc_ref-reduce_off",
+   "seconds": 24.098,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "SOW",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 11,
+     "name": "SW_T",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 12,
+     "name": "B",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 12,
+     "name": "E",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 12,
+     "name": "M",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 12,
+     "name": "D",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 15,
+     "name": "MY_TS",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 118165,
+     "name": "NCAP_AF",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 100,
+     "name": "NCAP_AFS",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 254119,
+     "name": "COEF_AF",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTPS_BD",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_AFBX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_ISHPR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 142339,
+     "name": "COEF_CPT",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_cpt"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 0,
+   "n_excluded": 0,
+   "n_mismatch": 0,
+   "run": "OTNYC-s1_nyc_ref-reduce_off",
+   "seconds": 0.001,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "COEF_ICOM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "COEF_OCOM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "COEF_RCOM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_OCOM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_CLAG",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_CLED",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RPC_CAPFLO",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_nio"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 460661,
+   "n_excluded": 164081,
+   "n_mismatch": 0,
+   "run": "OTNYC-s1_nyc_ref-reduce_off",
+   "seconds": 34.225,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 421297,
+     "name": "COEF_PTRAN",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 2134,
+     "name": "RPCC_FFUNC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 37230,
+     "name": "PRC_CG",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "KEEP_FLOF",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "ACT_FLO",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "CGTEST",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "CGTES2",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_ptr"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 379087,
+   "n_excluded": 0,
+   "n_mismatch": 0,
+   "run": "OTNYC-s1_nyc_ref-reduce_off",
+   "seconds": 17.517,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 31,
+     "name": "TS_ANN",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 168,
+     "name": "EACHYEAR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 168,
+     "name": "Y",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 14196,
+     "name": "YK",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 48,
+     "name": "Y_EOH",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "YR_V1",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "YR_VL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "ACL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1204,
+     "name": "G_DRATE",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1211,
+     "name": "OBJ_DISC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "G_DYEAR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 7,
+     "name": "G_RCUR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 77,
+     "name": "OBJ_PVT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 77,
+     "name": "COEF_PVT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 84,
+     "name": "OBJ_RFR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_COMNT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_COMPD",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 74542,
+     "name": "OBJ_IPRIC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "FLO_COST",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "FLO_DELIV",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_VFLO",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_ISPCT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 154390,
+     "name": "OB_ICOST",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_ISUB",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_ITAX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 104775,
+     "name": "OB_FOM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_FSB",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_FTX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_DCC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_DLC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 28059,
+     "name": "OB_ACT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_FCOS",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_FDEL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_FTAX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_FSUB",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RPC_CUR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "X_RP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_COM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OB_IRE",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "SHEDJ",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "SHAPED",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 47,
+     "name": "FIL",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_obj"
+  },
+  {
+   "detail": [
+    "only GAMS (\"2030\", \"2050\")",
+    "only GAMS (\"2035\", \"2043\")",
+    "only GAMS (\"2015\", \"2035\")",
+    "only GAMS (\"2012\", \"2043\")",
+    "only GAMS (\"2040\", \"2049\")"
+   ],
+   "layer": 1,
+   "n_compared": 143277,
+   "n_excluded": 2597,
+   "n_mismatch": 291,
+   "run": "OTNYC-s1_nyc_ref-reduce_off",
+   "seconds": 0.006,
+   "status": "fail",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 46,
+     "name": "PERDINV",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 82,
+     "name": "TPULSEYR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 82,
+     "name": "TPULSE",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 210,
+     "name": "OBJ_LINT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "OBJ_ALTV",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_CAPVL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RB",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "R_DF",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 142339,
+     "name": "COEF_CPT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "PASTSUM",
+     "status": "pass"
+    },
+    {
+     "mismatch": 280,
+     "n": 290,
+     "name": "YK1",
+     "status": "fail"
+    },
+    {
+     "mismatch": 0,
+     "n": 11,
+     "name": "FIL2",
+     "status": "pass"
+    },
+    {
+     "mismatch": 11,
+     "n": 10,
+     "name": "MY_ARRAY",
+     "status": "fail"
+    },
+    {
+     "mismatch": 0,
+     "n": 11,
+     "name": "FPD",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 77,
+     "name": "OBJ_PVT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 77,
+     "name": "COEF_PVT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 42,
+     "name": "NCAP_ILED",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_alt"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 142369,
+   "n_excluded": 2597,
+   "n_mismatch": 0,
+   "run": "OTNYC-s1_nyc_ref-reduce_off",
+   "seconds": 7.702,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 28,
+     "name": "OPYEAR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "AGEJ",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "Z",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "FLO_FUNCX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "NCAP_CPX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_CAPYR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_FFCX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_CPX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 142339,
+     "name": "COEF_CPT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "PRC_YMIN",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "PRC_YMAX",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "TRACKP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RVPRL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RP_GRP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_CGC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "COEF_CAP",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_shp"
+  },
+  {
+   "detail": [],
+   "layer": 1,
+   "n_compared": 831914,
+   "n_excluded": 0,
+   "n_mismatch": 0,
+   "run": "OTNYC-s1_nyc_ref-reduce_off",
+   "seconds": 67.264,
+   "status": "pass",
+   "symbols": [
+    {
+     "mismatch": 0,
+     "n": 144936,
+     "name": "COEF_CPT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 467,
+     "name": "NCAP_PASTI",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 3489,
+     "name": "PRC_RESID",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTFORC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1,
+     "name": "RP_STL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1824,
+     "name": "COEF_AFUPS",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "ACT_CSTUP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 21384,
+     "name": "RCS_COMBAL",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 42988,
+     "name": "RTCS_VARC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RPC_CONLY",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1752,
+     "name": "TOP_IRE",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "TRACKC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "TRACKP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RCS",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "UC_TIME",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 1446,
+     "name": "UC_ON",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "R_UC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 581184,
+     "name": "COEF_PTRAN",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 25926,
+     "name": "ACT_EFF",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 6328,
+     "name": "RPCC_FFUNC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RP_CGC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "TRACKPC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RP_GRP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "CG_GRP",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RP_DCGG",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_CAPYR",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RPCG_PTRAN",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "UNCD7",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 77,
+     "name": "COEF_PVT",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 77,
+     "name": "VDA_DISC",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 35,
+     "name": "COEF_ILED",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "ACT_FLO",
+     "status": "pass"
+    },
+    {
+     "mismatch": 0,
+     "n": 0,
+     "name": "RTP_FFCX",
+     "status": "pass"
+    }
+   ],
+   "unit": "coef_ext"
+  }
+ ],
+ "meta": {
+  "commit": "2fde1e34b",
+  "date": "2026-10-31T00:12:49.813",
+  "host": "workstation",
+  "julia": "1.13.2",
+  "threads": 12,
+  "times_version": "4.9.7 @ d9a6a25"
+ },
+ "runs": [
+  {
+   "cols": 1507223,
+   "harness": "0.2.4",
+   "id": "OTCGEN-gc_ref-reduce_off",
+   "licence": "CC-BY-SA-4.0",
+   "model": "OTCGEN-gc_ref",
+   "redistribute": "public",
+   "reference_created": "2026-10-30T23:39:44+00:00",
+   "rows": 1257132,
+   "source": "reference run (local)",
+   "variant": "reduce_off"
+  },
+  {
+   "cols": 858299,
+   "harness": "0.2.4",
+   "id": "OTNYC-s1_nyc_ref-reduce_off",
+   "licence": "CC-BY-SA-4.0",
+   "model": "OTNYC-s1_nyc_ref",
+   "redistribute": "public",
+   "reference_created": "2026-10-31T00:03:40+00:00",
+   "rows": 504698,
+   "source": "reference run (local)",
+   "variant": "reduce_off"
+  }
+ ]
+}
