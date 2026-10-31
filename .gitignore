@@ -6,3 +6,9 @@ __pycache__/
 /_work/
 *.gdx
 *.lst
+
+# Claude Code: personal, machine-local files (paths, folder access) and the
+# worktrees it creates. Never committed; CLAUDE.md holds the shared rules.
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/worktrees/
