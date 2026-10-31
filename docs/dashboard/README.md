@@ -20,14 +20,32 @@ or as the private artifact James keeps.
 
       julia --project=test scripts/parity_report.jl docs/dashboard/demo12.json --embed
 
-- `suite-public.json`: the parity report of the reference runs of the public
-  suite models (`redistribute = "public"` in `reference/suite.toml`: TIMES_Demo
-  demo12, TIMES-NZ 3.0.8, OTUS9r), made on James's workstation from
-  `timesjl-reference`, embedded in the page's `report-suite` block
-  (`--embed-as report-suite`; the embedding refuses any run that is not
-  `redistribute = "public"`):
+- `suite-public*.json`: parity reports of the reference runs of the public
+  suite models (`redistribute = "public"` in `reference/suite.toml`), made on
+  James's workstation from `timesjl-reference` and embedded in the page's
+  `report-suite*` blocks (the embedding refuses any run that is not
+  `redistribute = "public"`). A probe of the core tier's public models
+  (`tier = "core"`):
 
-      julia --project=test scripts/parity_report.jl docs/dashboard/suite-public.json --embed-as report-suite --ref ../timesjl-reference --root otus=../timesjl-sources/OTUS9r --root times_nz_dd=../timesjl-sources/TIMES-NZ TIMES_Demo-demo12 TIMES-NZ-steady-v308 TIMES-NZ-shift-v308 OTUS9r-reference OTUS9r-tax1_wo_mou
+      julia --project=test scripts/parity_report.jl docs/dashboard/suite-public-core.json --embed-as report-suite-core --ref ../timesjl-reference --root otus=../timesjl-sources/OTUS9r --root times_nz_dd=../timesjl-sources/TIMES-NZ --root otcgen=../timesjl-sources/OTCGEN --root otnyc=../timesjl-sources/OTNYC TIMES_Demo-demo12 TIMES-NZ-steady-v308 OTUS9r-reference OTCGEN-gc_ref OTNYC-s1_nyc_ref
+
+  Each probe run gets its own file and block (`suite-public-<name>.json`,
+  `report-suite-<name>`, `--embed-as report-suite-<name>`). The page merges
+  every `report*` block: where several reports carry a run, the newest
+  (`meta.date`) wins, so a run not probed again keeps its last result, and
+  the header lists the commits and dates of the reports in use. Before
+  committing a report, set `meta.host` to `"workstation"` (the script records
+  the machine name). The reports now embedded:
+
+  | File | Block | Runs | Commit, date (UTC) |
+  | --- | --- | --- | --- |
+  | `suite-public.json` | `report-suite` | demo12, TIMES-NZ steady and shift, OTUS9r reference and tax1_wo_mou | a8c17bd (pre-publication history), 30 Oct 05:51 |
+  | `suite-public-core.json` | `report-suite-core` | demo12, TIMES-NZ steady, OTUS9r reference (core tier) | 6f3d91e, 30 Oct 20:03 |
+  | `suite-public-otc.json` | `report-suite-otc` | OTCGEN gc_ref, OTNYC s1_nyc_ref (core tier) | 2fde1e3, 31 Oct 00:12 |
+
+  `src/` is the same at 6f3d91e and 2fde1e3. TIMES-NZ shift and OTUS9r
+  tax1_wo_mou (milestone tier) show their 30 Oct 05:51 results until a
+  milestone run probes them again.
 
 - Local runs (TIM, on James's machine) are reported the same way from a
   reference directory and loaded into the open page with its "Load results
