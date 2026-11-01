@@ -281,3 +281,10 @@ those checks, their figures and their crafted cases are not published
   in docs/m12-plan.md. OTUS9r-tax1_wo_mou (paused) and JRC-EU-TIMES-cli_ll
   were not run for the gate: James defers both to later Phase 1 milestones.
   M1.3 starts.
+- 31 Oct 2026: M1.3 (1): the init segment (maindrv.mod L55: init_ext.dsc,
+  init_ext.vda with equcrtp.vda INIT_EXT) matches GAMS on every set and
+  parameter at the init checkpoint on the five core models, reduce_off and
+  as_run, and on demo12 in CI; TIM-bau checked locally. Discrete-capacity
+  data is refused, and the paths no core model reaches wait for crafted
+  demo12 states (change 1b). prepparm.gms moves to change 6. New GAMS
+  semantics: G36 (a GDX file holds only the labels its records use).

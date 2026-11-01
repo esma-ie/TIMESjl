@@ -52,6 +52,9 @@ include("coef/coef_alt.jl")
 include("coef/coef_shp.jl")
 include("coef/coef_ext.jl")
 include("coef/later.jl")
+include("ext/dsc/init_ext.jl")
+include("ext/vda/equcrtp.jl")
+include("ext/vda/init_ext.jl")
 include("model/generate.jl")
 
 end # module TIMES

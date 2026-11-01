@@ -340,3 +340,19 @@ function gams_sort!(keys::Vector{NTuple{N,String}}, d::DumpData) where {N}
     end
     return sort!(keys; by=k -> ntuple(i -> rank(k[i]), Val(N)))
 end
+
+"""
+    register_uel!(data, label) -> data
+
+Add a label that the TIMES source names itself (e.g. the empty label `''`
+of init_ext.vda L78-87) to the unique-element order when no record of the
+dump uses it: a GDX file holds only the labels some record uses
+(docs/discrepancies.md G36), so such a label is missing from the dump it
+starts from. It is placed after every known label; its position in the GAMS
+order cannot be read from the dump, which only matters for the iteration
+order of sets that hold it.
+"""
+function register_uel!(d::DumpData, label::AbstractString)
+    haskey(d.uelorder, lowercase(label)) || (d.uelorder[lowercase(label)] = length(d.uelorder) + 1)
+    return d
+end

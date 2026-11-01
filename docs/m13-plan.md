@@ -11,7 +11,8 @@ close-out.
 maindrv.mod L55-58 (v4.9.7):
 
 - L55: the extensions' `init_ext` (`init_ext.dsc`, `init_ext.vda` with
-  `equcrtp.vda` INIT_EXT and `prepparm.gms`);
+  `equcrtp.vda` INIT_EXT; `prepparm.gms` is called from `equcrtp.vda`
+  PREP_EXT, L55, and belongs to the prep segment);
 - L56: `ppmain.mod` and its includes (`timslice.mod`, `pp_off.mod`,
   `preppm.mod` with `prepxtra.mod`, `fillparm.gms`, `fillvint.gms`,
   `curex.gms`, `preshape.gms`; `filparam.gms`, `filshape.gms`, `pp_qafs.mod`,
@@ -69,12 +70,13 @@ GAMS 54.6.1):
 | # | GAMS | Lines | Checked at |
 | --- | --- | --- | --- |
 | 0 | infrastructure: harness 0.3.0 checkpoints, `--only presolve`, `m13_inventory.jl`, demo12 checkpoint fixtures, `m13_probe.jl` | | |
-| 1 | init_ext.dsc; init_ext.vda with equcrtp.vda (INIT_EXT) and prepparm.gms | 1-23; 1-156 | init |
+| 1 | init_ext.dsc; init_ext.vda with equcrtp.vda (INIT_EXT) | 11-23; 52-156; 15-38 | init |
+| 1b | crafted demo12 states for the init_ext paths no core model reaches (DSC data, OFF-ranges, peaking, storage, partial loads, UC_ACTBET, ...) | | init |
 | 2 | ppmain.mod: declarations, control sets, storage sets, NCAP_PASTI spread | 1-137 | prep |
 | 3 | ppmain.mod with filparam.gms (G_OFFTHD): years, periods, B/E/D/M, LEAD/LAG, EOHYEARS | 138-191 | prep |
 | 4 | timslice.mod, pp_off.mod | 1-123; 1-23 | prep |
 | 5 | ppmain.mod: PASTI migration, START/NOFF, RTP_OFF | 199-247 | prep |
-| 6 | preppm.mod with prepxtra.mod, fillparm.gms, fillvint.gms, curex.gms (interpolation); prep_ext.vda. May split in two. | 1-217; 1-82 | prep |
+| 6 | preppm.mod with prepxtra.mod, fillparm.gms, fillvint.gms, curex.gms, prepparm.gms (interpolation); prep_ext.vda with equcrtp.vda (PREP_EXT). May split in two. | 1-217; 1-82 | prep |
 | 7 | preppm.mod with preshape.gms; ppmain.mod: horizon, topology, PG/SPG, commodity and process timeslice levels, RTPCS_VAR | 218-253; 249-460 | prelv |
 | 8 | ppmain.mod: lifetimes, capacity transfer, capacity bounds, availability years, PRC_ACTFLO; pp_prelv.vda | 462-614; 1-124 | prelv |
 | 9 | ppmain.mod with pp_qafs.mod, filshape.gms, filparam.gms: SHAPE/MULTI, defaults, capacity-only flows | 616-682 | ppm |
@@ -116,6 +118,23 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 - Preprocessing timed against GAMS (docs/timings.md).
 
 ## Findings so far
+
+- (1) init_ext.dsc, init_ext.vda with equcrtp.vda INIT_EXT (31 Oct 2026):
+  the input -> init segment matches GAMS on every set and parameter at the
+  init checkpoint (824-825 symbols, nothing excluded) on the five core
+  models, reduce_off and as_run (GAMS 54.6.1 checkpoints), and on demo12 in
+  CI; TIM-bau was probed locally (results stay on James's machine).
+  `prepparm.gms` is not part of this segment: equcrtp.vda calls it in its
+  PREP_EXT section (L55), so it moves to change 6. DSC: no core model has
+  discrete or semi-continuous capacity data, so no init_ext.dsc statement
+  applies and %DSC% becomes NO; such data is refused until crafted cases
+  check L12-17 (`T--ORD(T)` on a subset, `OPTION` onto the parameter
+  PRC_SEMI). `$IF DEFINED x` is read as "x has records in the input dump"
+  (G1, G35): nothing compiled before init_ext.dsc assigns PRC_DSCNCAP,
+  NCAP_DISC or RCAP_BLK, so only DD data can define them. The compile-time
+  switches the segment sets (%DSC%, %POWERFLO%) go into `tm.switches`.
+  Paths no core model reaches are listed in docs/gams-julia-map.md; they
+  get crafted demo12 states run through init_ext.vda by GAMS in change 1b.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
