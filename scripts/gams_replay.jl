@@ -110,11 +110,13 @@ batinclude arguments, files in `times_dir`) and the files they include
 `setglobals`, unload `outputs` and return them as a dump (converted with
 reference/python/gdx2arrow.py). The Python is `python3`, or the one named by
 the environment variable `TJL_PYTHON` (on Windows the harness venv's
-`python.exe`, which has the GAMS Python API).
+`python.exe`, which has the GAMS Python API). `onmulti` switches on
+`\$onMulti` after the state, as TIMES does (initsys.mod L22), for included
+code that declares a state symbol again (timslice.mod L34, `SET TS_OFF //;`).
 """
 function gams_replay(tm, includes, outputs; times_dir, also_scan=String[], skip=Set{String}(), setglobals=Dict{String,String}(),
                      gams=joinpath(readchomp(`$(replay_python()) -c "import gamspy_base;print(gamspy_base.directory)"`), "gams"),
-                     workdir=mktempdir())
+                     workdir=mktempdir(), onmulti::Bool=false)
     files = [joinpath(times_dir, f) for f in vcat([f for (f, _) in includes], also_scan)]
     write(joinpath(workdir, "state.gms"), replay_state(tm, gams_identifiers(files); skip))
     io = IOBuffer()
@@ -126,6 +128,7 @@ function gams_replay(tm, includes, outputs; times_dir, also_scan=String[], skip=
     # compiled after them (e.g. fillcost.gms L42 writes the label 'EMPTY')
     println(io, "\$onEps")
     println(io, "\$onWarning")
+    onmulti && println(io, "\$onMulti")
     for (f, args) in includes
         println(io, "\$batinclude ", f, " ", args)
     end

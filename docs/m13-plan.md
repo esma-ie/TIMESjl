@@ -178,6 +178,26 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   at G_OFFTHD('0') counts as none (my first version extrapolated both ways
   there; fixed). The OBLONG ABORT (L159) is a Julia error, tested in Julia
   only.
+- (4) timslice.mod with pp_off.mod (1 Nov 2026): matches GAMS at the prep
+  checkpoint on the 24 symbols it writes (`timslice_symbols`; ppmain.mod
+  L199-248, preppm.mod L1-217 with its includes, prep_ext.vda, resloadc.vda
+  and powerflo.vda only read them) on the five core models, reduce_off and
+  as_run, and on demo12 in CI; TIM-bau was probed locally (results stay on
+  James's machine). The core models reach three levels, four (TIMES-NZ:
+  WEEKLY), external regions (L18, L43) and season fractions filled from
+  their children (L45-46); none has TS_OFF, DYNTS, RP_UPR/RP_UPT, zero
+  fractions, fractions to normalise or TS_CYCLE data. Six crafted demo12
+  states ("norm", "zerofrac", "tsoff_first", "tsoff_later", "dynts", "uc",
+  test/unit/timslice_case.jl) run through an unchanged copy of ppmain.mod
+  L1-196 by GAMS 54.6.1 match on the 24 symbols (CI); the replay needs
+  `$onMulti` (`gams_replay(...; onmulti=true)`), as L34 declares TS_OFF
+  again. GAMS confirms (G39): a LOOP's `$`-condition is read element by
+  element (L63: RLUP holds the next coarser level only); `SET TS_OFF //;`
+  under `$ONMULTI` keeps the data; RS_UP and JS take the G26 pairing (child
+  first, parent last). The `uc` case does not make L118's MOD argument
+  negative; MOD's sign rule is from (1b). The ABORTs (L24, L74) are Julia
+  errors, tested in Julia only. pp_off.mod is split into `pp_off_fil` and
+  `pp_off_periods` for its four later callers.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
@@ -192,6 +212,9 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 
 - QA log: `pp_qaput` calls write QA_CHECK.LOG and set PUTOUT, PUTGRP and
   ERRLEV (first in ppmain.mod L35, `$IF WARNINGS`, which depends on GAMS
-  compile warnings that no dump records). TIMES.jl does not write the log
-  yet; decide where it is translated, and whether ERRLEV aborts are
-  checked, before the M1.3 gate. Until then the scalars are not compared.
+  compile warnings that no dump records; then timslice.mod L81-82, a
+  warning when year fractions are normalised, and L101-104, a FATAL line,
+  ERRLEV 99, for a timeslice with several parents, which pp_qack.mod L378
+  acts on). TIMES.jl does not write the log yet; decide where it is
+  translated, and whether ERRLEV aborts are checked, before the M1.3 gate.
+  Until then the scalars are not compared.

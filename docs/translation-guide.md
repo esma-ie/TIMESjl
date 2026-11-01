@@ -309,3 +309,11 @@ those checks, their figures and their crafted cases are not published
   Eight crafted demo12 states run through L1-191 by GAMS 54.6.1 cover the
   reset first and last periods and every G_OFFTHD option (CI). New GAMS
   semantics: G38.
+- 1 Nov 2026: M1.3 (4): timslice.mod with pp_off.mod (timeslice levels and
+  tree, year fractions, TS_OFF and dynamic timeslices, storage cycles and
+  lags, the unit-commitment hour maps) matches GAMS at the prep checkpoint on
+  the 24 symbols it writes on the five core models, reduce_off and as_run,
+  and on demo12 in CI; TIM-bau checked locally. Six crafted demo12 states run
+  through ppmain.mod L1-196 by GAMS 54.6.1 cover normalisation, zero
+  fractions, TS_CYCLE, TS_OFF with and without DYNTS and unit commitment
+  (CI). pp_off.mod is a function change 5 reuses. New GAMS semantics: G39.
