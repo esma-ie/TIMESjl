@@ -293,3 +293,11 @@ those checks, their figures and their crafted cases are not published
   FLO_COST clean-up, VDA_CEH, FLO_EFF, IRE_FLOSUM, COM_AGG, SHELL ANSWER,
   WAVER, UC_ACTBET) pass layer 1 on two crafted demo12 states run through
   init_ext.vda by GAMS 54.6.1 (CI). Discrete-capacity data stays refused.
+- 1 Nov 2026: M1.3 (2): ppmain.mod L1-137 (trade, process and commodity
+  sets, primary groups, storage defaults, the NCAP_PASTI spread) matches
+  GAMS at the prep checkpoint on the symbols it settles (27) on the five
+  core models, reduce_off and as_run, and on demo12 in CI; TIM-bau checked
+  locally. Four crafted demo12 states run through L1-137 by GAMS 54.6.1
+  cover storage, guessed primary groups and NCAP_PASTY (CI). PASTYEAR is
+  checked from change 3. The QA log (L35, pp_qaput) is an open item. New
+  GAMS semantics: G37.

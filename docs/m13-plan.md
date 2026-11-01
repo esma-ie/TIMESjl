@@ -147,6 +147,19 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   preprocessing), which L65 reads. init_ext.dsc stays refused for discrete
   or semi-continuous capacity data (the DSC extension follows core and VDA,
   translation-guide.md, Decisions).
+- (2) ppmain.mod L1-137 (1 Nov 2026): matches GAMS at the prep checkpoint
+  on the symbols it settles (`ppmain_head_symbols`, 27 on every core model)
+  on the five core models, reduce_off and as_run, and on demo12 in CI;
+  TIM-bau was probed locally (results stay on James's machine). TIMES-NZ
+  reaches the guessed primary group (L59-63) and four core models the
+  STG/STK/STS storage defaults. Four crafted demo12 states ("storage",
+  "stslim", "nopg", "pasty", test/unit/ppmain_head_case.jl) run through an
+  unchanged copy of L1-137 by GAMS 54.6.1 match on the 30 symbols it writes
+  (CI). GAMS confirms (G37): `NOT` ranks below `+`, so L61 leaves out ENV and
+  FIN outputs; an NCAP_PASTY of 2.5 spreads at lags 1.5 and 0.5, rounded to
+  2 and 1; an EPS past investment spreads as EPS. PASTYEAR is not settled in
+  L1-137 (L160, L201 change it) and is checked with change 3. L35 writes
+  only the QA log (open items).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
@@ -156,3 +169,11 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 - (0) `execute_unload` without a symbol list writes every symbol of the
   compiled program, so the input dump also holds symbols declared later in
   the source, with their compile-time data.
+
+## Open items
+
+- QA log: `pp_qaput` calls write QA_CHECK.LOG and set PUTOUT, PUTGRP and
+  ERRLEV (first in ppmain.mod L35, `$IF WARNINGS`, which depends on GAMS
+  compile warnings that no dump records). TIMES.jl does not write the log
+  yet; decide where it is translated, and whether ERRLEV aborts are
+  checked, before the M1.3 gate. Until then the scalars are not compared.
