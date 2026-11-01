@@ -301,3 +301,11 @@ those checks, their figures and their crafted cases are not published
   cover storage, guessed primary groups and NCAP_PASTY (CI). PASTYEAR is
   checked from change 3. The QA log (L35, pp_qaput) is an open item. New
   GAMS semantics: G37.
+- 1 Nov 2026: M1.3 (3): ppmain.mod L138-191 with filparam.gms for G_OFFTHD
+  (B/E/D/M, the alternative objective's periods, LEAD/LAGT, IPD/FPD, MINYR,
+  PASTMILE, EOHYEARS, PERIODYR) matches GAMS at the prep checkpoint on the
+  symbols it settles (20, PASTYEAR included) on the five core models,
+  reduce_off and as_run, and on demo12 in CI; TIM-bau checked locally.
+  Eight crafted demo12 states run through L1-191 by GAMS 54.6.1 cover the
+  reset first and last periods and every G_OFFTHD option (CI). New GAMS
+  semantics: G38.

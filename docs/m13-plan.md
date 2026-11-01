@@ -160,6 +160,24 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   2 and 1; an EPS past investment spreads as EPS. PASTYEAR is not settled in
   L1-137 (L160, L201 change it) and is checked with change 3. L35 writes
   only the QA log (open items).
+- (3) ppmain.mod L138-191 with filparam.gms (G_OFFTHD) (1 Nov 2026):
+  matches GAMS at the prep checkpoint on the symbols it settles
+  (`ppmain_years_symbols`, 20 on every core model: no core model has
+  INT_DEFAULT('PASTI'), so B, E, D, M, PASTYEAR and PASTMILE are checked
+  here; with it, L200-207 change them and change 5 checks them) on the five
+  core models, reduce_off and as_run, and on demo12 in CI; TIM-bau was
+  probed locally (results stay on James's machine). demo12 runs with OBJ
+  MOD, so it takes the alternative objective's periods (L150-155); the
+  other four drop ALTOBJ to 0; demo12, TIMES-NZ and OTUS9r pass the OBLONG
+  check. No core model has G_OFFTHD data. Eight crafted demo12 states
+  ("altobj", "altobj_mod", "offthd5", "offthd1", "offthd2", "offthd14",
+  "offthdneg", "offthdeps", test/unit/ppmain_years_case.jl) run through an
+  unchanged copy of L1-191 by GAMS 54.6.1 match on the 20 symbols L138-191
+  writes (CI). GAMS confirms (G38): `$` binds before `-` at L154; leads and
+  lags on T move along the milestones; `ROUND(EPS)` is 0, so an EPS option
+  at G_OFFTHD('0') counts as none (my first version extrapolated both ways
+  there; fixed). The OBLONG ABORT (L159) is a Julia error, tested in Julia
+  only.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
