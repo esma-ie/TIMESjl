@@ -71,7 +71,7 @@ GAMS 54.6.1):
 | --- | --- | --- | --- |
 | 0 | infrastructure: harness 0.3.0 checkpoints, `--only presolve`, `m13_inventory.jl`, demo12 checkpoint fixtures, `m13_probe.jl` | | |
 | 1 | init_ext.dsc; init_ext.vda with equcrtp.vda (INIT_EXT) | 11-23; 52-156; 15-38 | init |
-| 1b | crafted demo12 states for the init_ext paths no core model reaches (DSC data, OFF-ranges, peaking, storage, partial loads, UC_ACTBET, ...) | | init |
+| 1b | crafted demo12 states for the init_ext.vda paths no core model reaches (OFF-ranges, peaking, storage, partial loads, UC_ACTBET, ...) | | init |
 | 2 | ppmain.mod: declarations, control sets, storage sets, NCAP_PASTI spread | 1-137 | prep |
 | 3 | ppmain.mod with filparam.gms (G_OFFTHD): years, periods, B/E/D/M, LEAD/LAG, EOHYEARS | 138-191 | prep |
 | 4 | timslice.mod, pp_off.mod | 1-123; 1-23 | prep |
@@ -135,6 +135,18 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   switches the segment sets (%DSC%, %POWERFLO%) go into `tm.switches`.
   Paths no core model reaches are listed in docs/gams-julia-map.md; they
   get crafted demo12 states run through init_ext.vda by GAMS in change 1b.
+- (1b) (1 Nov 2026) Two crafted demo12 input states ("flags", "offrange",
+  test/unit/init_ext_case.jl) run through init_ext.vda with equcrtp.vda by
+  GAMS 54.6.1 match init_ext! on the 55 symbols the files write, nothing
+  excluded (CI). GAMS confirms: MOD keeps the sign of its first argument
+  (L124 keeps an 'N' bound of YEARVAL-1, and -1 at '0'); a bound above
+  %EOTIME% is capped before L123 takes the lead; L117 removes an EPS
+  NCAP_START, which L121 may then set again; the FLO_COST clean-up leaves
+  UNCD7 with '' labels (G36). At the input checkpoint COM_GMAP holds only
+  the user's commodity groups (the TIMES groups such as NRG come in
+  preprocessing), which L65 reads. init_ext.dsc stays refused for discrete
+  or semi-continuous capacity data (the DSC extension follows core and VDA,
+  translation-guide.md, Decisions).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

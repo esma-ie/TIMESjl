@@ -288,3 +288,8 @@ those checks, their figures and their crafted cases are not published
   data is refused, and the paths no core model reaches wait for crafted
   demo12 states (change 1b). prepparm.gms moves to change 6. New GAMS
   semantics: G36 (a GDX file holds only the labels its records use).
+- 1 Nov 2026: M1.3 (1b): the init_ext.vda paths no core model reaches
+  (updatable OFF-ranges, peaking and storage flags, partial loads, the
+  FLO_COST clean-up, VDA_CEH, FLO_EFF, IRE_FLOSUM, COM_AGG, SHELL ANSWER,
+  WAVER, UC_ACTBET) pass layer 1 on two crafted demo12 states run through
+  init_ext.vda by GAMS 54.6.1 (CI). Discrete-capacity data stays refused.

@@ -17,7 +17,8 @@
 # Translated for models without such data, the case of every core model:
 # then no statement changes anything and %DSC% becomes NO. Models with the
 # data raise UnportedError until crafted cases check these statements
-# against GAMS (M1.3 change 1b). %SOLMIP% (L19-20) is left as the run set
+# against GAMS (the DSC extension comes after core and VDA:
+# translation-guide.md, Decisions). %SOLMIP% (L19-20) is left as the run set
 # it: it turns YES only through RCAP_BLK or %DSC% YES, both refused here.
 
 const DSC_INIT_DATA = (("PRC_DSCNCAP", 2, :set), ("NCAP_DISC", 4, :param), ("NCAP_SEMI", 3, :param),
@@ -28,7 +29,7 @@ function init_ext_dsc_unported(tm)
     out = String[]
     for (name, N, kind) in DSC_INIT_DATA
         n = kind == :set ? length(gset_opt(tm.data, name, N)) : length(gparam_opt(tm.data, name, N))
-        n > 0 && push!(out, "init_ext.dsc L12-20 ($name has data: discrete/semi-continuous capacity, M1.3 change 1b)")
+        n > 0 && push!(out, "init_ext.dsc L12-20 ($name has data: discrete/semi-continuous capacity, DSC extension)")
     end
     return out
 end
