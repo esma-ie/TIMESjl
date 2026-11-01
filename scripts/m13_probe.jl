@@ -20,7 +20,8 @@
 # are probed.
 
 include(joinpath(@__DIR__, "m11_probe.jl"))      # run_switches, runfile_of, suite_switches, parse_probe_args
-using TIMES: DumpData, layer1, init_ext!, ppmain_head!, ppmain_head_symbols, ppmain_years!, ppmain_years_symbols
+using TIMES: DumpData, layer1, init_ext!, ppmain_head!, ppmain_head_symbols, ppmain_years!, ppmain_years_symbols,
+             timslice!, timslice_symbols
 using TIMES.Reference: ispass
 
 "The four segments: (first checkpoint, next checkpoint)."
@@ -34,6 +35,7 @@ const M13_STEPS = Tuple{String,String,Function,Vector{String},Function}[
     ("input", "init_ext", init_ext!, String[], all_symbols),          # maindrv.mod L55: the whole input -> init segment
     ("init", "ppmain_head", ppmain_head!, String[], ppmain_head_symbols),   # ppmain.mod L1-137
     ("init", "ppmain_years", ppmain_years!, String[], ppmain_years_symbols),   # ppmain.mod L138-191
+    ("init", "timslice", timslice!, String[], timslice_symbols),       # ppmain.mod L196: timslice.mod with pp_off.mod
 ]
 
 function probe13(refdir, model; roots=Dict{String,String}(), variant="reduce_off", steps=M13_STEPS)

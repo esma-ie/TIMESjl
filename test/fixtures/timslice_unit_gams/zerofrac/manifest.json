@@ -1,0 +1,334 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<ppmain.mod L1-196 on test/unit/timslice_case.jl: zerofrac>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "TS_GROUP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "ALL_REG",
+    "TSLVL",
+    "TS"
+   ],
+   "description": "",
+   "records": 14,
+   "file": "TS_GROUP.arrow"
+  },
+  {
+   "name": "TS_MAP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "ALL_REG",
+    "ALL_TS",
+    "ALL_TS"
+   ],
+   "description": "",
+   "records": 28,
+   "file": "TS_MAP.arrow"
+  },
+  {
+   "name": "STOAL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALL_REG",
+    "TS"
+   ],
+   "description": "",
+   "records": 10,
+   "file": "STOAL.arrow"
+  },
+  {
+   "name": "RS_BELOW",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "ALL_REG",
+    "TS",
+    "TS"
+   ],
+   "description": "",
+   "records": 16,
+   "file": "RS_BELOW.arrow"
+  },
+  {
+   "name": "RS_BELOW1",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "ALL_REG",
+    "TS",
+    "TS"
+   ],
+   "description": "",
+   "records": 10,
+   "file": "RS_BELOW1.arrow"
+  },
+  {
+   "name": "NORTS",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "YEAR",
+    "S"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "G_YRFR",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALL_REG",
+    "TS"
+   ],
+   "description": "",
+   "records": 15,
+   "file": "G_YRFR.arrow"
+  },
+  {
+   "name": "FINEST",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "ALL_TS"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "FINEST.arrow"
+  },
+  {
+   "name": "RS_TREE",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "ALL_REG",
+    "TS",
+    "TS"
+   ],
+   "description": "",
+   "records": 44,
+   "file": "RS_TREE.arrow"
+  },
+  {
+   "name": "RJLVL",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "J",
+    "R",
+    "TSLVL"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "RJLVL.arrow"
+  },
+  {
+   "name": "RLUP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "TSL",
+    "TSL"
+   ],
+   "description": "",
+   "records": 4,
+   "file": "RLUP.arrow"
+  },
+  {
+   "name": "G_CYCLE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "TSLVL"
+   ],
+   "description": "",
+   "records": 4,
+   "file": "G_CYCLE.arrow"
+  },
+  {
+   "name": "TS_CYCLE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "REG",
+    "TS"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "TS_CYCLE.arrow"
+  },
+  {
+   "name": "RS_STGPRD",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "ALL_TS"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "RS_STGPRD.arrow"
+  },
+  {
+   "name": "RS_TSLVL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "ALL_TS"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "RS_TSLVL.arrow"
+  },
+  {
+   "name": "RS_STG",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "ALL_TS"
+   ],
+   "description": "",
+   "records": 8,
+   "file": "RS_STG.arrow"
+  },
+  {
+   "name": "RS_STGAV",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "ALL_TS"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "RS_STGAV.arrow"
+  },
+  {
+   "name": "STOA",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALL_TS"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "STOA.arrow"
+  },
+  {
+   "name": "RS_HR",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "S"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "JS",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "J",
+    "TS"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "JS.arrow"
+  },
+  {
+   "name": "RJ_SL",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "J",
+    "TS",
+    "TS"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RS_UP",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "TS",
+    "J",
+    "TS"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "JS_CCL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "J",
+    "S"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RS_MODUS",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "S",
+    "J",
+    "TS",
+    "S"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  }
+ ]
+}
