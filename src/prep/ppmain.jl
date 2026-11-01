@@ -1,5 +1,5 @@
-# M1.3 (2): the start of preprocessing, the first block of the init -> prep
-# segment (docs/m13-plan.md).
+# M1.3 (2) and (3): the start of preprocessing, the first blocks of the
+# init -> prep segment (docs/m13-plan.md); (3) ppmain_years! is further down.
 #
 # GAMS: ppmain.mod L1-137, v4.9.7, run at maindrv.mod L56 after the
 # extensions' init_ext (the init checkpoint).
@@ -296,4 +296,226 @@ function ppmain_head!(tm)
     gput!(tm, "PRC_CAP", Set{NTuple{2,String}}())
     gput!(tm, "PASTSUM", Dict{NTuple{3,String},Float64}())
     return tm
+end
+
+# M1.3 (3): ppmain.mod L138-191, the years and periods.
+#
+# T and TT are aliases of MILESTONYR (initmty.mod L94), so `T++1`, `T--1`,
+# `TT-1` and `TT+1` move along the milestones (circularly for ++ and --); LL
+# and YEAR are aliases of ALLYEAR (initsys.mod L59), so `LL-n` and
+# `ALLYEAR+n` move along ALLYEAR, whose last element is '0' (`YearAxis`).
+# %OBLONG% is YES when the run sets it or %OBJ% is MOD (initmty.mod L427).
+# The filparam.gms scratch (Z, F, MY_F, MY_FYEAR, DFUNC, FIRST_VAL, LAST_VAL,
+# MY_ARRAY, UNCD7) is not kept: every later use assigns it first.
+
+"""
+    ppmain_years_symbols(tm) -> Vector{String}
+
+The symbols ppmain.mod L138-191 settles that nothing later in the init -> prep
+segment changes (for the layer-1 check at the prep checkpoint), read on the
+state after `ppmain_years!`. B, E, D, M, PASTYEAR and PASTMILE only without
+INT_DEFAULT('PASTI'), which migrates past investments at ppmain.mod L200-207.
+"""
+function ppmain_years_symbols(tm)
+    out = ["ALTOBJ", "MIYR_1", "MIYR_V1", "MIYR_VL", "MIYR_L", "LEAD", "LAGT", "IPD", "FPD", "MINYR", "PYR_V1", "EOHYEARS",
+           "PERIODYR", "G_OFFTHD"]
+    ("PASTI",) in gset_opt(tm.data, "INT_DEFAULT", 1).members || append!(out, ["B", "E", "D", "M", "PASTYEAR", "PASTMILE"])
+    return out
+end
+
+"""
+    ppmain_years!(tm) -> tm
+
+ppmain.mod L138-191 on the state after `ppmain_head!`: period lengths and
+middle years (and, for the alternative objective, the periods themselves), the
+first and last years, LEAD/LAGT, IPD/FPD, MINYR, the past years treated as
+periods (PASTMILE), EOHYEARS, PERIODYR and the interpolation of G_OFFTHD.
+
+GAMS: ppmain.mod L138-191, filparam.gms L19-42, v4.9.7.
+"""
+function ppmain_years!(tm)
+    ax = YearAxis(tm)
+    yv(y) = ax.yearval[y]
+    tset = [k[1] for k in gset(tm, "MILESTONYR").keys]
+    n = length(tset)
+    obj = uppercase(gswitch(tm, "OBJ", ""))
+    oblong = uppercase(gswitch(tm, "OBLONG", "")) == "YES" || obj == "MOD"
+    B, E, D, M = (gvalues(tm, s, 1) for s in ("B", "E", "D", "M"))
+    val(p, y) = Float64(gv(p, (y,)))
+
+    # --- Period lengths and middle years (L143-146) ---------------------------------
+    # L143-144: D(MILESTONYR) = E-B+1; M(MILESTONYR) = FLOOR(B+(D-1)/2)
+    foreach(t -> gassign!(D, (t,), val(E, t) - val(B, t) + 1), tset)
+    foreach(t -> gassign!(M, (t,), floor(val(B, t) + (val(D, t) - 1) / 2)), tset)
+    # L145: $IFI %OBJ%==MOD M(T) = 0
+    obj == "MOD" && foreach(t -> delete!(M, (t,)), tset)
+    # L146: IF(ALTOBJ=1, ALTOBJ=1$SUM(T,M(T) NE YEARVAL(T)))
+    altobj = gscalar(tm, "ALTOBJ")
+    altobj == 1 && (altobj = any(t -> val(M, t) != yv(t), tset) ? 1.0 : 0.0)
+
+    # --- First and last years, the alternative objective's periods (L149-160) -------
+    # L149: MIYR_1(T)$(ORD(T) = 1) = YES
+    miyr_1 = gmembers(tm, "MIYR_1", 1)
+    n > 0 && push!(miyr_1, (tset[1],))
+    if altobj != 0
+        # L152: E(T(TT-1)) = FLOOR((YEARVAL(T)+YEARVAL(TT))/2); B(T(TT+1)) = E(TT)+1   (B reads the new E, G11)
+        foreach(i -> gassign!(E, (tset[i-1],), floor((yv(tset[i-1]) + yv(tset[i])) / 2)), 2:n)
+        foreach(i -> gassign!(B, (tset[i+1],), val(E, tset[i]) + 1), 1:n-1)
+        # L153: B(MIYR_1(T))$(ABS(B(T)-(YEARVAL(T)-5)) GT 5) = YEARVAL(T)
+        for t in tset
+            ((t,) in miyr_1 && abs(val(B, t) - (yv(t) - 5)) > 5) && gassign!(B, (t,), yv(t))
+        end
+        # L154: E(T)$((ABS(E(T)-(YEARVAL(T)+15)) GT 15)$(ORD(T)=CARD(T))) = 2*YEARVAL(T)-B(T)+1-1$MOD(YEARVAL(T)-B(T)+1,5)
+        if n > 0
+            t = tset[n]
+            if abs(val(E, t) - (yv(t) + 15)) > 15
+                gassign!(E, (t,), 2 * yv(t) - val(B, t) + 1 - (rem(yv(t) - val(B, t) + 1, 5) != 0 ? 1 : 0))
+            end
+        end
+        # L155: D(T) = E(T)-B(T)+1; M(T) = YEARVAL(T)
+        foreach(t -> gassign!(D, (t,), val(E, t) - val(B, t) + 1), tset)
+        foreach(t -> gassign!(M, (t,), yv(t)), tset)
+    end
+    # L157-158: MIYR_V1 = SMIN(MIYR_1, B(MIYR_1)); MIYR_VL = SMAX(T$(ORD(T) = CARD(T)), E(T))   (over nothing: +INF, -INF)
+    miyr_v1 = minimum((val(B, y) for (y,) in miyr_1); init=Inf)
+    miyr_vl = n > 0 ? val(E, tset[n]) : -Inf
+    # L159: $IFI '%OBLONG%'==YES IF(MIYR_V1+SUM(T,E(T)+1-B(T))-MIYR_VL NE 1, ABORT "Inconsistent periods - cannot use OBLONG.")
+    if oblong && miyr_v1 + sum((val(E, t) + 1 - val(B, t) for t in tset); init=0.0) - miyr_vl != 1
+        error("ppmain.mod L159: ABORT \"Inconsistent periods - cannot use OBLONG.\"")
+    end
+    # L160: LOOP(MIYR_1(LL), PASTYEAR(LL-(YEARVAL(LL)-MIYR_V1+1)) = YES)
+    pastyear = gmembers(tm, "PASTYEAR", 1)
+    for (ll,) in miyr_1
+        y = lead(ax, ll, -glead(yv(ll) - miyr_v1 + 1))
+        y === nothing || push!(pastyear, (y,))
+    end
+
+    # --- LEAD, LAGT, IPD, FPD, MINYR, PYR_V1 (L162-169) ------------------------------
+    # L162: LEAD(TT(T++1)) = MAX(M(TT)-M(T),M(TT)-B(TT)+1); L163: LAGT(TT(T--1)) = MAX(M(T)-M(TT),E(TT)-M(TT)+1)
+    LEAD, LAGT = gvalues(tm, "LEAD", 1), gvalues(tm, "LAGT", 1)
+    for i in 1:n
+        t, nx, pv = tset[i], tset[mod1(i + 1, n)], tset[mod1(i - 1, n)]
+        gassign!(LEAD, (nx,), max(val(M, nx) - val(M, t), val(M, nx) - val(B, nx) + 1))
+        gassign!(LAGT, (pv,), max(val(M, t) - val(M, pv), val(E, pv) - val(M, pv) + 1))
+    end
+    # L164-165: IF(ALTOBJ, IPD(T) = LEAD(T)+MIN(E(T)-M(T),LEAD(T)-1)$MIYR_1(T); ELSE IPD(T) = D(T)); FPD(T) = D(T)
+    IPD, FPD = gvalues(tm, "IPD", 1), gvalues(tm, "FPD", 1)
+    for t in tset
+        ld = val(LEAD, t)
+        gassign!(IPD, (t,), altobj != 0 ? ld + ((t,) in miyr_1 ? min(val(E, t) - val(M, t), ld - 1) : 0.0) : val(D, t))
+        gassign!(FPD, (t,), val(D, t))
+    end
+    # L168: MINYR = MIN(MIYR_V1-1, SMIN(T,M(T)-IPD(T))+1)
+    minyr = min(miyr_v1 - 1, minimum((val(M, t) - val(IPD, t) for t in tset); init=Inf) + 1)
+    # L169: PYR_V1 = MIN(SMIN(PASTYEAR,YEARVAL(PASTYEAR)),MINYR)
+    pyr_v1 = min(minimum((yv(y) for (y,) in pastyear); init=Inf), minyr)
+
+    # --- MIYR_L, PASTMILE (L171-180) -------------------------------------------------
+    # L171: LOOP(MIYR_1(ALLYEAR), Z=MIYR_VL-YEARVAL(ALLYEAR); MIYR_L(ALLYEAR+Z) = YES)
+    miyr_l = gmembers(tm, "MIYR_L", 1)
+    for (y,) in miyr_1
+        l = lead(ax, y, glead(miyr_vl - yv(y)))
+        l === nothing || push!(miyr_l, (l,))
+    end
+    # L176: PASTMILE(PASTYEAR)$((YEARVAL(PASTYEAR) LE MIYR_VL)$(NOT T(PASTYEAR))) = YES
+    tmem = Set(tset)
+    pastmile = gmembers(tm, "PASTMILE", 1)
+    for (y,) in pastyear
+        (yv(y) <= miyr_vl && !(y in tmem)) && push!(pastmile, (y,))
+    end
+    # L177-180: M(PASTMILE) = YEARVAL(PASTMILE); B(PASTMILE) = M(PASTMILE); E(PASTMILE) = M(PASTMILE); D(PASTMILE) = 1
+    for (y,) in pastmile
+        gassign!(M, (y,), yv(y))
+        gassign!(B, (y,), val(M, y))
+        gassign!(E, (y,), val(M, y))
+        gassign!(D, (y,), 1.0)
+    end
+
+    # --- EOHYEARS, PERIODYR (L184-186) ----------------------------------------------
+    # L184: EOHYEARS(ALLYEAR)$((YEARVAL(ALLYEAR) >= MINYR) * (YEARVAL(ALLYEAR) <= MIYR_VL)) = YES
+    eohyears = gmembers(tm, "EOHYEARS", 1)
+    foreach(y -> (minyr <= yv(y) <= miyr_vl) && push!(eohyears, (y,)), ax.years)
+    # L186: PERIODYR(T,EOHYEARS)$((YEARVAL(EOHYEARS) >= B(T)) * (YEARVAL(EOHYEARS) <= E(T))) = YES
+    periodyr = gmembers(tm, "PERIODYR", 2)
+    for t in tset, (y,) in eohyears
+        (val(B, t) <= yv(y) <= val(E, t)) && push!(periodyr, (t, y))
+    end
+
+    # --- G_OFFTHD (L189-190) -----------------------------------------------------------
+    # L189: $IF DEFINED G_OFFTHD $BATINCLUDE filparam G_OFFTHD '' '' ",'','','','','',''" YEAR T '' '' 5
+    #   DEFINED is decided at compile time from the DD data; with no records filparam does nothing either way
+    g_offthd = filparam_g_offthd(gvalues(tm, "G_OFFTHD", 1), ax, tset)
+    # L190: G_OFFTHD('0') = 0
+    delete!(g_offthd, ("0",))
+
+    for (s, v) in (("B", B), ("E", E), ("D", D), ("M", M), ("LEAD", LEAD), ("LAGT", LAGT), ("IPD", IPD), ("FPD", FPD),
+                   ("G_OFFTHD", g_offthd))
+        gput!(tm, s, v)
+    end
+    for (s, v) in (("MIYR_1", miyr_1), ("PASTYEAR", pastyear), ("MIYR_L", miyr_l), ("PASTMILE", pastmile),
+                   ("EOHYEARS", eohyears), ("PERIODYR", periodyr))
+        gput!(tm, s, v)
+    end
+    for (s, v) in (("ALTOBJ", altobj), ("MIYR_V1", miyr_v1), ("MIYR_VL", miyr_vl), ("MINYR", minyr), ("PYR_V1", pyr_v1))
+        gput_scalar!(tm, s, v)
+    end
+    return tm
+end
+
+"""
+    filparam_g_offthd(g, ax, tset) -> Dict
+
+filparam.gms with ppmain.mod L189's arguments: G_OFFTHD(YEAR) interpolated
+between its data years over the milestones `tset` and extrapolated over them,
+by the option DFUNC = ROUND(G_OFFTHD('0')), 5 when that is zero or EPS (< 0 none;
+1 interpolation only; 2 EPS outside the data; 4 no forward, 5 no backward
+extrapolation; above 1 by its last digit). Data years are YEAR (an alias of
+ALLYEAR) in GAMS order without '0'; EPS counts as data (G12). Returns `g`
+with the new values.
+
+GAMS: filparam.gms L19-42 (ppmain.mod L189), v4.9.7.
+"""
+function filparam_g_offthd(g::Dict{Tuple{String},Float64}, ax::YearAxis, tset::Vector{String})
+    # L21: UNCD7 holds the one tuple when G_OFFTHD has a record in any YEAR ('0' and EPS included)
+    isempty(g) && return g
+    # L23-25: F=0; Z=INF; MY_FYEAR=9999; DFUNC = ROUND(G_OFFTHD('0')); IF(NOT DFUNC, DFUNC = 5)
+    F, Z, my_fyear = 0.0, Inf, 9999.0
+    dfunc = round(Float64(gv(g, ("0",))), RoundNearestTiesAway)   # ROUND(EPS) is a plain 0 (G38)
+    dfunc == 0 && (dfunc = 5.0)
+    dfunc >= 0 || return g                                      # L26
+    # L27: MY_ARRAY(YEAR) = G_OFFTHD(YEAR); MY_ARRAY('0') = 0
+    my_array = [(y, gv(g, (y,))) for y in ax.years if y != "0" && haskey(g, (y,))]
+    first_val, last_val = GZERO, GZERO                          # only read once a data year has set them
+    # L29-35: data years in GAMS order; linear interpolation over T between consecutive data years
+    for (y, my_f) in my_array
+        Zy = ax.yearval[y]
+        if Zy > my_fyear + 1
+            for t in tset
+                yt = ax.yearval[t]
+                (Zy > yt && yt > my_fyear) || continue
+                gassign!(g, (t,), last_val + (my_f - last_val) / GNum(Zy - my_fyear) * GNum(yt - my_fyear))
+            end
+        elseif Zy < my_fyear
+            F, first_val = Zy, my_f
+        end
+        last_val, my_fyear, Z = my_f, Zy, Zy
+    end
+    # L37-40: IF(DFUNC GT 1, DFUNC=MOD(DFUNC,10); 2: EPS both ways; 4: Z=INF; 5: F=0); IF(DFUNC NE 1, G_OFFTHD(T) $= ...)
+    if dfunc > 1
+        dfunc = rem(dfunc, 10)
+        if dfunc == 2
+            first_val, last_val = GEPS, GEPS
+        elseif dfunc == 4
+            Z = Inf
+        elseif dfunc == 5
+            F = 0.0
+        end
+    end
+    dfunc != 1 || return g
+    for t in tset
+        yt = ax.yearval[t]
+        x = gif(first_val, yt < F) + gif(last_val, yt > Z)
+        iszero(x) || gassign!(g, (t,), x)                       # $= (G24)
+    end
+    return g
 end

@@ -1,0 +1,239 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<ppmain.mod L1-191 on test/unit/ppmain_years_case.jl: offthd2>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "B",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 14,
+   "file": "B.arrow"
+  },
+  {
+   "name": "E",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 14,
+   "file": "E.arrow"
+  },
+  {
+   "name": "D",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 14,
+   "file": "D.arrow"
+  },
+  {
+   "name": "M",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 14,
+   "file": "M.arrow"
+  },
+  {
+   "name": "ALTOBJ",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "ALTOBJ.arrow"
+  },
+  {
+   "name": "MIYR_1",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "MIYR_1.arrow"
+  },
+  {
+   "name": "MIYR_V1",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "MIYR_V1.arrow"
+  },
+  {
+   "name": "MIYR_VL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "MIYR_VL.arrow"
+  },
+  {
+   "name": "PASTYEAR",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "PASTYEAR.arrow"
+  },
+  {
+   "name": "LEAD",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "LEAD.arrow"
+  },
+  {
+   "name": "LAGT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "LAGT.arrow"
+  },
+  {
+   "name": "IPD",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "IPD.arrow"
+  },
+  {
+   "name": "FPD",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "FPD.arrow"
+  },
+  {
+   "name": "MINYR",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "MINYR.arrow"
+  },
+  {
+   "name": "PYR_V1",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "PYR_V1.arrow"
+  },
+  {
+   "name": "MIYR_L",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "MIYR_L.arrow"
+  },
+  {
+   "name": "PASTMILE",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "PASTMILE.arrow"
+  },
+  {
+   "name": "EOHYEARS",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 49,
+   "file": "EOHYEARS.arrow"
+  },
+  {
+   "name": "PERIODYR",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALLYEAR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 48,
+   "file": "PERIODYR.arrow"
+  },
+  {
+   "name": "G_OFFTHD",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 7,
+   "file": "G_OFFTHD.arrow"
+  }
+ ]
+}
