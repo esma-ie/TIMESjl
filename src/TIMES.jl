@@ -55,6 +55,7 @@ include("coef/later.jl")
 include("ext/dsc/init_ext.jl")
 include("ext/vda/equcrtp.jl")
 include("ext/vda/init_ext.jl")
+include("prep/ppmain.jl")
 include("model/generate.jl")
 
 end # module TIMES

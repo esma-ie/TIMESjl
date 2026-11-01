@@ -20,7 +20,7 @@
 # are probed.
 
 include(joinpath(@__DIR__, "m11_probe.jl"))      # run_switches, runfile_of, suite_switches, parse_probe_args
-using TIMES: DumpData, layer1, init_ext!
+using TIMES: DumpData, layer1, init_ext!, ppmain_head!, ppmain_head_symbols
 using TIMES.Reference: ispass
 
 "The four segments: (first checkpoint, next checkpoint)."
@@ -32,6 +32,7 @@ all_symbols(tm) = sort([i.name for i in values(tm.data.dump.symbols) if i.kind i
 "Translated steps in execution order: (segment start, name, function, symbols, symbols by model)."
 const M13_STEPS = Tuple{String,String,Function,Vector{String},Function}[
     ("input", "init_ext", init_ext!, String[], all_symbols),          # maindrv.mod L55: the whole input -> init segment
+    ("init", "ppmain_head", ppmain_head!, String[], ppmain_head_symbols),   # ppmain.mod L1-137
 ]
 
 function probe13(refdir, model; roots=Dict{String,String}(), variant="reduce_off", steps=M13_STEPS)

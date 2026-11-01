@@ -1,0 +1,418 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<ppmain.mod L1-137 on test/unit/ppmain_head_case.jl: storage>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "RDCUR",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "REG",
+    "CUR"
+   ],
+   "description": "",
+   "records": 2,
+   "file": "RDCUR.arrow"
+  },
+  {
+   "name": "PRC_ACTUNT",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG",
+    "UNITS_ACT"
+   ],
+   "description": "",
+   "records": 335,
+   "file": "PRC_ACTUNT.arrow"
+  },
+  {
+   "name": "RPC_AIRE",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "ALL_REG",
+    "PRC",
+    "COM"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RPC_IRE",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "ALL_REG",
+    "P",
+    "C",
+    "IE"
+   ],
+   "description": "",
+   "records": 300,
+   "file": "RPC_IRE.arrow"
+  },
+  {
+   "name": "PRC_ACT",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "REG",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_IRE",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALL_REG",
+    "P"
+   ],
+   "description": "",
+   "records": 118,
+   "file": "RP_IRE.arrow"
+  },
+  {
+   "name": "TOP",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "COM",
+    "IO"
+   ],
+   "description": "",
+   "records": 679,
+   "file": "TOP.arrow"
+  },
+  {
+   "name": "RPG_RED",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CG",
+    "IO"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RPC",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 878,
+   "file": "RPC.arrow"
+  },
+  {
+   "name": "RC",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "C"
+   ],
+   "description": "",
+   "records": 136,
+   "file": "RC.arrow"
+  },
+  {
+   "name": "RP",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "P"
+   ],
+   "description": "",
+   "records": 333,
+   "file": "RP.arrow"
+  },
+  {
+   "name": "RP_FLO",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "P"
+   ],
+   "description": "",
+   "records": 253,
+   "file": "RP_FLO.arrow"
+  },
+  {
+   "name": "RP_PG",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG"
+   ],
+   "description": "",
+   "records": 335,
+   "file": "RP_PG.arrow"
+  },
+  {
+   "name": "TRACKPC",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "COM_GMAP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "COM_GRP",
+    "COM"
+   ],
+   "description": "",
+   "records": 280,
+   "file": "COM_GMAP.arrow"
+  },
+  {
+   "name": "TRACKC",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_STS",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "TRACKP",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RPC_STGN",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "IO"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "RPC_STGN.arrow"
+  },
+  {
+   "name": "CG_GRP",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PRC_MAP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "PRC_GRP",
+    "PRC"
+   ],
+   "description": "",
+   "records": 341,
+   "file": "PRC_MAP.arrow"
+  },
+  {
+   "name": "PRC_STGIPS",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "PRC",
+    "COM"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "PRC_STGIPS.arrow"
+  },
+  {
+   "name": "PRC_TSL",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "PRC",
+    "TSLVL"
+   ],
+   "description": "",
+   "records": 333,
+   "file": "PRC_TSL.arrow"
+  },
+  {
+   "name": "PRC_STGTSS",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "PRC",
+    "COM"
+   ],
+   "description": "",
+   "records": 2,
+   "file": "PRC_STGTSS.arrow"
+  },
+  {
+   "name": "PHYR",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PASTSUM",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PRC_CAP",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "REG",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "NCAP_PASTI",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 77,
+   "file": "NCAP_PASTI.arrow"
+  },
+  {
+   "name": "PASTYEAR",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "PASTYEAR.arrow"
+  },
+  {
+   "name": "INT_DEFAULT",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "*"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  }
+ ]
+}

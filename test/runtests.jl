@@ -55,4 +55,7 @@ const FIXTURES = joinpath(@__DIR__, "fixtures")
     @testset "Preprocessing: init_ext (M1.3)" begin
         include("unit/test_m13_init_ext.jl")
     end
+    @testset "Preprocessing: ppmain.mod L1-137 (M1.3)" begin
+        include("unit/test_m13_ppmain_head.jl")
+    end
 end
