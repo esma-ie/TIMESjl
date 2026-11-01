@@ -71,6 +71,8 @@ function init_ext_vda!(tm)
     yv(y) = yearval[(y,)]
     com = gset(tm, "COM")
     reg = gset(tm, "REG")
+    # labels the file writes that a dump holds only when some record uses them (G36)
+    foreach(l -> register_uel!(tm.data, l), ("", "PASTI", "UP", "FX", "OUT", "ACT", "UCN", "NET", "PRD", "ANNUAL", dflbl))
 
     # --- Basic years (L52-60) ------------------------------------------------
     # L53-54: IF(CARD(DATAYEAR)=0, DATAYEAR(T)=YES; DATAYEAR(LL)$(MOD(MAX(1999,MIN(2051,YEARVAL(LL))),5)=0)=YES)
@@ -184,10 +186,7 @@ function init_ext_vda!(tm)
             length(vals) == length(p) || gput!(tm, name, vals)
         end
     end
-    if had_uncd7 || !isempty(uncd7)
-        register_uel!(tm.data, "")                                    # '' is named by the source, not by the dump (G36)
-        gput!(tm, "UNCD7", uncd7)
-    end
+    (had_uncd7 || !isempty(uncd7)) && gput!(tm, "UNCD7", uncd7)
     # L89: NCAP_CEH(R,LL,P) $= VDA_CEH(R,LL,P)
     ceh = gparam_opt(tm.data, "VDA_CEH", 3)
     if !isempty(ceh)

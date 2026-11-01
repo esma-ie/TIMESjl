@@ -1,0 +1,830 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<init_ext.vda on test/unit/init_ext_case.jl: offrange>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "DATAYEAR",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 48,
+   "file": "DATAYEAR.arrow"
+  },
+  {
+   "name": "B",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 11,
+   "file": "B.arrow"
+  },
+  {
+   "name": "MIYR_1",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "MIYR_1.arrow"
+  },
+  {
+   "name": "MIYR_BOH",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "MIYR_BOH.arrow"
+  },
+  {
+   "name": "PYR_S",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 1,
+   "file": "PYR_S.arrow"
+  },
+  {
+   "name": "INT_DEFAULT",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "*"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PRC_PKNO",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALL_REG",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PRC_PKAF",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALL_REG",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PRC_STGIPS",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "PRC",
+    "COM"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "TRACKP",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_PL",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "L"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "ACT_CSTUP",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "TSLVL",
+    "CUR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "ACT_UPS",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "S",
+    "L"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_UPR",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "L"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_UPT",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "UPT",
+    "BD"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UNCD7",
+   "kind": "set",
+   "type": "",
+   "dimension": 7,
+   "domain": [
+    "*",
+    "*",
+    "*",
+    "*",
+    "*",
+    "*",
+    "*"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "VDA_EMCB",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "COM",
+    "COM"
+   ],
+   "description": "",
+   "records": 38,
+   "file": "VDA_EMCB.arrow"
+  },
+  {
+   "name": "IRE_PRICE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 8,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "COM",
+    "TS",
+    "ALL_R",
+    "IE",
+    "CUR"
+   ],
+   "description": "",
+   "records": 66,
+   "file": "IRE_PRICE.arrow"
+  },
+  {
+   "name": "ACT_COST",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CUR"
+   ],
+   "description": "",
+   "records": 33,
+   "file": "ACT_COST.arrow"
+  },
+  {
+   "name": "FLO_DELIV",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "COM",
+    "TS",
+    "CUR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "FLO_COST",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "COM",
+    "TS",
+    "CUR"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "NCAP_CEH",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PRC_RESID",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 245,
+   "file": "PRC_RESID.arrow"
+  },
+  {
+   "name": "NCAP_PASTI",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 77,
+   "file": "NCAP_PASTI.arrow"
+  },
+  {
+   "name": "FLO_EMIS",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "COM",
+    "S"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RXX",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "ALL_R",
+    "*",
+    "*"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "FLO_EFF",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "COM",
+    "S"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "FS_EMCB",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "C"
+   ],
+   "description": "",
+   "records": 104,
+   "file": "FS_EMCB.arrow"
+  },
+  {
+   "name": "TRACKPC",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "TOP",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "COM",
+    "IO"
+   ],
+   "description": "",
+   "records": 750,
+   "file": "TOP.arrow"
+  },
+  {
+   "name": "RPC_EMIS",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "COM_GRP"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RPG_RED",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CG",
+    "IO"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "COM_AGG",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "COM",
+    "COM"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "COM_AGG.arrow"
+  },
+  {
+   "name": "VDA_FLOP",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "S"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "KEEP_FLOF",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_XRED",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "REG",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "ACT_FLO",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "CG",
+    "S"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "NCAP_START",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "REG",
+    "PRC"
+   ],
+   "description": "",
+   "records": 87,
+   "file": "NCAP_START.arrow"
+  },
+  {
+   "name": "RVP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "NCAP_BND",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "LIM"
+   ],
+   "description": "",
+   "records": 91,
+   "file": "NCAP_BND.arrow"
+  },
+  {
+   "name": "PRC_NOFF",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "*",
+    "*"
+   ],
+   "description": "",
+   "records": 4,
+   "file": "PRC_NOFF.arrow"
+  },
+  {
+   "name": "UNCD1",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "*"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PRC_DYNUC",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 7,
+   "domain": [
+    "UC_N",
+    "SIDE",
+    "R",
+    "ALLYEAR",
+    "P",
+    "UC_GRPTYPE",
+    "BD"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UC_COM",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 8,
+   "domain": [
+    "UC_N",
+    "COM_VAR",
+    "SIDE",
+    "REG",
+    "ALLYEAR",
+    "COM",
+    "S",
+    "UC_GRPTYPE"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UC_CAP",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "UC_N",
+    "SIDE",
+    "ALL_REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 12,
+   "file": "UC_CAP.arrow"
+  },
+  {
+   "name": "UC_NCAP",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "UC_N",
+    "SIDE",
+    "ALL_REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UC_ACT",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "UC_N",
+    "SIDE",
+    "ALL_REG",
+    "ALLYEAR",
+    "PRC",
+    "ALL_TS"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UC_COMPRD",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "UC_N",
+    "SIDE",
+    "ALL_REG",
+    "ALLYEAR",
+    "COM",
+    "TS"
+   ],
+   "description": "",
+   "records": 4,
+   "file": "UC_COMPRD.arrow"
+  },
+  {
+   "name": "UC_COMNET",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "UC_N",
+    "SIDE",
+    "ALL_REG",
+    "ALLYEAR",
+    "COM",
+    "TS"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UC_TSL",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "ALL_R",
+    "UC_N",
+    "SIDE",
+    "TSLVL"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UC_FLOBET",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "UC_N",
+    "ALL_REG",
+    "ALLYEAR",
+    "PRC",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UC_GMAP_P",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "UC_N",
+    "UC_GRPTYPE",
+    "PRC"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PAR_IRE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 7,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "ALLYEAR",
+    "P",
+    "C",
+    "S",
+    "IMPEXP"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PAR_IPRIC",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "C",
+    "TS",
+    "IE"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RPC_IREIN",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "IE",
+    "IO"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  }
+ ]
+}
