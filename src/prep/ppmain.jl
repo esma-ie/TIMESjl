@@ -1,5 +1,6 @@
-# M1.3 (2) and (3): the start of preprocessing, the first blocks of the
-# init -> prep segment (docs/m13-plan.md); (3) ppmain_years! is further down.
+# M1.3 (2), (3) and (5): the start of preprocessing, the ppmain.mod blocks of
+# the init -> prep segment (docs/m13-plan.md); (3) ppmain_years! and (5)
+# ppmain_rtp! are further down.
 #
 # GAMS: ppmain.mod L1-137, v4.9.7, run at maindrv.mod L56 after the
 # extensions' init_ext (the init checkpoint).
@@ -26,7 +27,8 @@ The symbols ppmain.mod L1-137 settles that nothing later in the init -> prep
 segment changes (for the layer-1 check at the prep checkpoint), read on the
 state after `ppmain_head!`. Some only on some models: RDCUR unless
 G_CUREX/R_CUREX has data (curex.gms), NCAP_PASTI and PHYR unless
-INT_DEFAULT('PASTI') (ppmain.mod L200-207), INT_DEFAULT unless G_NOINTERP
+INT_DEFAULT('PASTI') (ppmain.mod L200-207 change them; `ppmain_rtp_symbols`
+then compares them), INT_DEFAULT unless G_NOINTERP
 (prepparm.gms L25). PASTYEAR is not settled (ppmain.mod L160, L201); PASTSUM,
 TRACKP and the scalars F, MY_F, Z are used again.
 """
@@ -314,7 +316,8 @@ end
 The symbols ppmain.mod L138-191 settles that nothing later in the init -> prep
 segment changes (for the layer-1 check at the prep checkpoint), read on the
 state after `ppmain_years!`. B, E, D, M, PASTYEAR and PASTMILE only without
-INT_DEFAULT('PASTI'), which migrates past investments at ppmain.mod L200-207.
+INT_DEFAULT('PASTI'), which migrates past investments at ppmain.mod L200-207
+(`ppmain_rtp_symbols` then compares them).
 """
 function ppmain_years_symbols(tm)
     out = ["ALTOBJ", "MIYR_1", "MIYR_V1", "MIYR_VL", "MIYR_L", "LEAD", "LAGT", "IPD", "FPD", "MINYR", "PYR_V1", "EOHYEARS",
@@ -518,4 +521,216 @@ function filparam_g_offthd(g::Dict{Tuple{String},Float64}, ax::YearAxis, tset::V
         iszero(x) || gassign!(g, (t,), x)                       # $= (G24)
     end
     return g
+end
+
+# M1.3 (5): ppmain.mod L199-247, the migration of past investments on
+# milestones, NCAP_START, the periods without new capacity (RTP_OFF) and the
+# process/period sets RTP and RVP.
+#
+# T is MILESTONYR, LL and YEAR are ALLYEAR, PYR is PASTYEAR, R is REG, P is
+# PRC. `LL-1` and the lead at L217 move along ALLYEAR, whose last element is
+# '0' (LASTLL, initmty.mod L369); a non-integer lead is rounded (G29). ORD on
+# BOHYEAR and EOHYEAR is each set's own order: BOHYEAR is 'BOH' and the years,
+# EOHYEAR adds 'EOH' (initsys.mod L40-44), so `ORD(EOHYEAR)+%BOTIME%-2` is the
+# year itself. %BOTIME% is 1850 unless the run sets it (initsys.mod L35).
+#
+# Not translated: the QA log (L213 PUTGRP, L229-230: a warning when a delayed
+# process has past investment), m13-plan.md open items. The scratch FIL, Z,
+# STARTOFF and ENDOFF are not kept: every later use assigns them first.
+
+"""
+    ppmain_rtp_symbols(tm) -> Vector{String}
+
+The symbols ppmain.mod L199-247 settles that nothing later in the init -> prep
+segment changes (for the layer-1 check at the prep checkpoint), read on the
+state after `ppmain_rtp!`. RTP unless fillvint.gms L15-19 (PRC_SIMV data, or
+%VINTOPT% 2) or powerflo.vda can change it; RVP also only without PRC_VINT
+(fillvint.gms L18 and preppm.mod L61 add vintage years). With
+INT_DEFAULT('PASTI'), the symbols L200-207 change that ppmain_head_symbols and
+ppmain_years_symbols leave out. PRC_YMAX is cleared by prep_ext.vda L48;
+TRACKP, UNCD1 and PASTSUM are scratch, used again.
+"""
+function ppmain_rtp_symbols(tm)
+    d = tm.data
+    out = ["PRC_NOFF", "RTP_OFF", "VNT", "COEF_RTP"]
+    simv = !isempty(gset_opt(d, "PRC_SIMV", 2).keys) || strip(gswitch(tm, "VINTOPT", "")) == "2" ||
+           uppercase(gswitch(tm, "POWERFLO", "")) == "YES"
+    simv || push!(out, "RTP")
+    (simv || !isempty(gset_opt(d, "PRC_VINT", 2).keys)) || push!(out, "RVP")
+    ("PASTI",) in gset_opt(d, "INT_DEFAULT", 1).members &&
+        append!(out, ["B", "E", "D", "M", "PASTYEAR", "PASTMILE", "NCAP_PASTI", "PHYR"])
+    return out
+end
+
+"""
+    ppmain_rtp!(tm) -> tm
+
+ppmain.mod L199-247 on the state after `timslice!`: with INT_DEFAULT('PASTI'),
+past investments on milestones moved to the year before (L200-207); NCAP_START
+as PRC_NOFF ranges (L215-217); the periods without new capacity of delayed
+processes and of the later PRC_NOFF ranges (RTP_OFF, L219-238, the latter with
+pp_off.mod); RTP and RVP (L239-241). A division by zero (a period of length 0
+at L224) raises an error, as it stops a GAMS run.
+
+GAMS: ppmain.mod L199-247, pp_off.mod L17-22 (L237), v4.9.7.
+"""
+function ppmain_rtp!(tm)
+    d = tm.data
+    ax = YearAxis(tm)
+    yv(y) = ax.yearval[y]
+    tset = [k[1] for k in gset(tm, "MILESTONYR").keys]
+    tmem = Set(tset)
+    reg = gset(tm, "REG")
+    rp = gset(tm, "RP").members
+    val(p, y) = Float64(gv(p, (y,)))
+    pasti = gvalues(tm, "NCAP_PASTI", 3)
+    pastyear = gmembers(tm, "PASTYEAR", 1)
+    dflbl = "0"                                                       # %DFLBL%, LASTLL (initmty.mod L367-369)
+
+    # --- Past investments on milestones (L200-207) -----------------------------------
+    if ("PASTI",) in gset_opt(d, "INT_DEFAULT", 1).members
+        B, E, D, M = (gvalues(tm, s, 1) for s in ("B", "E", "D", "M"))
+        pastmile, vnt = gmembers(tm, "PASTMILE", 1), gmembers(tm, "VNT", 2)
+        coef_rtp = gvalues(tm, "COEF_RTP", 3)
+        # L200: LOOP(PYR(T(LL))$(M(T)>B(T)), VNT(LL-1,T)=YES)
+        for t in tset
+            ((t,) in pastyear && val(M, t) > val(B, t)) || continue
+            ll = lead(ax, t, -1)
+            ll === nothing || push!(vnt, (ll, t))
+        end
+        # L201-205: LOOP(VNT(LL,T), B(LL)=M(T)-1; E(LL)=M(T); M(LL)=B(LL); D(LL)=2; PASTYEAR(T)=NO;
+        #   PASTSUM(R,T,P)$NCAP_PASTI(R,T,P) = NCAP_PASTI(R,LL,P)+NCAP_PASTI(R,T,P)+1-1;
+        #   COEF_RTP(R,LL,P)$PASTSUM(R,T,P) = NCAP_PASTI(R,T,P) / PASTSUM(R,T,P);
+        #   NCAP_PASTI(R,LL,P)$=PASTSUM(R,T,P); NCAP_PASTI(R,T,P)=0; OPTION CLEAR=PASTSUM)
+        #   in GAMS order: a pair reads what the pairs before it wrote
+        for (ll, t) in gams_sort!(collect(vnt), d)
+            gassign!(B, (ll,), gv(M, (t,)) - GNum(1))
+            gassign!(E, (ll,), gv(M, (t,)))
+            gassign!(M, (ll,), gv(B, (ll,)))                         # the new B (G11)
+            gassign!(D, (ll,), 2.0)
+            delete!(pastyear, (t,))
+            pastsum = Dict{NTuple{2,String},GNum}()
+            for k in keys(pasti)                                      # $NCAP_PASTI: EPS counts (G12)
+                (k[2] == t && (k[1],) in reg) || continue
+                s = gv(pasti, (k[1], ll, k[3])) + gv(pasti, k) + GNum(1) - GNum(1)   # left to right, as GAMS
+                iszero(s) || (pastsum[(k[1], k[3])] = s)
+            end
+            foreach((((r, p), s),) -> gassign!(coef_rtp, (r, ll, p), gv(pasti, (r, t, p)) / s), pastsum)
+            foreach((((r, p), s),) -> gassign!(pasti, (r, ll, p), s), pastsum)
+            filter!(((k, _),) -> !(k[2] == t && (k[1],) in reg), pasti)
+        end
+        # L206: VNT(PASTMILE,T)$PERIODYR(T,PASTMILE)=YES
+        for (t, y) in gset(tm, "PERIODYR").keys
+            (t in tmem && (y,) in pastmile) && push!(vnt, (y, t))
+        end
+        # L207: OPTION PHYR<=VNT; PYR(PHYR)=YES; PASTMILE(PHYR)=YES   (`<=` matches left to right, G26)
+        phyr = Set{Tuple{String}}((k[1],) for k in vnt)
+        union!(pastyear, phyr)
+        union!(pastmile, phyr)
+        for (s, v) in (("B", B), ("E", E), ("D", D), ("M", M), ("COEF_RTP", coef_rtp), ("NCAP_PASTI", pasti))
+            gput!(tm, s, v)
+        end
+        for (s, v) in (("PASTYEAR", pastyear), ("PASTMILE", pastmile), ("VNT", vnt), ("PHYR", phyr))
+            gput!(tm, s, v)
+        end
+        gput!(tm, "PASTSUM", Dict{NTuple{3,String},Float64}())
+    end
+
+    # --- NCAP_START as PRC_NOFF (L215-217) ---------------------------------------------
+    # L215-217: LOOP(LASTLL(LL)$CARD(NCAP_START), Z=CARD(LL)+%BOTIME%;
+    #   PRC_NOFF(RP,'BOH',EOHYEAR)$NCAP_START(RP) = NO;
+    #   PRC_NOFF(RP,'BOH',LL+MIN(-1,NCAP_START(RP)-Z))$NCAP_START(RP) = YES)
+    botime = parse(Float64, gswitch(tm, "BOTIME", "1850"))
+    boh, eoh = OrdAxis(tm, "BOHYEAR"), OrdAxis(tm, "EOHYEAR")
+    prc_noff = gmembers(tm, "PRC_NOFF", 4)
+    ncap_start = gparam_opt(d, "NCAP_START", 2).values
+    if !isempty(ncap_start)
+        z = length(ax.years) + botime
+        starts = [(k, v) for (k, v) in ncap_start if k in rp]          # EPS counts (G12)
+        started = Set(k for (k, _) in starts)
+        filter!(k -> !(k[3] == "BOH" && haskey(eoh.pos, k[4]) && (k[1], k[2]) in started), prc_noff)
+        for ((r, p), v) in starts
+            y = lead(ax, dflbl, glead(min(-1.0, v - z)))
+            y === nothing || push!(prc_noff, (r, p, "BOH", y))
+        end
+    end
+    gput!(tm, "PRC_NOFF", prc_noff)
+    # ranges of the processes in RP, by process, BOHYEAR to EOHYEAR
+    ranges = Dict{NTuple{2,String},Vector{NTuple{2,String}}}()
+    for (r, p, b, e) in gams_sort!(collect(prc_noff), d)
+        ((r, p) in rp && haskey(boh.pos, b) && haskey(eoh.pos, e)) && push!(get!(ranges, (r, p), NTuple{2,String}[]), (b, e))
+    end
+
+    # --- Delayed processes (L219-232) ----------------------------------------------------
+    # L219-220: OPTION CLEAR=PRC_YMAX, CLEAR=UNCD1; UNCD1('BOH') = YES; UNCD1(YEAR)$(YEARVAL(YEAR) LE MIYR_V1) = YES
+    miyr_v1 = gscalar(tm, "MIYR_V1")
+    uncd1 = Set{Tuple{String}}([("BOH",)])
+    foreach(y -> yv(y) <= miyr_v1 && push!(uncd1, (y,)), ax.years)
+    # L221: PRC_YMAX(RP(R,P)) = MAX(0,SMAX(PRC_NOFF(R,P,BOHYEAR(UNCD1),EOHYEAR),ORD(EOHYEAR)+%BOTIME%-2))
+    prc_ymax = Dict{NTuple{2,String},Float64}()
+    for (k, rs) in ranges
+        x = maximum((Float64(eoh.pos[e]) + botime - 2 for (b, e) in rs if (b,) in uncd1); init=-Inf)
+        gassign!(prc_ymax, k, max(0.0, x))
+    end
+    ymax(k) = Float64(gv(prc_ymax, k))
+    # L223: TRACKP(RP) $= PRC_YMAX(RP)
+    trackp = Set{NTuple{2,String}}(k for k in keys(prc_ymax) if k in rp)
+    # L224: RTP_OFF(R,T,P)$((YEARVAL(T) LE PRC_YMAX(R,P))$TRACKP(R,P)) = ((PRC_YMAX(R,P)-B(T)+1)/D(T) GE G_OFFTHD(T))
+    B, D = gvalues(tm, "B", 1), gvalues(tm, "D", 1)
+    offthd = gvalues(tm, "G_OFFTHD", 1)
+    rtp_off = gmembers(tm, "RTP_OFF", 3)
+    for (r, p) in trackp, t in tset
+        y = ymax((r, p))
+        yv(t) <= y || continue
+        dt = val(D, t)
+        dt == 0 && error("ppmain.mod L224: division by zero (D('$t') = 0)")
+        ((y - val(B, t) + 1) / dt >= val(offthd, t)) ? push!(rtp_off, (r, t, p)) : delete!(rtp_off, (r, t, p))
+    end
+    # L225: PRC_YMAX(TRACKP(R,P)) = SMAX(RTP_OFF(R,T,P),E(T))   (over none: -INF)
+    E = gvalues(tm, "E", 1)
+    offmax = Dict{NTuple{2,String},Float64}()
+    for (r, t, p) in rtp_off
+        t in tmem && (offmax[(r, p)] = max(get(offmax, (r, p), -Inf), val(E, t)))
+    end
+    foreach(k -> gassign!(prc_ymax, k, get(offmax, k, -Inf)), trackp)
+    # L227-231: LOOP(TRACKP(R,P)$SUM(PYR$NCAP_PASTI(R,PYR,P),1), IF(PRC_YMAX(R,P) GT 0, <QA warning>; PRC_YMAX(R,P) = 0))
+    with_pasti = Set{NTuple{2,String}}((k[1], k[3]) for k in keys(pasti) if (k[2],) in pastyear)   # EPS counts (G12)
+    for k in trackp
+        (k in with_pasti && ymax(k) > 0) && delete!(prc_ymax, k)
+    end
+    # L232: OPTION CLEAR=TRACKP
+
+    # --- The later PRC_NOFF ranges (L234-238) ----------------------------------------------
+    # L234: UNCD1(BOHYEAR) = NOT UNCD1(BOHYEAR)
+    foreach(b -> (b,) in uncd1 ? delete!(uncd1, (b,)) : push!(uncd1, (b,)), boh.labels)
+    # L235: LOOP(PRC_NOFF(RP(R,P),BOHYEAR(UNCD1),EOHYEAR),TRACKP(R,P) = YES)
+    trackp = Set{NTuple{2,String}}(k for (k, rs) in ranges if any(((b, _),) -> (b,) in uncd1, rs))
+    # L236-238: LOOP(TRACKP(R,P), $BATINCLUDE pp_off.mod PRC_NOFF P "" "RTP_OFF(R,T,P)$(" YES)
+    #   over all the process's ranges
+    for (r, p) in trackp
+        fil = pp_off_fil(tm, ranges[(r, p)])
+        foreach(t -> push!(rtp_off, (r, t, p)), pp_off_periods(tm, fil, tset))
+    end
+    gput!(tm, "RTP_OFF", rtp_off)
+    gput!(tm, "PRC_YMAX", prc_ymax)
+    gput!(tm, "UNCD1", uncd1)
+
+    # --- RTP, RVP (L239-242) ------------------------------------------------------------------
+    # L239: RTP(R,T,P)$RP(R,P) = YES$(YEARVAL(T) GT PRC_YMAX(R,P))
+    rtp = gmembers(tm, "RTP", 3)
+    for (r, p) in rp, t in tset
+        yv(t) > ymax((r, p)) ? push!(rtp, (r, t, p)) : delete!(rtp, (r, t, p))
+    end
+    # L240: RTP(R,PYR,P)$(RP(R,P)$(NCAP_PASTI(R,PYR,P)>0)$NCAP_PASTI(R,PYR,P)) = YES
+    for ((r, y, p), v) in pasti
+        ((r, p) in rp && (y,) in pastyear && v > 0) && push!(rtp, (r, y, p))
+    end
+    # L241: RVP(RTP(R,T,P)) = YES   (the milestones of RTP)
+    rvp = gmembers(tm, "RVP", 3)
+    foreach(k -> k[2] in tmem && push!(rvp, k), rtp)
+    gput!(tm, "RTP", rtp)
+    gput!(tm, "RVP", rvp)
+    # L242: OPTION CLEAR=TRACKP
+    gput!(tm, "TRACKP", Set{NTuple{2,String}}())
+    return tm
 end
