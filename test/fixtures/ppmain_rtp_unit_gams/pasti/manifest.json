@@ -1,0 +1,242 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<ppmain.mod L1-247 on test/unit/ppmain_rtp_case.jl: pasti>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "B",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 17,
+   "file": "B.arrow"
+  },
+  {
+   "name": "E",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 17,
+   "file": "E.arrow"
+  },
+  {
+   "name": "D",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 17,
+   "file": "D.arrow"
+  },
+  {
+   "name": "M",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 17,
+   "file": "M.arrow"
+  },
+  {
+   "name": "PASTYEAR",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 7,
+   "file": "PASTYEAR.arrow"
+  },
+  {
+   "name": "PASTMILE",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "PASTMILE.arrow"
+  },
+  {
+   "name": "NCAP_PASTI",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 83,
+   "file": "NCAP_PASTI.arrow"
+  },
+  {
+   "name": "COEF_RTP",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "COEF_RTP.arrow"
+  },
+  {
+   "name": "VNT",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "ALLYEAR",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "VNT.arrow"
+  },
+  {
+   "name": "PHYR",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "PHYR.arrow"
+  },
+  {
+   "name": "PASTSUM",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "PRC_NOFF",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "*",
+    "*"
+   ],
+   "description": "",
+   "records": 87,
+   "file": "PRC_NOFF.arrow"
+  },
+  {
+   "name": "UNCD1",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "*"
+   ],
+   "description": "",
+   "records": 196,
+   "file": "UNCD1.arrow"
+  },
+  {
+   "name": "PRC_YMAX",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "REG",
+    "PRC"
+   ],
+   "description": "",
+   "records": 87,
+   "file": "PRC_YMAX.arrow"
+  },
+  {
+   "name": "TRACKP",
+   "kind": "set",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "R",
+    "P"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RTP_OFF",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 90,
+   "file": "RTP_OFF.arrow"
+  },
+  {
+   "name": "RTP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 1989,
+   "file": "RTP.arrow"
+  },
+  {
+   "name": "RVP",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P"
+   ],
+   "description": "",
+   "records": 1908,
+   "file": "RVP.arrow"
+  }
+ ]
+}

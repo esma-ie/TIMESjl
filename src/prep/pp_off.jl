@@ -1,6 +1,6 @@
-# M1.3 (4): the OFF-range macro, $BATINCLUDEd by timslice.mod L36 (TS_OFF) and
-# by ppmain.mod L237 (PRC_NOFF), L360 (COM_OFF), L562 (PRC_AOFF) and L578
-# (PRC_FOFF).
+# M1.3 (4), (5): the OFF-range macro, $BATINCLUDEd by timslice.mod L36
+# (TS_OFF) and ppmain.mod L237 (PRC_NOFF; `ppmain_rtp!`), and later by
+# ppmain.mod L360 (COM_OFF), L562 (PRC_AOFF) and L578 (PRC_FOFF).
 #
 # GAMS: pp_off.mod L1-23, v4.9.7. The macro's arguments are the OFF set (%1),
 # its index (%2), a control condition (%3), the statement it opens (%4) and

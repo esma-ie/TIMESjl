@@ -317,3 +317,11 @@ those checks, their figures and their crafted cases are not published
   through ppmain.mod L1-196 by GAMS 54.6.1 cover normalisation, zero
   fractions, TS_CYCLE, TS_OFF with and without DYNTS and unit commitment
   (CI). pp_off.mod is a function change 5 reuses. New GAMS semantics: G39.
+- 2 Nov 2026: M1.3 (5): ppmain.mod L199-247 (past investments moved off the
+  milestones, NCAP_START as PRC_NOFF, delayed processes, RTP_OFF, RTP, RVP)
+  matches GAMS at the prep checkpoint on the symbols it settles on the five
+  core models, reduce_off and as_run, and on demo12 in CI; TIM-bau checked
+  locally. Three crafted demo12 states run through ppmain.mod L1-247 by GAMS
+  54.6.1 cover INT_DEFAULT('PASTI'), user PRC_NOFF ranges through pp_off.mod,
+  NCAP_START outside the year range or not an integer, and G_OFFTHD
+  thresholds (CI). No new GAMS semantics. Next: preppm.mod (change 6).

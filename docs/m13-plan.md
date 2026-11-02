@@ -198,6 +198,26 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   negative; MOD's sign rule is from (1b). The ABORTs (L24, L74) are Julia
   errors, tested in Julia only. pp_off.mod is split into `pp_off_fil` and
   `pp_off_periods` for its four later callers.
+- (5) ppmain.mod L199-247 (2 Nov 2026): matches GAMS at the prep checkpoint
+  on the symbols it settles (`ppmain_rtp_symbols`: PRC_NOFF, RTP_OFF, VNT,
+  COEF_RTP and RTP on every core model, RVP on OTCGEN and OTNYC, which have no
+  PRC_VINT; fillvint.gms L18 and preppm.mod L61 add vintage years to RVP) on
+  the five core models, reduce_off and as_run, and on demo12 in CI; TIM-bau
+  was probed locally (results stay on James's machine). PRC_YMAX is not
+  compared at prep (prep_ext.vda L48 clears it). Every core model has
+  NCAP_START (L215-225); TIMES-NZ, OTNYC and OTUS9r have delayed processes
+  with past investment (L227-231); none has INT_DEFAULT('PASTI'), user
+  PRC_NOFF ranges or G_OFFTHD data. Three crafted demo12 states ("pasti",
+  "noff", "noff_offthd", test/unit/ppmain_rtp_case.jl) run through an
+  unchanged copy of ppmain.mod L1-247 by GAMS 54.6.1 match on the 18 symbols
+  the block writes, PRC_YMAX, TRACKP, UNCD1 and PASTSUM included (CI); the
+  replay needs %RL% (setglobs.gms L317) for the QA line at L230. GAMS
+  confirms the known rules: `3+0.1+1-1` at L202 keeps its rounding
+  (3.0999999999999996), a non-integer NCAP_START leads by the rounded amount
+  (G29: 2012.4 gives the range BOH-2011, 2012.6 BOH-2012), SMAX over nothing
+  is -INF (G31) and stays in PRC_YMAX. A delayed process with past investment
+  keeps the RTP_OFF of its delayed periods (L224) while L231 puts them back
+  in RTP. No new discrepancy entry.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
@@ -215,6 +235,7 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   compile warnings that no dump records; then timslice.mod L81-82, a
   warning when year fractions are normalised, and L101-104, a FATAL line,
   ERRLEV 99, for a timeslice with several parents, which pp_qack.mod L378
-  acts on). TIMES.jl does not write the log yet; decide where it is
+  acts on; ppmain.mod L213 resets PUTGRP and L229-230 warn when a delayed
+  process has past investment). TIMES.jl does not write the log yet; decide where it is
   translated, and whether ERRLEV aborts are checked, before the M1.3 gate.
   Until then the scalars are not compared.
