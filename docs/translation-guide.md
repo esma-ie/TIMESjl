@@ -364,3 +364,11 @@ those checks, their figures and their crafted cases are not published
   COM_OFF, peak timeslices at other levels and night storage, 217 symbols
   each (CI). New GAMS semantics: G44. Next: change 8 (ppmain.mod L462-614,
   pp_prelv.vda), which ends the prep -> prelv segment.
+- 3 Nov 2026: M1.3 (8a): ppmain.mod L461-611 (lifetimes, refits, capacity
+  transfer, capacity bounds, activity and flow availability, PG activity
+  flows) matches GAMS at the prelv checkpoint on the 30 symbols it settles
+  on the five core models, reduce_off and as_run, and on demo12 in CI. Three
+  crafted demo12 states run by GAMS 54.6.1 cover short lifetimes, lead-time
+  rounding, refits, every capacity-bound path, PRC_AOFF, PRC_FOFF, OBJ LIN,
+  %VALIDATE% and PRC_SIMV, 233 symbols each (CI). No new GAMS semantics.
+  Next: change 8b (pp_prelv.vda), which ends the prep -> prelv segment.
