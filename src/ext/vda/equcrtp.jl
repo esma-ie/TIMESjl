@@ -5,9 +5,9 @@
 # defaults are filled in.
 #
 # GAMS: equcrtp.vda L15-38 (the INIT_EXT label), v4.9.7, included from
-# init_ext.vda L128 as `$BATINCLUDE equcrtp.vda INIT_EXT`. The PREP_EXT,
-# PPM_EXT and EQU_EXT labels (L40-121) are later changes (PREP_EXT calls
-# prepparm.gms, M1.3 change 6).
+# init_ext.vda L128 as `$BATINCLUDE equcrtp.vda INIT_EXT`; L40-62 (PREP_EXT,
+# M1.3 change 6b), included from prep_ext.vda L39. The PPM_EXT and EQU_EXT
+# labels (L64-121) are later changes.
 #
 # Index sets: UCN is UC_N, R is REG (UC_CAP etc. are over ALL_REG, so R
 # filters), C is COM, '0' is LL--ORD(LL), the last ALLYEAR element (G31).
@@ -114,4 +114,100 @@ function equcrtp_init_ext!(tm)
     end
     gput!(tm, "UC_COM", uccom)
     return tm
+end
+
+"""
+    equcrtp_prep_ext!(st) -> st
+
+equcrtp.vda PREP_EXT on the state of `st.tm`: the default options of the
+dynamic process bounds (LHS 5, RHS 10 or the LHS option), the missing side
+filled in (RHS EPS, LHS 1, the last year's value at LASTLL), PRC_DYNUC
+inter-/extrapolated by prepparm.gms with %RESET% 1, the growth equation of a
+process's first period of availability dropped when no constant is given,
+and the maps UC_GMAP_P, UC_JMAP and UC_T_SUCC.
+
+GAMS: equcrtp.vda L40-62, v4.9.7.
+"""
+function equcrtp_prep_ext!(st)
+    tm = st.tm
+    t0 = last(gset(tm, "ALLYEAR").keys)[1]                            # LL--ORD(LL) (G31)
+    reg = [k[1] for k in gset(tm, "REG").keys]
+    dynuc = gvalues(tm, "PRC_DYNUC", 7)
+    if !isempty(dynuc)                                                # L41: IF(CARD(PRC_DYNUC), ...)
+        lastll = gset(tm, "LASTLL").members
+        lhs0(k) = (k[1], "LHS", k[3], t0, k[5], k[6], k[7])
+        rhs0(k) = (k[1], "RHS", k[3], t0, k[5], k[6], k[7])
+        # L43: PRC_DYNUC(UC_N,'LHS',R,LL--ORD(LL),P,G,BD)$((NOT PRC_DYNUC(UC_N,'LHS',R,'0',P,G,BD))$PRC_DYNUC(UC_N,'LHS',R,LL,P,G,BD))=5
+        old = copy(dynuc)
+        for k in keys(old)
+            (k[2] == "LHS" && !haskey(old, lhs0(k))) && gassign!(dynuc, lhs0(k), 5.0)
+        end
+        # L44-45: PRC_DYNUC(UC_N,'RHS',R,LL--ORD(LL),P,G,BD)$((NOT ..'RHS',R,'0'..)$PRC_DYNUC(UC_N,'RHS',R,LL,P,G,BD)) =
+        #           PRC_DYNUC(UC_N,'LHS',R,'0',P,G,BD)+10$(NOT PRC_DYNUC(UC_N,'LHS',R,'0',P,G,BD))
+        old = copy(dynuc)
+        for k in keys(old)
+            (k[2] == "RHS" && !haskey(old, rhs0(k))) || continue
+            gassign!(dynuc, rhs0(k), gv(old, lhs0(k)) + gif(10, !haskey(old, lhs0(k))))
+        end
+        # L46: LOOP(BD, UC_GMAP_P(R,UC_N,G,P)$PRC_DYNUC(UC_N,'RHS',R,'0',P,G,BD) = YES)
+        gmap_p = gmembers(tm, "UC_GMAP_P", 4)
+        for k in keys(dynuc)
+            (k[2] == "RHS" && k[4] == t0) && push!(gmap_p, (k[3], k[1], k[6], k[5]))
+        end
+        gput!(tm, "UC_GMAP_P", gmap_p)
+        # L48-49: PRC_DYNUC(UC_N,'RHS',R,LL,P,G,BD)$((NOT ..'RHS',R,'0'..)$PRC_DYNUC(UC_N,'LHS',R,LL,P,G,BD)) =
+        #           EPS+PRC_DYNUC(UC_N,'LHS',R,LL,P,G,BD)$LASTLL(LL)
+        old = copy(dynuc)
+        for k in keys(old)
+            (k[2] == "LHS" && !haskey(old, rhs0(k))) || continue
+            gassign!(dynuc, (k[1], "RHS", k[3], k[4], k[5], k[6], k[7]), GEPS + gif(gv(old, k), (k[4],) in lastll))
+        end
+        # L51-52: PRC_DYNUC(UC_N,'LHS',R,LL,P,G,BD)$((NOT ..'LHS',R,'0'..)$PRC_DYNUC(UC_N,'RHS',R,LL,P,G,BD)) =
+        #           (1+(PRC_DYNUC(UC_N,'RHS',R,LL,P,G,BD)-1)$LASTLL(LL))$(NOT SAMEAS('NCAP',G))
+        old = copy(dynuc)
+        one = GNum(1.0)
+        for k in keys(old)
+            (k[2] == "RHS" && !haskey(old, lhs0(k))) || continue
+            x = (one + gif(gv(old, k) - one, (k[4],) in lastll)) * gif(1, k[6] != "NCAP")
+            gassign!(dynuc, (k[1], "LHS", k[3], k[4], k[5], k[6], k[7]), x)
+        end
+        gput!(tm, "PRC_DYNUC", dynuc)
+        # L54-55: $SET RESET 1; $BATINCLUDE prepparm PRC_DYNUC 'UC_N,SIDE,R' 'P,UC_GRPTYPE,BD' "" T 1 1
+        T = [k[1] for k in gset(tm, "MILESTONYR").keys]
+        reset = st.reset
+        st.reset = 1.0
+        prepparm!(st, "PRC_DYNUC", "UC_N,SIDE,R", "P,UC_GRPTYPE,BD", pd(""), T, k -> true, GNum(1.0))
+        st.reset = reset
+        dynuc = gvalues(tm, "PRC_DYNUC", 7)
+        # L57: PRC_DYNUC(UCN,RHS,RTP(R,TT(T+1),P),G,BD)$((RTP(R,T,P)->MIYR_1(TT))$(NOT UC_GMAP_P(R,UCN,G,P))
+        #        $PRC_DYNUC(UCN,'LHS',R,'0',P,G,BD)) = 0
+        rhs = Set(k[1] for k in gset(tm, "RHS").keys)
+        rtp = gset(tm, "RTP").members
+        miyr_1 = gset(tm, "MIYR_1").members
+        prev = Dict(T[i+1] => T[i] for i in 1:length(T)-1)
+        for k in collect(keys(dynuc))
+            (k[2] in rhs && haskey(prev, k[4]) && (k[3], k[4], k[5]) in rtp) || continue
+            imp = !((k[3], prev[k[4]], k[5]) in rtp) || (k[4],) in miyr_1
+            (imp && !((k[3], k[1], k[6], k[5]) in gmap_p) && haskey(dynuc, lhs0(k))) && delete!(dynuc, k)
+        end
+        gput!(tm, "PRC_DYNUC", dynuc)
+        # L59: LOOP(BD,UC_JMAP('1',UCN,RHS,R,T(MIYR_1),P,G)$PRC_DYNUC(UCN,RHS,R,'0',P,G,BD) = YES)
+        register_uel!(tm.data, "1")
+        jmap = gmembers(tm, "UC_JMAP", 7)
+        t1 = [t for t in T if (t,) in miyr_1]
+        for k in keys(dynuc), t in t1
+            (k[2] in rhs && k[4] == t0) && push!(jmap, ("1", k[1], k[2], k[3], t, k[5], k[6]))
+        end
+        gput!(tm, "UC_JMAP", jmap)
+    end
+    # L61: LOOP(UC_DYNBND(UCN,BD),UC_T_SUCC(R,UCN,'0') = YES)
+    dyn = gset_opt(tm.data, "UC_DYNBND", 2)
+    if !isempty(dyn)
+        succ = gmembers(tm, "UC_T_SUCC", 3)
+        for (u, _) in dyn.keys, r in reg
+            push!(succ, (r, u, t0))
+        end
+        gput!(tm, "UC_T_SUCC", succ)
+    end
+    return st
 end

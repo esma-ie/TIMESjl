@@ -77,7 +77,7 @@ GAMS 54.6.1):
 | 4 | timslice.mod, pp_off.mod | 1-123; 1-23 | prep |
 | 5 | ppmain.mod: PASTI migration, START/NOFF, RTP_OFF | 199-247 | prep |
 | 6a | preppm.mod with prepxtra.mod SAVE, curex.gms (refused), prepret.dsc PREP, fillvint.gms, filparam.gms, prepparm.gms, fillparm.gms (interpolation) | 1-212 | prep |
-| 6b | preppm.mod L213-217: prep_ext.vda with equcrtp.vda (PREP_EXT); the segment's all-symbols check | 213-217; 1-83; 40-62 | prep |
+| 6b | preppm.mod L213-217: prep_ext.vda with equcrtp.vda (PREP_EXT); the segment's all-symbols check; MY_SUM kept by timslice.mod | 213-217; 1-83; 40-62 | prep |
 | 7 | preppm.mod with preshape.gms; ppmain.mod: horizon, topology, PG/SPG, commodity and process timeslice levels, RTPCS_VAR | 218-253; 249-460 | prelv |
 | 8 | ppmain.mod: lifetimes, capacity transfer, capacity bounds, availability years, PRC_ACTFLO; pp_prelv.vda | 462-614; 1-124 | prelv |
 | 9 | ppmain.mod with pp_qafs.mod, filshape.gms, filparam.gms: SHAPE/MULTI, defaults, capacity-only flows | 616-682 | ppm |
@@ -244,6 +244,28 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   (`bare`). Refused: currency conversion (curex.gms, no suite model has
   it), %INTEXT_ONLY% and %PREP_ANS% YES, %RETIRE% other than YES. On OTUS9r
   the step takes about 105 s.
+- (6b) preppm.mod L213-217 (main_ext.mod prep_ext: prep_ext.dsc exits, then
+  prep_ext.vda with equcrtp.vda PREP_EXT) ends the init -> prep segment: from
+  GAMS's init dump through every translated step, TIMES.jl matches the prep
+  dump on every set and parameter (821 on demo12, TIMES-NZ, OTCGEN and
+  OTNYC, 822 on OTUS9r; PUTOUT, PUTGRP and ERRLEV left out, open items) on
+  the five core models, reduce_off and as_run, and on demo12 in CI; MY_SUM
+  is now kept by `timslice!`. The core models reach the ACT_EFF groups
+  (RPG_1ACE on OTUS9r), the VDA fill-ins (NCAP_AFC, VDA_EMCB, VDA_FLOP,
+  FLO_EMIS), the PRC_RESID run-down and RTP_CPTYR (every model; PRC_RESID
+  options on OTUS9r), COM_LIM 'FX' (TIMES-NZ, OTCGEN, OTUS9r) and the
+  dynamic process bounds (OTUS9r). Three crafted demo12 states ("vda_resid",
+  "uc_bounds", "dynuc", test/unit/prep_ext_case.jl), run through
+  ppmain.mod L1-247, preppm.mod L1-212 and prep_ext.vda by GAMS 54.6.1,
+  match on 159 symbols each (CI): PRC_RESID options 5 and 15, a year as the
+  '0' value, the G_TLIFE run-down, NCAP_AFAC/NCAP_AFCS, ACT_FLO, the
+  unit-commitment parameters, UC_FLOBET, COM_CSTBAL, FLO_ASHAR, RPC_CAPFLO,
+  cost-neutral ILEDs (NCAP_BND 'N') and PRC_DYNUC with every side and
+  option. GAMS confirmed how `SUM(COM_TYPE(CG(R)),1)` counts (G42, L71).
+  Refused: STAGES, POWERFLO, WAVER YES, %VINTOPT% 1, GR_VARGEN data, the
+  ECB, MACRO, ETL, CLI, ABS and MCA extensions, and UC_ACTBET data (whether
+  UC_FLOBET is DEFINED then depends on the DD files). On OTUS9r the step
+  takes about 3 min, OTCGEN 80 s.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
@@ -265,7 +287,8 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   process has past investment). TIMES.jl does not write the log yet; decide where it is
   translated, and whether ERRLEV aborts are checked, before the M1.3 gate.
   Until then the scalars are not compared.
-- Scratch scalars of changes 2-5: ppmain_rtp! and timslice! do not keep Z,
-  MY_F and MY_SUM (ppmain.mod L215, timslice.mod L67-78). Later loops
-  overwrite Z and MY_F in every suite model; MY_SUM is not, so (6b) adds it
-  to `timslice!` for the segment's all-symbols check.
+- Scratch scalars of changes 2-5: ppmain_rtp! and timslice! do not keep Z
+  and MY_F (ppmain.mod L215, timslice.mod L67-78). Later loops overwrite
+  them in every suite model; only a run with G_NOINTERP and neither a
+  PRC_RESID '0' record nor an NCAP_BND 'N' would show the difference. MY_SUM, which nothing overwrites,
+  is kept since 6b.

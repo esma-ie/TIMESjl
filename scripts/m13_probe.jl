@@ -21,7 +21,8 @@
 
 include(joinpath(@__DIR__, "m11_probe.jl"))      # run_switches, runfile_of, suite_switches, parse_probe_args
 using TIMES: DumpData, layer1, init_ext!, ppmain_head!, ppmain_head_symbols, ppmain_years!, ppmain_years_symbols,
-             timslice!, timslice_symbols, ppmain_rtp!, ppmain_rtp_symbols, preppm!, preppm_symbols
+             timslice!, timslice_symbols, ppmain_rtp!, ppmain_rtp_symbols, preppm!, preppm_symbols,
+             prep_ext!, prep_ext_symbols
 using TIMES.Reference: ispass
 
 "The four segments: (first checkpoint, next checkpoint)."
@@ -38,6 +39,7 @@ const M13_STEPS = Tuple{String,String,Function,Vector{String},Function}[
     ("init", "timslice", timslice!, String[], timslice_symbols),       # ppmain.mod L196: timslice.mod with pp_off.mod
     ("init", "ppmain_rtp", ppmain_rtp!, String[], ppmain_rtp_symbols),   # ppmain.mod L199-247
     ("init", "preppm", preppm!, String[], preppm_symbols),            # ppmain.mod L248: preppm.mod L1-212
+    ("init", "prep_ext", prep_ext!, String[], prep_ext_symbols),      # preppm.mod L213-217: the whole init -> prep segment
 ]
 
 function probe13(refdir, model; roots=Dict{String,String}(), variant="reduce_off", steps=M13_STEPS)

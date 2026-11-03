@@ -336,3 +336,14 @@ those checks, their figures and their crafted cases are not published
   macros' scratch (CI). Currency conversion (curex.gms) is refused. New GAMS
   semantics: G40, G41. Next: prep_ext.vda (change 6b), which ends the
   init -> prep segment.
+- 3 Nov 2026: M1.3 (6b): preppm.mod L213-217 (prep_ext.vda with equcrtp.vda
+  PREP_EXT) completes the init -> prep segment. From GAMS's init dump, the
+  translated steps reproduce the prep dump on every set and parameter (821
+  or 822; the QA-log scalars PUTOUT, PUTGRP and ERRLEV left out) on the five
+  core models, reduce_off and as_run, and on demo12 in CI. Three crafted
+  demo12 states run by GAMS 54.6.1 cover the PRC_RESID options, the
+  commodity-specific availabilities, ACT_FLO, the unit-commitment
+  parameters, FLO_ASHAR, cost-neutral ILEDs and the dynamic process bounds,
+  159 symbols each (CI). New GAMS semantics: G42. Next: change 7
+  (preppm.mod L218-253 with preshape.gms, ppmain.mod L249-460), the start of
+  the prep -> prelv segment.
