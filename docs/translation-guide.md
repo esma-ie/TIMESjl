@@ -325,3 +325,14 @@ those checks, their figures and their crafted cases are not published
   54.6.1 cover INT_DEFAULT('PASTI'), user PRC_NOFF ranges through pp_off.mod,
   NCAP_START outside the year range or not an integer, and G_OFFTHD
   thresholds (CI). No new GAMS semantics. Next: preppm.mod (change 6).
+- 2 Nov 2026: M1.3 (6a): preppm.mod L1-212 (the interpolation of user data,
+  with prepparm.gms, fillparm.gms, filparam.gms, fillvint.gms and
+  prepret.dsc PREP) matches GAMS at the prep checkpoint on the 109 symbols it
+  settles on the five core models, reduce_off and as_run, and on demo12 in
+  CI; TIM-bau checked locally. Four crafted demo12 states run through
+  ppmain.mod L1-247 and preppm.mod L1-212 by GAMS 54.6.1 cover every
+  interpolation option, exponential growth, write caches, the special-case
+  merges, retirements and refits, and G_NOINTERP, on 125 symbols with the
+  macros' scratch (CI). Currency conversion (curex.gms) is refused. New GAMS
+  semantics: G40, G41. Next: prep_ext.vda (change 6b), which ends the
+  init -> prep segment.

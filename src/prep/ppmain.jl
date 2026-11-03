@@ -29,14 +29,16 @@ state after `ppmain_head!`. Some only on some models: RDCUR unless
 G_CUREX/R_CUREX has data (curex.gms), NCAP_PASTI and PHYR unless
 INT_DEFAULT('PASTI') (ppmain.mod L200-207 change them; `ppmain_rtp_symbols`
 then compares them), INT_DEFAULT unless G_NOINTERP
-(prepparm.gms L25). PASTYEAR is not settled (ppmain.mod L160, L201); PASTSUM,
-TRACKP and the scalars F, MY_F, Z are used again.
+(prepparm.gms L25), PRC_CAP unless NCAP_OLIFE has data (prepret.dsc L29
+clears it; `preppm_symbols` then compares it). PASTYEAR is not settled
+(ppmain.mod L160, L201); PASTSUM, TRACKP and the scalars F, MY_F, Z are used
+again.
 """
 function ppmain_head_symbols(tm)
     d = tm.data
     out = ["PRC_ACTUNT", "RPC_IRE", "RP_IRE", "TOP", "RPC", "RC", "RP", "RP_FLO", "RP_PG", "COM_GMAP", "RP_STS", "PRC_MAP",
-           "PRC_STGIPS", "PRC_STGTSS", "PRC_TSL", "RPC_STGN", "PRC_ACT", "RPG_RED", "RPC_AIRE", "CG_GRP", "TRACKC", "TRACKPC",
-           "PRC_CAP"]
+           "PRC_STGIPS", "PRC_STGTSS", "PRC_TSL", "RPC_STGN", "PRC_ACT", "RPG_RED", "RPC_AIRE", "CG_GRP", "TRACKC", "TRACKPC"]
+    isempty(gparam_opt(d, "NCAP_OLIFE", 3)) && push!(out, "PRC_CAP")
     isempty(gparam_opt(d, "G_CUREX", 2)) && isempty(gparam_opt(d, "R_CUREX", 3)) && push!(out, "RDCUR")
     ("PASTI",) in gset_opt(d, "INT_DEFAULT", 1).members || append!(out, ["NCAP_PASTI", "PHYR"])
     iszero(get(gparam_opt(d, "G_NOINTERP", 0).values, (), 0.0)) && push!(out, "INT_DEFAULT")

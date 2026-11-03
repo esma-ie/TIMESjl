@@ -39,12 +39,15 @@ function gams_value(x::Float64, eps::Bool)
 end
 
 """
-    replay_state(tm, idents; skip) -> String
+    replay_state(tm, idents; skip, bare) -> String
 
 GAMS source declaring the dump symbols named in `idents` (and the sets and
-aliases their domains use) with the current data of `tm`.
+aliases their domains use) with the current data of `tm`. A symbol in `bare`
+that has no records is declared without a data statement: an empty data
+statement (`/ /`) makes `\$IF DEFINED` true (docs/discrepancies.md G40), while
+in a TIMES run a symbol the DD files give no data stays undefined.
 """
-function replay_state(tm, idents; skip=Set{String}())
+function replay_state(tm, idents; skip=Set{String}(), bare=Set{String}())
     syms = tm.data.dump.symbols
     want = Set{String}()
     todo = [n for n in idents if haskey(syms, n) && syms[n].kind in (:set, :parameter, :alias) && !(n in skip)]
@@ -82,6 +85,8 @@ function replay_state(tm, idents; skip=Set{String}())
         dom = isempty(info.domain) ? "" : "(" * join(info.domain, ",") * ")"
         if info.kind == :alias
             println(io, "Alias (", info.alias_with, ", ", n, ");")
+        elseif n in bare && isempty((info.kind == :set ? gset_opt(tm.data, n, info.dimension) : gparam_opt(tm.data, n, info.dimension)).keys)
+            println(io, info.kind == :set ? "Set " : "Parameter ", n, dom, ";")
         elseif info.kind == :set
             s = gset_opt(tm.data, n, info.dimension)
             println(io, "Set ", n, dom, " /")
@@ -113,12 +118,14 @@ the environment variable `TJL_PYTHON` (on Windows the harness venv's
 `python.exe`, which has the GAMS Python API). `onmulti` switches on
 `\$onMulti` after the state, as TIMES does (initsys.mod L22), for included
 code that declares a state symbol again (timslice.mod L34, `SET TS_OFF //;`).
+`bare` names the symbols to declare without data when they have none, so
+that `\$IF DEFINED` on them is false as in a TIMES run (`replay_state`).
 """
 function gams_replay(tm, includes, outputs; times_dir, also_scan=String[], skip=Set{String}(), setglobals=Dict{String,String}(),
                      gams=joinpath(readchomp(`$(replay_python()) -c "import gamspy_base;print(gamspy_base.directory)"`), "gams"),
-                     workdir=mktempdir(), onmulti::Bool=false)
+                     workdir=mktempdir(), onmulti::Bool=false, bare=Set{String}())
     files = [joinpath(times_dir, f) for f in vcat([f for (f, _) in includes], also_scan)]
-    write(joinpath(workdir, "state.gms"), replay_state(tm, gams_identifiers(files); skip))
+    write(joinpath(workdir, "state.gms"), replay_state(tm, gams_identifiers(files); skip, bare))
     io = IOBuffer()
     for (k, v) in setglobals
         println(io, "\$setglobal ", k, " ", v)

@@ -76,7 +76,8 @@ GAMS 54.6.1):
 | 3 | ppmain.mod with filparam.gms (G_OFFTHD): years, periods, B/E/D/M, LEAD/LAG, EOHYEARS | 138-191 | prep |
 | 4 | timslice.mod, pp_off.mod | 1-123; 1-23 | prep |
 | 5 | ppmain.mod: PASTI migration, START/NOFF, RTP_OFF | 199-247 | prep |
-| 6 | preppm.mod with prepxtra.mod, fillparm.gms, fillvint.gms, curex.gms, prepparm.gms (interpolation); prep_ext.vda with equcrtp.vda (PREP_EXT). May split in two. | 1-217; 1-82 | prep |
+| 6a | preppm.mod with prepxtra.mod SAVE, curex.gms (refused), prepret.dsc PREP, fillvint.gms, filparam.gms, prepparm.gms, fillparm.gms (interpolation) | 1-212 | prep |
+| 6b | preppm.mod L213-217: prep_ext.vda with equcrtp.vda (PREP_EXT); the segment's all-symbols check | 213-217; 1-83; 40-62 | prep |
 | 7 | preppm.mod with preshape.gms; ppmain.mod: horizon, topology, PG/SPG, commodity and process timeslice levels, RTPCS_VAR | 218-253; 249-460 | prelv |
 | 8 | ppmain.mod: lifetimes, capacity transfer, capacity bounds, availability years, PRC_ACTFLO; pp_prelv.vda | 462-614; 1-124 | prelv |
 | 9 | ppmain.mod with pp_qafs.mod, filshape.gms, filparam.gms: SHAPE/MULTI, defaults, capacity-only flows | 616-682 | ppm |
@@ -218,6 +219,31 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   is -INF (G31) and stays in PRC_YMAX. A delayed process with past investment
   keeps the RTP_OFF of its delayed periods (L224) while L231 puts them back
   in RTP. No new discrepancy entry.
+- (6a) preppm.mod L1-212 (2 Nov 2026): matches GAMS at the prep checkpoint on
+  the 109 symbols it settles (`preppm_symbols`: every parameter its macro
+  calls interpolate but NCAP_TLIFE and NCAP_ILED, which prep_ext.vda L66-67
+  changes; the year sets; the merged OBJ_COMNT/OBJ_COMPD and UC_COM; the
+  flags and defaults; the prepret.dsc and fillvint.gms sets; RTP and RVP) on
+  the five core models, reduce_off and as_run, and on demo12 in CI; TIM-bau
+  was probed locally (results stay on James's machine). The core models reach
+  options -1, 1, 2, 3, 5 and 15, the bounds' default 10 (years inside a
+  period moved to the milestone), cost options (NCAP_COST, NCAP_FOM,
+  ACT_COST), FLO_MARK (TIMES-NZ), PRC_VINT (demo12, TIMES-NZ, OTUS9r), the
+  COM and UC merges, and prepret.dsc with RCAP_BND and refits (OTUS9r). %PGPRIM%
+  is 'ACT' by default, so %RETIRE% is YES in every run (initmty.mod L454).
+  Four crafted demo12 states ("fill_opts", "prep_opts", "costs_uc_ret",
+  "nointerp", test/unit/preppm_case.jl), run through unchanged copies of
+  ppmain.mod L1-247 and preppm.mod L1-212 by GAMS 54.6.1, match on the 125
+  symbols the block writes, the macros' scratch (UNCD7, MY_ARRAY, MY_FIL2 and
+  the scalars) included (CI); under G_NOINTERP no macro runs, so Z and MY_F
+  keep what ppmain.mod L215 and timslice.mod L71-77 left, which changes 4-5 do
+  not keep, and are not compared in that case. GAMS confirmed that an empty
+  data statement makes a symbol DEFINED (G40: with PRC_REFIT data,
+  prepret.dsc runs on without retirement bounds) and that CARD of a string is
+  its length (G41); the GAMS replay now declares such symbols without data
+  (`bare`). Refused: currency conversion (curex.gms, no suite model has
+  it), %INTEXT_ONLY% and %PREP_ANS% YES, %RETIRE% other than YES. On OTUS9r
+  the step takes about 105 s.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
@@ -239,3 +265,7 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   process has past investment). TIMES.jl does not write the log yet; decide where it is
   translated, and whether ERRLEV aborts are checked, before the M1.3 gate.
   Until then the scalars are not compared.
+- Scratch scalars of changes 2-5: ppmain_rtp! and timslice! do not keep Z,
+  MY_F and MY_SUM (ppmain.mod L215, timslice.mod L67-78). Later loops
+  overwrite Z and MY_F in every suite model; MY_SUM is not, so (6b) adds it
+  to `timslice!` for the segment's all-symbols check.

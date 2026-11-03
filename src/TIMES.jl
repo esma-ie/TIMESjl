@@ -58,6 +58,9 @@ include("ext/vda/init_ext.jl")
 include("prep/ppmain.jl")
 include("prep/timslice.jl")
 include("prep/pp_off.jl")
+include("prep/interp.jl")
+include("ext/dsc/prepret.jl")
+include("prep/preppm.jl")
 include("model/generate.jl")
 
 end # module TIMES
