@@ -31,6 +31,15 @@ Claude Code in the terminal, VS Code, or the desktop app).
   (M1.0 foundations → M1.1 model generation on GAMS dumps → M1.2 coefficients
   → M1.3 preprocessing → M1.4 DD reader → M1.5 run options → M1.6 reporting
   → M1.7 release). Do not start a milestone until the previous gate passes.
+  One exception (James, 3 Nov 2026): M1.4 is developed alongside M1.3, in a
+  second Claude tab working in its own git worktree (`../TIMESjl-m14`). It is
+  checked against the `input/` dumps, which do not depend on M1.3. Its gate
+  still waits for the M1.3 gate.
+- Approved plans (James, 3 Nov 2026): the Phase 1 plan is approved, with
+  M1.3 in the order of `docs/m13-plan.md`. Work through it without waiting
+  for a plan approval per change, and stop only to depart from it. James
+  reviews PRs at two check-ins, 9:00 and 16:45. Each PR starts with a
+  "Decisions for you" list.
 
 ## Validation (every PR)
 | Layer | Check | Tolerance |
