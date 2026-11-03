@@ -14,8 +14,9 @@
 # Not translated: the QA log (L81-82, a warning when year fractions are
 # normalised; L101-104, a FATAL line, ERRLEV 99, for timeslices with several
 # parents, acted on by pp_qack.mod), m13-plan.md open items. The scratch
-# scalars Z, F, MY_F, MY_SUM, PUTGRP and pp_off's FIL are not kept: every later
-# use assigns them first.
+# scalars Z, F, MY_F, PUTGRP and pp_off's FIL are not kept: every later use
+# assigns them first. MY_SUM is kept: nothing later in the init -> prep
+# segment assigns it, so the prep checkpoint holds what L72/L77 leave.
 
 """
     OrdAxis(labels)
@@ -192,6 +193,7 @@ function timslice!(tm)
     # --- Normalising the year fractions (L67-83) -------------------------------------
     # L67: Z = 8760*3600 (one second)
     Z = 8760 * 3600.0
+    MY_SUM = nothing                                                 # the scratch scalar, as the loop leaves it
     kids = below_of(RS_BELOW1, d)
     for (r, l, s) in sorted(TS_GROUP)                                # L69: LOOP(TS_GROUP(R,TSL,S)$(NOT FINEST(R,S)), ...)
         (r in regset && !((r, s) in FINEST)) || continue
@@ -202,6 +204,7 @@ function timslice!(tm)
             for t in tset
                 my_f = 1 - sum((num(RS_HR, (r, ts)) for ts in ch if haskey(RS_HR, (r, ts)) && num(NORTS, (r, t, ts)) == 0); init=0.0)
                 my_sum = sum((num(G_YRFR, (r, ts)) for ts in ch if !haskey(RS_HR, (r, ts)) && num(NORTS, (r, t, ts)) == 0); init=0.0)
+                MY_SUM = my_sum
                 if my_sum * my_f > 0
                     for ts in ch
                         (num(NORTS, (r, t, ts)) == 0 && !haskey(RS_HR, (r, ts))) || continue
@@ -221,6 +224,7 @@ function timslice!(tm)
             #         IF(F*Z>1,G_YRFR(R,TS)$RS_BELOW1(R,S,TS)=MY_F/MY_SUM*G_YRFR(R,TS))
             my_f = num(G_YRFR, (r, s))
             my_sum = sum((num(G_YRFR, (r, ts)) for ts in ch); init=0.0)
+            MY_SUM = my_sum
             F = abs(my_f - my_sum)
             if F * Z > 1
                 q = divide(my_f, my_sum, "L78")
@@ -229,6 +233,8 @@ function timslice!(tm)
         end
         # L80-83: IF(F*Z > 1, ...) writes a warning to the QA log only (not translated)
     end
+    # MY_SUM as the last L72 or L77 leaves it: nothing later in the init -> prep segment assigns it
+    MY_SUM === nothing || gput!(tm, "MY_SUM", iszero(MY_SUM) ? Dict{Tuple{},Float64}() : Dict{Tuple{},Float64}(() => MY_SUM))
 
     # --- Storage cycles and lags (L86-98) ----------------------------------------------
     # L86: G_CYCLE(TSL('WEEKLY'))$(G_CYCLE(TSL)=0)=8760/(24*7); TS_CYCLE(FINEST)=0

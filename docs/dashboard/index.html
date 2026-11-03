@@ -179,8 +179,8 @@ const PIPELINE = [
   ["Preprocessing","init_ext",142,"done","M1.3 changes 1, 1b"],
   ["Preprocessing","ppmain L1-247, timslice",393,"done","M1.3 changes 2-5"],
   ["Preprocessing","preppm L1-212 + macros",465,"partial","6a · currency conversion refused"],
-  ["Preprocessing","prep_ext",110,"todo","6b, next"],
-  ["Preprocessing","ppmain L249-614",575,"todo","changes 7-8"],
+  ["Preprocessing","prep_ext",110,"review","6b · POWERFLO, VINTOPT 1 refused"],
+  ["Preprocessing","ppmain L249-614",575,"todo","changes 7-8, next"],
   ["Preprocessing","ppmain L616-1336 + pp_*",1399,"todo","changes 9-16"],
   ["Preprocessing","REDUCE",397,"todo","change 17"],
   ["Preprocessing","ppm_ext",419,"todo","change 18"],
@@ -243,8 +243,8 @@ const M13_CHANGES = [
   ["4","timslice","timslice.mod, pp_off.mod","prep","done"],
   ["5","ppmain_rtp","ppmain.mod L199-247","prep","done"],
   ["6a","preppm","preppm.mod L1-212, prepparm, fillparm, filparam, fillvint, prepret.dsc","prep","done"],
-  ["6b","prep_ext","prep_ext.vda, equcrtp.vda PREP_EXT; every symbol at prep","prep","next"],
-  ["7","","preshape.gms; ppmain.mod L249-460","prelv","todo"],
+  ["6b","prep_ext","prep_ext.vda, equcrtp.vda PREP_EXT; every symbol at prep","prep","review"],
+  ["7","","preshape.gms; ppmain.mod L249-460","prelv","next"],
   ["8","","ppmain.mod L462-614; pp_prelv.vda","prelv","todo"],
   ["9","","ppmain.mod L616-682, pp_qafs.mod, filshape.gms","ppm","todo"],
   ["10","","ppmain.mod L683-799, pp_lvlfc/br/pk","ppm","todo"],
@@ -258,16 +258,16 @@ const M13_CHANGES = [
   ["18","","ppm_ext.dsc, ppm_ext.vda","ppm","todo"],
 ];
 // scripts/m13_probe.jl on James's workstation against the GAMS 54.6.1 references: GAMS records compared per step,
-// the same for reduce_off and as_run, every step PASS (init_ext to ppmain_rtp: probe at change 5; preppm: probe at 6a)
+// the same for reduce_off and as_run, every step PASS (init_ext to ppmain_rtp: probe at change 5; preppm: 6a; prep_ext, every symbol at prep: 6b)
 const M13_PROBE = {
-  meta:"probe of 2 Nov 2026 at 6a (PR #21, 4229464) · 5 models × 2 variants",
-  steps:["init_ext","ppmain_head","ppmain_years","timslice","ppmain_rtp","preppm"],
+  meta:"probe of 3 Nov 2026 at 6b · 5 models × 2 variants",
+  steps:["init_ext","ppmain_head","ppmain_years","timslice","ppmain_rtp","preppm","prep_ext"],
   runs:[
-    {model:"TIMES_Demo-demo12", licence:"CC-BY-4.0", rec:[9324,4393,190,253,2162,8985]},
-    {model:"TIMES-NZ-steady-v308", licence:"MIT", rec:[88954,21803,571,1603,24452,366975]},
-    {model:"OTCGEN-gc_ref", licence:"CC-BY-SA-4.0", rec:[248819,133975,373,596,311429,761841]},
-    {model:"OTNYC-s1_nyc_ref", licence:"CC-BY-SA-4.0", rec:[403890,148290,195,2026,151220,642158]},
-    {model:"OTUS9r-reference", licence:"CC-BY-SA-4.0", rec:[1388726,644137,603,3799,305177,1846359]},
+    {model:"TIMES_Demo-demo12", licence:"CC-BY-4.0", rec:[9324,4393,190,253,2162,8985,23004]},
+    {model:"TIMES-NZ-steady-v308", licence:"MIT", rec:[88954,21803,571,1603,24452,366975,474586]},
+    {model:"OTCGEN-gc_ref", licence:"CC-BY-SA-4.0", rec:[248819,133975,373,596,311429,761841,2161605]},
+    {model:"OTNYC-s1_nyc_ref", licence:"CC-BY-SA-4.0", rec:[403890,148290,195,2026,151220,642158,1149222]},
+    {model:"OTUS9r-reference", licence:"CC-BY-SA-4.0", rec:[1388726,644137,603,3799,305177,1846359,4937078]},
   ],
 };
 const COEF_FILES = ["coef_cpt","coef_nio","coef_ptr","coef_obj","coef_alt","coef_shp","coef_ext"];
