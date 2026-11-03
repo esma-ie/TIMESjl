@@ -331,6 +331,27 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   too. IFQ is 1 unless a region is named like a commodity type (prep_ext.vda
   L71), so the `IFQ<10` branch of L528 is the only one data can reach. On
   OTUS9r the step takes about 4 min, OTCGEN 100 s (not profiled).
+- (8b) pp_prelv.vda (ppmain.mod L615, with pp_lvlfc.mod for FLO_FR) ends
+  the prep -> prelv segment: from GAMS's prep dump through every translated
+  step, TIMES.jl matches the prelv dump on every set and parameter (821;
+  PUTOUT, PUTGRP and ERRLEV left out, open items) on the five core models,
+  reduce_off and as_run, and on demo12 in CI. The core models reach
+  NCAP_TLIFE for RESID (every model), the ACT_EFF filter of VDA_FLOP with
+  KEEP_FLOF, ACT_FLO, RPC_AFLO and RP_XRED (OTUS9r, OTNYC), the VDA_FLOP
+  groups, FLO_EMIS into FLO_SUM, IRE_FLOSUM (TIMES-NZ, OTCGEN) and FLO_EFF
+  (OTCGEN's CHP), and the dummy imports out of TOP_IRE (every model). Two
+  crafted demo12 states ("flofr", "groups", test/unit/pp_prelv_case.jl), run
+  through unchanged copies of ppmain.mod L1-247 and L249-614, preppm.mod
+  L1-212 and L218-252, prep_ext.vda and pp_prelv.vda by GAMS 54.6.1, match on
+  246 symbols each (CI): FLO_FR copied, aggregated and inherited
+  (pp_lvlfc.mod) with its 'N' fractions and RVPCSL, NCAP_CHPR 'N', the 'N'
+  defaults of COM_BNDNET and COM_BNDPRD, IRE_BND (NE), FLO_SHAR of a storage
+  process, %SHELL% ANSWER and the VDA_FLOP group paths. GAMS showed that
+  `OPTION a < b` compares domains as declared, not through aliases (G45,
+  refining G26). Refused: TS_OFF data (dynslite.vda, no core model has any)
+  and %POWERFLO% YES. On OTCGEN the step takes about 2-2.5 min, OTUS9r
+  3-3.5 min (not profiled). The every-symbol check found one slip in 8a's
+  code, fixed here: F keeps an EPS (ppmain.mod L526-531).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

@@ -268,7 +268,7 @@ function ppmain_life!(tm)
         f = gv(cap, up)
         ifq.v < 10 && gassign!(cap, up, GEPS)
         iszero(gpow(GZERO, ifq + f + GNum((k[1], k[3]) in rp_flo ? 1.0 : 0.0))) || (f = z)
-        F = Float64(f)
+        F = f                                                     # an EPS bound leaves F EPS
         f.v < z.v && gassign!(rcap_bnd, (k..., "N"), z)
     end
     gput!(tm, "RCAP_BND", rcap_bnd)
@@ -447,7 +447,7 @@ function ppmain_life!(tm)
     # L566, L586: OPTION CLEAR=TRACKP, CLEAR=TRACKPC
     gput!(tm, "TRACKP", Set{NTuple{2,String}}())
     gput!(tm, "TRACKPC", Set{NTuple{3,String}}())
-    F === nothing || gput_scalar!(tm, "F", F)
+    F === nothing || gput!(tm, "F", gassign!(Dict{Tuple{},Float64}(), (), GNum(F)))
     Z === nothing || gput!(tm, "Z", gassign!(Dict{Tuple{},Float64}(), (), Z))
     return tm
 end
