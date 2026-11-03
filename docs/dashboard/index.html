@@ -56,6 +56,17 @@ h2{font-size:clamp(18px,2vw,26px);line-height:1.15}
 .seg.done{background:var(--pass);color:var(--dark-green)}
 .seg.partial{background:repeating-linear-gradient(135deg,var(--green) 0 7px,var(--surface-tint) 7px 11px);color:var(--ink)}
 .seg.todo{background:var(--surface-tint);border:1px dashed var(--notrun-edge)}
+.seg.review{background:repeating-linear-gradient(135deg,var(--dark-yellow) 0 7px,var(--surface-tint) 7px 11px);color:var(--ink)}
+.seg.review .n,.seg.review .s{background:var(--surface-tint);display:inline-block;padding:0 4px;align-self:flex-start;max-width:100%}
+.miles{display:flex;gap:3px;min-width:0}
+.mile{flex:1 1 0;min-width:0;padding:6px 8px;background:var(--surface-tint);border-top:4px solid var(--notrun-edge)}
+.mile.done{border-top-color:var(--pass)} .mile.active{border-top-color:var(--accent)}
+.mile .id{font-size:13px;font-weight:700} .mile .t{font-size:11px;line-height:1.25;color:var(--ink-muted)}
+.chips{display:flex;gap:3px;min-width:0}
+.chip{flex:1 1 0;min-width:0;text-align:center;font-size:12px;font-weight:700;padding:5px 0;background:var(--surface-tint);border:1px dashed var(--notrun-edge)}
+.chip.done{background:var(--pass);color:var(--dark-green);border-color:transparent}
+.chip.review{background:repeating-linear-gradient(135deg,var(--dark-yellow) 0 5px,var(--surface-tint) 5px 8px);border:1px solid var(--dark-yellow)}
+.chip.next{border:2px solid var(--accent)}
 .seg .n{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seg .s{font-size:11px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seg.partial .n,.seg.partial .s{background:var(--surface-tint);display:inline-block;padding:0 4px;align-self:flex-start;max-width:100%}
@@ -65,6 +76,7 @@ h2{font-size:clamp(18px,2vw,26px);line-height:1.15}
 .sw{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:6px;border:1px solid transparent}
 .sw.done{background:var(--pass)} .sw.partial{background:repeating-linear-gradient(135deg,var(--green) 0 4px,var(--surface-tint) 4px 7px)}
 .sw.todo{background:var(--surface-tint);border-color:var(--notrun-edge)}
+.sw.review{background:repeating-linear-gradient(135deg,var(--dark-yellow) 0 4px,var(--surface-tint) 4px 7px)} .sw.next{border:2px solid var(--accent)}
 .sw.pass{background:var(--pass)} .sw.fail{background:var(--fail)} .sw.refused{background:var(--refused)} .sw.notrun{border-color:var(--notrun-edge)}
 
 /* slide 2: matrix */
@@ -97,19 +109,34 @@ svg text{font-family:var(--sans)}
     <div><div class="eyebrow">TIMES.jl · GAMS parity</div><h1>Translation progress and parity at a glance</h1></div>
     <div class="meta" id="meta1"></div>
   </div>
-  <div style="display:grid;grid-template-rows:auto minmax(0,220px);grid-template-columns:minmax(0,1fr);gap:clamp(10px,1.6vw,22px);min-height:0;min-width:0;align-content:start">
+  <div style="display:grid;grid-template-rows:auto auto minmax(0,200px);grid-template-columns:minmax(0,1fr);gap:clamp(10px,1.6vw,22px);min-height:0;min-width:0;align-content:start">
     <div class="kpis" id="kpis"></div>
+    <div><div class="eyebrow" style="margin-bottom:6px">Milestones · Phase 1 (faithful translation), then Phase 2 (performance)</div><div class="miles" id="miles"></div></div>
     <div class="pipe">
       <div class="eyebrow">GAMS pipeline, TIMES v4.9.7 · segment width = lines of GAMS</div>
       <div class="pipe-bar" id="pipe"></div>
       <div class="pipe-stage" id="pipestage"></div>
-      <div class="legend"><span><i class="sw done"></i>translated</span><span><i class="sw partial"></i>translated with refused paths</span><span><i class="sw todo"></i>not started</span></div>
+      <div class="legend"><span><i class="sw done"></i>translated</span><span><i class="sw partial"></i>translated with refused paths</span><span><i class="sw review"></i>in review</span><span><i class="sw todo"></i>not started</span></div>
     </div>
   </div>
   <div class="foot"><span>Source: esma-ie/TIMESjl parity reports · demo12 fixtures (CI) and reference runs of the public suite models (demo12, TIMES-NZ, OTUS9r, OTCGEN, OTNYC) · local runs loaded by file</span><span class="mark">ESMA</span></div>
 </section>
 
-<!-- Slide 2: parity matrix -->
+<!-- Slide 2: preprocessing (M1.3) -->
+<section class="slide" id="sp">
+  <div class="slide-head">
+    <div><div class="eyebrow">M1.3 preprocessing · core-tier probe</div><h2>Each translated step matches GAMS on all five core models</h2></div>
+    <div class="meta" id="metap"></div>
+  </div>
+  <div style="display:grid;grid-template-rows:auto auto minmax(0,1fr);grid-template-columns:minmax(0,1fr);gap:10px;min-height:0;min-width:0">
+    <div class="chips" id="chips"></div>
+    <div class="legend"><span><i class="sw done"></i>merged</span><span><i class="sw review"></i>in review</span><span><i class="sw next"></i>next</span><span><i class="sw todo"></i>to do</span><span>· columns grouped by the GAMS checkpoint they are compared at · cells: <i class="sw pass"></i>pass, inner square = GAMS records compared at 1e-9 (log)</span></div>
+    <div class="matrix-wrap"><svg id="prepgrid" width="100%" role="img" aria-label="M1.3 probe results by step and model"></svg></div>
+  </div>
+  <div class="foot"><span>scripts/m13_probe.jl: each step starts from the GAMS dump before it and is compared at its checkpoint on the symbols it settles, 1e-9 · M1.3 gate: every symbol of the ppm dump</span><span class="mark">ESMA</span></div>
+</section>
+
+<!-- Slide 3: parity matrix -->
 <section class="slide" id="s2">
   <div class="slide-head">
     <div><div class="eyebrow">Parity matrix</div><h2>Every check, by model and stage</h2></div>
@@ -148,7 +175,15 @@ svg text{font-family:var(--sans)}
 // ---- static context -------------------------------------------------------
 const PIPELINE = [
   // stage, file, GAMS lines, status: done | partial | todo, note
-  ["Preprocessing","ppmain.mod + pp_*",2947,"todo","M1.3"],
+  // M1.3 by change (docs/m13-plan.md): lines of the GAMS files and ranges each group of changes translates
+  ["Preprocessing","init_ext",142,"done","M1.3 changes 1, 1b"],
+  ["Preprocessing","ppmain L1-247, timslice",393,"done","M1.3 changes 2-5"],
+  ["Preprocessing","preppm L1-212 + macros",465,"partial","6a · currency conversion refused"],
+  ["Preprocessing","prep_ext",110,"todo","6b, next"],
+  ["Preprocessing","ppmain L249-614",575,"todo","changes 7-8"],
+  ["Preprocessing","ppmain L616-1336 + pp_*",1399,"todo","changes 9-16"],
+  ["Preprocessing","REDUCE",397,"todo","change 17"],
+  ["Preprocessing","ppm_ext",419,"todo","change 18"],
   ["Coefficients","coef_cpt",63,"partial","shaped availabilities refused"],
   ["Coefficients","coef_nio",71,"partial","capacity-related flows refused"],
   ["Coefficients","coef_ptr",54,"partial","reduced flows refused"],
@@ -186,6 +221,55 @@ const PLANNED_RUNS = [
   {id:"tim_cb300m", model:"TIM-mitigation_cb2024-300mt-myopic", variant:"reduce_off", licence:"CC-BY-NC-SA-4.0 (local only)"},
   {id:"jrc", model:"JRC-EU-TIMES-cli_ll", variant:"reduce_off", licence:"GPL-3.0-or-later (summary)"},
 ];
+// docs/translation-guide.md (status) and docs/m13-plan.md: update when a gate passes or a change merges
+const MILESTONES = [
+  ["M1.0","foundations","done","gate 18 Oct"],
+  ["M1.1","model generation","done","gate 21 Oct"],
+  ["M1.2","coefficients","done","gate 31 Oct"],
+  ["M1.3","preprocessing","active","8 of 21 changes merged"],
+  ["M1.4","DD reader","todo",""],
+  ["M1.5","run options","todo",""],
+  ["M1.6","reporting","todo",""],
+  ["M1.7","release","todo",""],
+  ["Phase 2","performance","todo",""],
+];
+// docs/m13-plan.md order: change, probe step (null: no step of its own), GAMS, checkpoint, status (done | review | next | todo)
+const M13_CHANGES = [
+  ["0",null,"checkpoint dumps, inventory, probe","","done"],
+  ["1","init_ext","init_ext.dsc, init_ext.vda, equcrtp.vda INIT_EXT","init","done"],
+  ["1b",null,"crafted demo12 states for init_ext.vda","init","done"],
+  ["2","ppmain_head","ppmain.mod L1-137","prep","done"],
+  ["3","ppmain_years","ppmain.mod L138-191","prep","done"],
+  ["4","timslice","timslice.mod, pp_off.mod","prep","done"],
+  ["5","ppmain_rtp","ppmain.mod L199-247","prep","done"],
+  ["6a","preppm","preppm.mod L1-212, prepparm, fillparm, filparam, fillvint, prepret.dsc","prep","done"],
+  ["6b","prep_ext","prep_ext.vda, equcrtp.vda PREP_EXT; every symbol at prep","prep","next"],
+  ["7","","preshape.gms; ppmain.mod L249-460","prelv","todo"],
+  ["8","","ppmain.mod L462-614; pp_prelv.vda","prelv","todo"],
+  ["9","","ppmain.mod L616-682, pp_qafs.mod, filshape.gms","ppm","todo"],
+  ["10","","ppmain.mod L683-799, pp_lvlfc/br/pk","ppm","todo"],
+  ["11","","ppmain.mod L800-845, pp_chp, pp_lvlff/fs, eqflomrk","ppm","todo"],
+  ["12","","ppmain.mod L846-935, pp_lvlif","ppm","todo"],
+  ["13","","ppmain.mod L936-1060, pp_lvlbd","ppm","todo"],
+  ["14","","ppmain.mod L1061-1101, storage","ppm","todo"],
+  ["15","","ppmain.mod L1102-1229, pp_lvlus, prepxtra UCINT","ppm","todo"],
+  ["16","","ppmain.mod L1230-1336, blending","ppm","todo"],
+  ["17","","pp_reduce.red, dynslite.vda, cal_red.red","ppm","todo"],
+  ["18","","ppm_ext.dsc, ppm_ext.vda","ppm","todo"],
+];
+// scripts/m13_probe.jl on James's workstation against the GAMS 54.6.1 references: GAMS records compared per step,
+// the same for reduce_off and as_run, every step PASS (init_ext to ppmain_rtp: probe at change 5; preppm: probe at 6a)
+const M13_PROBE = {
+  meta:"probe of 2 Nov 2026 at 6a (PR #21, 4229464) · 5 models × 2 variants",
+  steps:["init_ext","ppmain_head","ppmain_years","timslice","ppmain_rtp","preppm"],
+  runs:[
+    {model:"TIMES_Demo-demo12", licence:"CC-BY-4.0", rec:[9324,4393,190,253,2162,8985]},
+    {model:"TIMES-NZ-steady-v308", licence:"MIT", rec:[88954,21803,571,1603,24452,366975]},
+    {model:"OTCGEN-gc_ref", licence:"CC-BY-SA-4.0", rec:[248819,133975,373,596,311429,761841]},
+    {model:"OTNYC-s1_nyc_ref", licence:"CC-BY-SA-4.0", rec:[403890,148290,195,2026,151220,642158]},
+    {model:"OTUS9r-reference", licence:"CC-BY-SA-4.0", rec:[1388726,644137,603,3799,305177,1846359]},
+  ],
+};
 const COEF_FILES = ["coef_cpt","coef_nio","coef_ptr","coef_obj","coef_alt","coef_shp","coef_ext"];
 const SOLVERS = ["CPLEX","HIGHS"];
 
@@ -229,10 +313,44 @@ function renderSlide1(){
   const total=PIPELINE.reduce((a,p)=>a+p[2],0);
   document.getElementById('pipe').innerHTML=PIPELINE.map(p=>`<div class="seg ${p[3]}" style="flex:${p[2]} 0 0" title="${p[1]} · ${p[2]} lines · ${p[4]}"><span class="n">${p[1]}</span><span class="s">${p[4]}</span></div>`).join('');
   const stages=[]; for(const p of PIPELINE){const s=stages[stages.length-1]; if(s&&s[0]===p[0]) s[1]+=p[2]; else stages.push([p[0],p[2]]);}
+  document.getElementById('miles').innerHTML=MILESTONES.map(m=>`<div class="mile ${m[2]}" title="${m[0]} ${m[1]}${m[3]?' · '+m[3]:''}"><div class="id">${m[0]}${m[2]==='done'?' ✓':''}</div><div class="t">${m[1]}${m[3]?' · '+m[3]:''}</div></div>`).join('');
   document.getElementById('pipestage').innerHTML=stages.map(s=>`<span style="flex:${s[1]} 0 0">${s[0]} · ${fmt(s[1])} lines</span>`).join('');
 }
 
-// ---- slide 2: matrix -------------------------------------------------------
+// ---- slide 2: preprocessing (M1.3) ------------------------------------------
+function renderPrep(){
+  const merged=M13_CHANGES.filter(c=>c[4]==='done').length, inrev=M13_CHANGES.filter(c=>c[4]==='review').map(c=>c[0]);
+  document.getElementById('metap').innerHTML=`<b>${merged}</b> of <b>${M13_CHANGES.length}</b> changes merged${inrev.length?` · <b>${inrev.join(', ')}</b> in review`:''}<br>${M13_PROBE.meta}`;
+  document.getElementById('chips').innerHTML=M13_CHANGES.map(c=>`<div class="chip ${c[4]}" title="change ${c[0]}: ${c[2]}${c[3]?' · checked at '+c[3]:''} · ${c[4]}">${c[0]}</div>`).join('');
+  const svg=document.getElementById('prepgrid');
+  const cols=M13_CHANGES.filter(c=>c[1]!==null).map(c=>({change:c[0],step:c[1],gams:c[2],cp:c[3],status:c[4]}));
+  const rows=M13_PROBE.runs.flatMap(r=>["reduce_off","as_run"].map(v=>Object.assign({variant:v},r)));
+  const W=Math.max(1180,260+cols.length*44), left=250, top=110, cw=Math.floor((W-left-10)/cols.length), ch=30, gap=3, H=top+rows.length*(ch+gap)+4;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('height',H*(Math.min(svg.clientWidth||W,W)/W));
+  const ink=css('--ink'), muted=css('--ink-muted'), label=css('--label'), grid=css('--grid');
+  const short=t=>t.length>16?t.slice(0,15)+'…':t;
+  let s='';
+  const cps=[]; cols.forEach((c,i)=>{const g=cps[cps.length-1]; if(g&&g.cp===c.cp) g.last=i; else cps.push({cp:c.cp,first:i,last:i});});
+  for(const g of cps){const x0=left+g.first*cw, x1=left+(g.last+1)*cw-gap;
+    s+=`<text x="${x0}" y="14" font-size="12" font-weight="700" fill="${label}" letter-spacing=".06em">${g.cp.toUpperCase()}</text><line x1="${x0}" x2="${x1}" y1="20" y2="20" stroke="${label}" stroke-width="1"/>`;}
+  cols.forEach((c,i)=>{const x=left+i*cw+(cw-gap)/2; s+=`<text transform="translate(${x},${top-6}) rotate(-50)" font-size="11" fill="${c.status==='todo'?muted:ink}" font-weight="${c.step?700:400}" text-anchor="start">${c.change} · ${c.step||short(c.gams)}</text>`;});
+  rows.forEach((r,j)=>{const y=top+j*(ch+gap);
+    s+=`<text x="0" y="${y+ch/2-2}" font-size="13" font-weight="700" fill="${ink}">${r.model}</text><text x="0" y="${y+ch/2+12}" font-size="11" fill="${muted}">${r.variant} · ${r.licence} · reference run</text>`;
+    s+=`<line x1="${left-8}" x2="${W}" y1="${y+ch+gap/2}" y2="${y+ch+gap/2}" stroke="${grid}" stroke-width="0.5"/>`;
+    cols.forEach((c,i)=>{const x=left+i*cw, w=cw-gap, k=c.step?M13_PROBE.steps.indexOf(c.step):-1, n=k>=0?r.rec[k]:null;
+      let cell, info;
+      if(n!=null){const f=Math.min(1,Math.log10(n+1)/6.5), iw=Math.max(3,w*f*.82), ih=Math.max(3,ch*f*.82);
+        cell=`<rect x="${x}" y="${y}" width="${w}" height="${ch}" fill="${css('--pass')}" stroke="${c.status==='review'?css('--accent'):'none'}" stroke-width="3"/><rect x="${x+(w-iw)/2}" y="${y+(ch-ih)/2}" width="${iw}" height="${ih}" fill="${css('--size-mark')}"/>`;
+        info=`<b>${r.model}</b> · ${r.variant}<br>change ${c.change}: ${c.step} (${c.gams})<br>status: pass${c.status==='review'?' · PR in review':''}<br>GAMS records compared at ${c.cp}: ${fmt(n)}`;}
+      else{cell=`<rect x="${x}" y="${y}" width="${w}" height="${ch}" fill="none" stroke="${c.status==='next'?css('--accent'):css('--notrun-edge')}" stroke-dasharray="3 3"/>`;
+        info=`<b>${r.model}</b> · ${r.variant}<br>change ${c.change}: ${c.gams}<br>checked at ${c.cp} · ${c.status==='next'?'next change':'not translated yet'}`;}
+      s+=`<g class="cell" data-tip="${info.replace(/"/g,'&quot;')}">${cell}</g>`;});
+  });
+  svg.innerHTML=s;
+  svg.querySelectorAll('.cell').forEach(g=>{g.addEventListener('mousemove',e=>showTip(e,g.dataset.tip));g.addEventListener('mouseleave',hideTip);});
+}
+
+// ---- slide 3: matrix -------------------------------------------------------
 const tip=document.getElementById('tip');
 function showTip(e,html){tip.innerHTML=html;tip.style.display='block';const x=Math.min(e.clientX+14,window.innerWidth-380),y=Math.min(e.clientY+14,window.innerHeight-120);tip.style.left=x+'px';tip.style.top=y+'px';}
 function hideTip(){tip.style.display='none';}
@@ -318,9 +436,9 @@ function renderTime(){
   document.getElementById('meta3').innerHTML=`Timings: James's workstation, 2× Xeon Gold 6256 · TIMES.jl on Julia 1.13.2, one thread (31 Oct) vs GAMS 54.6.1 (30-31 Oct)`;
 }
 
-function renderAll(){renderSlide1();renderMatrix();renderObj();renderTime();}
+function renderAll(){renderSlide1();renderPrep();renderMatrix();renderObj();renderTime();}
 document.getElementById('loadjson').addEventListener('change',ev=>{const files=[...ev.target.files]; let left=files.length; files.forEach(f=>{const rd=new FileReader(); rd.onload=()=>{try{const j=JSON.parse(rd.result); if(j.checks&&j.runs) reports.push(j);}catch(e){} if(--left===0) renderAll();}; rd.readAsText(f);});});
-window.addEventListener('resize',renderMatrix);
+window.addEventListener('resize',()=>{renderPrep();renderMatrix();});
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',renderAll);
 new MutationObserver(renderAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 renderAll();
