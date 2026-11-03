@@ -356,3 +356,11 @@ those checks, their figures and their crafted cases are not published
   groups and the capacity-related flows, 192 symbols each (CI). New GAMS
   semantics: G43. Next: change 7b (ppmain.mod L329-460, the timeslice
   levels).
+- 3 Nov 2026: M1.3 (7b): ppmain.mod L329-460 (the commodity and process
+  timeslice levels, peaking, storage, RPCS_VAR) matches GAMS at the prelv
+  checkpoint on the 24 symbols it settles on the five core models,
+  reduce_off and as_run, and on demo12 in CI. Two crafted demo12 states run
+  by GAMS 54.6.1 cover levels a region lacks, user COM_TS and PRC_TS,
+  COM_OFF, peak timeslices at other levels and night storage, 217 symbols
+  each (CI). New GAMS semantics: G44. Next: change 8 (ppmain.mod L462-614,
+  pp_prelv.vda), which ends the prep -> prelv segment.
