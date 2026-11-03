@@ -405,3 +405,87 @@ function fillvint_init!(tm, ax)
     end
     return tm
 end
+
+# M1.3 (7a): preppm.mod L218-252, after the prep checkpoint (prep_ext.vda,
+# L217): the SHAPE and multiplier indexes (preshape.gms), PRC_MARK from
+# FLO_MARK and the final DATAYEAR. L218 (%INTEXT_ONLY% YES: prepxtra.mod XTIE)
+# is refused at L10 (`preppm_unported`); L245-251 run only with %VINTOPT% 1,
+# refused here (fillvint.gms with its four-argument calls).
+
+"The preppm.mod L218-252 paths this model would take that are not translated."
+function preppm_shape_unported(tm)
+    out = String[]
+    uppercase(gswitch(tm, "INTEXT_ONLY", "")) == "YES" && push!(out, "preppm.mod L218 (INTEXT_ONLY YES: prepxtra.mod XTIE)")
+    strip(gswitch(tm, "VINTOPT", "")) == "1" && push!(out, "preppm.mod L245-251 (VINTOPT 1: fillvint.gms)")
+    return out
+end
+
+"""
+    preppm_shape_symbols(tm) -> Vector{String}
+
+The symbols preppm.mod L218-252 settles that nothing later in the prep ->
+prelv segment changes (for the layer-1 check at the prelv checkpoint): the
+twelve preshape parameters, PRC_MARK, DATAYEAR and the preshape.gms scratch
+but Z and F (ppmain.mod L335 assigns them). UNCD7 and RXX are left out:
+pp_lvlfc.mod (pp_prelv.vda L101) and ppmain.mod L335 clear them again.
+"""
+preppm_shape_symbols(tm) = vcat(PRESHAPE_PARAMS, ["PRC_MARK", "DATAYEAR", "MY_ARRAY", "DFUNC", "LAST_VAL", "FIRST_VAL",
+                                                  "MY_FYEAR", "MY_F"])
+
+"The parameters of the preshape.gms calls, preppm.mod L222-233."
+const PRESHAPE_PARAMS = ["NCAP_AFX", "NCAP_AFSX", "NCAP_AFM", "NCAP_FOMX", "NCAP_FSUBX", "NCAP_FTAXX", "FLO_FUNCX",
+                         "COM_ELASTX", "NCAP_FOMM", "NCAP_FSUBM", "NCAP_FTAXM", "NCAP_CPX"]
+
+"""
+    preppm_shape!(tm) -> tm
+
+preppm.mod L218-252 on the state at the prep checkpoint: the SHAPE and
+multiplier indexes carried over the model years by their options
+(preshape.gms), UNCD7 cleared, PRC_MARK from FLO_MARK on the milestones, and
+DATAYEAR with the milestones and without '0'.
+
+GAMS: preppm.mod L218-252, preshape.gms L17-48, v4.9.7.
+"""
+function preppm_shape!(tm)
+    u = preppm_shape_unported(tm)
+    isempty(u) || throw(UnportedError(join(u, "; ")))
+    st = InterpState(tm)
+    V = [k[1] for k in gset(tm, "MODLYEAR").keys]
+    T = [k[1] for k in gset(tm, "MILESTONYR").keys]
+    rtp = gset(tm, "RTP").members
+    rtpk = k -> (k[1], k[2], k[3]) in rtp                       # 'RTP(R,V,P)' on (R,V,P,...)
+    one = k -> true
+    # L222-233: $BATINCLUDE preshape <name> R <post> <pad> V|T RXX|UNCD7 <cond> [15]
+    preshape!(st, "NCAP_AFX", "R", "P", String[], V, "RXX", rtpk)
+    preshape!(st, "NCAP_AFSX", "R", "P,BD", pd(",'0','0','0'"), V, "UNCD7", rtpk)
+    preshape!(st, "NCAP_AFM", "R", "P", String[], V, "RXX", rtpk)
+    preshape!(st, "NCAP_FOMX", "R", "P", String[], V, "RXX", rtpk)
+    preshape!(st, "NCAP_FSUBX", "R", "P", String[], V, "RXX", rtpk)
+    preshape!(st, "NCAP_FTAXX", "R", "P", String[], V, "RXX", rtpk)
+    preshape!(st, "FLO_FUNCX", "R", "P,CG1,CG2", pd(",'0','0'"), V, "UNCD7", rtpk)
+    preshape!(st, "COM_ELASTX", "R", "C,BD", pd(",'0','0','0'"), T, "UNCD7", one; def=15)
+    preshape!(st, "NCAP_FOMM", "R", "P", String[], V, "RXX", rtpk)
+    preshape!(st, "NCAP_FSUBM", "R", "P", String[], V, "RXX", rtpk)
+    preshape!(st, "NCAP_FTAXM", "R", "P", String[], V, "RXX", rtpk)
+    preshape!(st, "NCAP_CPX", "R", "P", String[], V, "RXX", rtpk)
+    # L236: OPTION CLEAR = UNCD7
+    st.uncd7 = Set{NTuple{7,String}}()
+    put_interp_scratch!(st)
+    # L237: PRC_MARK(R,T,P,P,C,BD) $= FLO_MARK(R,T,P,C,BD)
+    reg, com = gset(tm, "REG").members, gset(tm, "COM").members
+    bd, prc = gset(tm, "BND_TYPE").members, gset(tm, "PRC").members
+    tmem = Set(T)
+    flo_mark = gvalues(tm, "FLO_MARK", 5)
+    prc_mark = gvalues(tm, "PRC_MARK", 6)
+    for k in keys(flo_mark)
+        ((k[1],) in reg && k[2] in tmem && (k[3],) in prc && (k[4],) in com && (k[5],) in bd) || continue
+        gassign!(prc_mark, (k[1], k[2], k[3], k[3], k[4], k[5]), gv(flo_mark, k))   # EPS stays EPS (G24)
+    end
+    gput!(tm, "PRC_MARK", prc_mark)
+    # L241-242: DATAYEAR(MILESTONYR) = YES; DATAYEAR('%DFLBL%') = NO
+    datayear = gmembers(tm, "DATAYEAR", 1)
+    foreach(t -> push!(datayear, (t,)), T)
+    delete!(datayear, ("0",))
+    gput!(tm, "DATAYEAR", datayear)
+    return tm
+end
