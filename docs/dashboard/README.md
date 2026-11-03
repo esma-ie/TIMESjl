@@ -1,7 +1,8 @@
 # Parity dashboard
 
-`index.html` is the TIMES.jl parity board: three 16:9 panels (translation
-progress and headline figures; the parity matrix of every check by model and
+`index.html` is the TIMES.jl parity board: four 16:9 panels (translation
+progress, milestones and headline figures; the M1.3 preprocessing probe by
+step and model; the parity matrix of every check by model and
 stage; objective agreement and generation timings against GAMS), in the ESMA
 palette, exportable panel by panel to a slide deck. Open it from a checkout
 or as the private artifact James keeps.
@@ -56,12 +57,16 @@ or as the private artifact James keeps.
 
       julia --project=test scripts/parity_report.jl tim.json --ref ../timesjl-reference TIM-bau TIM-mitigation_cb2024-300mt TIM-mitigation_cb2024-300mt-myopic
 
-- The pipeline strip (GAMS files and their status), the coefficient-stage
-  timings (M1.2, workstation) and the suite's models not yet reported are
-  written into the page by hand
-  (`PIPELINE`, `TIMINGS`, `PLANNED_RUNS` in its script); update them when a
-  file is translated, `docs/timings.md` changes or the suite changes. Only
-  open models go in `TIMINGS`: TIM's timings stay on James's machine.
+- The pipeline strip (GAMS files and their status), the milestones, the M1.3
+  changes and their probe results, the coefficient-stage timings (M1.2,
+  workstation) and the suite's models not yet reported are written into the
+  page by hand (`PIPELINE`, `MILESTONES`, `M13_CHANGES`, `M13_PROBE`,
+  `TIMINGS`, `PLANNED_RUNS` in its script); update them when a file is
+  translated, a change merges, a gate passes, `scripts/m13_probe.jl` is run
+  on the core tier, `docs/timings.md` changes or the suite changes.
+  `M13_PROBE` holds the GAMS records each probe step compares (counts only).
+  Only open models go in `TIMINGS` and `M13_PROBE`: TIM's results stay on
+  James's machine.
 
 ## Encoding
 
