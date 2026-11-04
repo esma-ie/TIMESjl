@@ -1,0 +1,470 @@
+{
+ "format": "timesjl-dump",
+ "format_version": 1,
+ "source": "<ppmain.mod L616-682 on test/unit/ppmain_dflt_case.jl: dflt>",
+ "uels": "uels.arrow",
+ "symbols": [
+  {
+   "name": "FLO_SHAR",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 7,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "C",
+    "CG",
+    "TS",
+    "BD"
+   ],
+   "description": "",
+   "records": 516,
+   "file": "FLO_SHAR.arrow"
+  },
+  {
+   "name": "RP_CCG",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "PRC",
+    "C",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RPG_RED",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "CG",
+    "IO"
+   ],
+   "description": "",
+   "records": 15,
+   "file": "RPG_RED.arrow"
+  },
+  {
+   "name": "RTP_CGC",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "YEAR",
+    "P",
+    "CG",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RTPGIG",
+   "kind": "set",
+   "type": "",
+   "dimension": 6,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "CG",
+    "IO",
+    "CG"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RTP_CG",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "CG",
+    "IO"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RTP_GRP",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "ALLYEAR",
+    "P",
+    "CG",
+    "IO"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "RP_GIC",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "P",
+    "CG",
+    "IO",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "UNCD7",
+   "kind": "set",
+   "type": "",
+   "dimension": 7,
+   "domain": [
+    "*",
+    "*",
+    "*",
+    "*",
+    "*",
+    "*",
+    "*"
+   ],
+   "description": "",
+   "records": 6,
+   "file": "UNCD7.arrow"
+  },
+  {
+   "name": "Z",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "Z.arrow"
+  },
+  {
+   "name": "F",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "F.arrow"
+  },
+  {
+   "name": "MY_F",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "MY_F.arrow"
+  },
+  {
+   "name": "MAXLIFE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "MAXLIFE.arrow"
+  },
+  {
+   "name": "RTC_SHED",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "R",
+    "YEAR",
+    "C",
+    "BD",
+    "J"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "RTC_SHED.arrow"
+  },
+  {
+   "name": "STARTOFF",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "STARTOFF.arrow"
+  },
+  {
+   "name": "SHAPE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "J",
+    "AGE"
+   ],
+   "description": "",
+   "records": 289,
+   "file": "SHAPE.arrow"
+  },
+  {
+   "name": "AGEFIL",
+   "kind": "set",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "AGE"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  },
+  {
+   "name": "LAST_VAL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "LAST_VAL.arrow"
+  },
+  {
+   "name": "MY_FYEAR",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "MY_FYEAR.arrow"
+  },
+  {
+   "name": "FIRST_VAL",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "FIRST_VAL.arrow"
+  },
+  {
+   "name": "DFUNC",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 0,
+   "domain": [],
+   "description": "",
+   "records": 1,
+   "file": "DFUNC.arrow"
+  },
+  {
+   "name": "MY_ARRAY",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 1,
+   "domain": [
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 2,
+   "file": "MY_ARRAY.arrow"
+  },
+  {
+   "name": "MULTI",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 2,
+   "domain": [
+    "J",
+    "ALLYEAR"
+   ],
+   "description": "",
+   "records": 368,
+   "file": "MULTI.arrow"
+  },
+  {
+   "name": "NCAP_ELIFE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 1679,
+   "file": "NCAP_ELIFE.arrow"
+  },
+  {
+   "name": "NCAP_DLIFE",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "NCAP_DLIFE.arrow"
+  },
+  {
+   "name": "NCAP_DELIF",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "NCAP_DELIF.arrow"
+  },
+  {
+   "name": "NCAP_CLED",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "COM"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "NCAP_CLED.arrow"
+  },
+  {
+   "name": "NCAP_BPME",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 2,
+   "file": "NCAP_BPME.arrow"
+  },
+  {
+   "name": "NCAP_CHPR",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC",
+    "LIM"
+   ],
+   "description": "",
+   "records": 11,
+   "file": "NCAP_CHPR.arrow"
+  },
+  {
+   "name": "STG_EFF",
+   "kind": "parameter",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "REG",
+    "ALLYEAR",
+    "PRC"
+   ],
+   "description": "",
+   "records": 10,
+   "file": "STG_EFF.arrow"
+  },
+  {
+   "name": "UC_CAPFLO",
+   "kind": "set",
+   "type": "",
+   "dimension": 5,
+   "domain": [
+    "UC_N",
+    "SIDE",
+    "R",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 7,
+   "file": "UC_CAPFLO.arrow"
+  },
+  {
+   "name": "RPC_NOFLO",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 3,
+   "file": "RPC_NOFLO.arrow"
+  },
+  {
+   "name": "RPCS_VAR",
+   "kind": "set",
+   "type": "",
+   "dimension": 4,
+   "domain": [
+    "R",
+    "P",
+    "C",
+    "ALL_TS"
+   ],
+   "description": "",
+   "records": 1268,
+   "file": "RPCS_VAR.arrow"
+  },
+  {
+   "name": "TRACKPC",
+   "kind": "set",
+   "type": "",
+   "dimension": 3,
+   "domain": [
+    "R",
+    "P",
+    "C"
+   ],
+   "description": "",
+   "records": 0,
+   "file": null
+  }
+ ]
+}
