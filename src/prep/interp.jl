@@ -2,10 +2,12 @@
 # defaults for cost and bound parameters), fillparm.gms (default
 # interpolation of the regular parameters) and filparam.gms (dense
 # interpolation), $BATINCLUDEd once per parameter by preppm.mod L76-211 and
-# prepret.dsc L25-28 (later also by prep_ext.vda, equcrtp.vda PREP_EXT and
-# preppm.mod L222-233).
+# prepret.dsc L25-28, and by prep_ext.vda and equcrtp.vda PREP_EXT (6b);
+# (7a) preshape.gms (the SHAPE and multiplier indexes), $BATINCLUDEd by
+# preppm.mod L222-233.
 #
-# GAMS: prepparm.gms L1-77, fillparm.gms L1-57, filparam.gms L1-43, v4.9.7.
+# GAMS: prepparm.gms L1-77, fillparm.gms L1-57, filparam.gms L1-43,
+# preshape.gms L1-49, v4.9.7.
 #
 # A call passes the macro's arguments as written at the GAMS call site: the
 # control sets before the year index (%2) and after it (%3), as their GAMS
@@ -466,6 +468,136 @@ function _prepparm!(st::InterpState, name, P::Dict{NTuple{N,String},Float64}, fs
         P[k] = v
     end
     return P
+end
+
+"""
+    preshape!(st, name, pre, post, pad, years, ctl, cond; def=10)
+
+preshape.gms with the arguments of one `\$BATINCLUDE preshape` call (M1.3,
+change 7a): `name` (%1), the control indices `pre` and `post` (%2, %3), the
+padding `pad` (%4, labels), the target years `years` (%5), the control-tuple
+set `ctl` (%6: "RXX" or "UNCD7"), the condition `cond(k)` on a target record
+(%7) and the default option `def` (%8, 10 unless given).
+
+A shape or multiplier index is carried forward as a step: from each data
+year (rounded) to the target years before the next, the first value back and
+the last forward. Options (`MOD(ROUND(%1(...,'0',...)),1000)`): 10 (the
+default) moves the data of years inside a period to the period's milestone
+when that has none; 11-19 extrapolate one period each way, then act as their
+last digit; 2-9 extrapolate (4 not forward, 5 not backward; 2 with no data
+fills EPS); 1 and below only interpolate.
+
+The control tuples are kept in RXX (`(R,'0',P)`, stored in `tm`) or UNCD7
+(`st.uncd7`), as GAMS leaves them.
+
+GAMS: preshape.gms L17-48, v4.9.7.
+"""
+function preshape!(st::InterpState, name, pre, post, pad, years, ctl::AbstractString, cond; def::Real=10)
+    fpre, fpost = ctlsets(st, pre), ctlsets(st, post)
+    fs = vcat(fpre, Union{Nothing,Set{String}}[nothing], fpost)
+    P = gvalues(st.tm, name, length(fs))
+    rows = _preshape!(st, P, fs, length(fpre) + 1, years, cond, Float64(def))
+    # L20-21: OPTION CLEAR = %6; %6(%2,LL--ORD(LL)%TAIL%%4) $= %1(%2,LL%TAIL%)
+    if ctl == "RXX"
+        gput!(st.tm, "RXX", Set{NTuple{3,String}}(NTuple{3,String}(r) for r in rows))
+    else
+        st.uncd7 = Set{NTuple{7,String}}(NTuple{7,String}((r..., String.(pad)...)) for r in rows)
+    end
+    gput!(st.tm, name, P)
+    return st
+end
+
+function _preshape!(st::InterpState, P::Dict{NTuple{N,String},Float64}, fs, yi, years, cond, def) where {N}
+    ax, yv = st.ax, st.ax.yearval
+    dfl = "0"
+    yset = Set(years)
+    B, E = gvalues(st.tm, "B", 1), gvalues(st.tm, "E", 1)
+    # L21: the control tuples, from a record in any year (EPS included, G41); LL--ORD(LL) is '0' (G31)
+    rowset = Set{NTuple{N,String}}()
+    for k in keys(P)
+        passes(k, fs) && push!(rowset, Base.setindex(k, dfl, yi))
+    end
+    rows = gams_sort!(collect(rowset), st.tm.data)
+    last_arr = nothing
+    # L22: LOOP(%6(%2,'%DFLBL%'%TAIL%%4), ...)
+    for row in rows
+        # L23: DFUNC=%DEF%; DFUNC $= MOD(ROUND(%1(%2,'%DFLBL%'%TAIL%)),1000)   (ROUND(EPS) is 0, G38)
+        r = rem(grnd(gv(P, row)).v, 1000)
+        dfunc = r == 0 ? def : r
+        # L24: MY_ARRAY(DM_YEAR) = %1(%2,DM_YEAR%TAIL%)
+        arr = row_array(st, P, row, yi)
+        last_arr = arr
+        arrd = Dict(arr)
+        myarr(y) = (y in st.dm_set) ? get(arrd, y, GZERO) : gv(st.my_array, (y,))
+        my_f, first_val, last_val = st.MY_F, st.FIRST_VAL, st.LAST_VAL
+        F, Z, my_fyear = st.F.v, st.Z.v, st.MY_FYEAR.v
+        if dfunc != 10
+            # L25-31: F=0; LAST_VAL=0; the rounded value of each data year carried forward over the target years
+            F, last_val = 0.0, GZERO
+            for (y, x) in arr
+                my_f = x
+                Z = yv[y]
+                if !iszero(last_val)
+                    # L29: %1(%2,%5%TAIL%)$((Z>YEARVAL(%5))$(YEARVAL(%5)>MY_FYEAR)) = LAST_VAL
+                    for t in years
+                        (Z > yv[t] > my_fyear) && gassign!(P, Base.setindex(row, t, yi), last_val)
+                    end
+                else
+                    F, first_val = Z, my_f                      # L30
+                end
+                last_val, my_fyear = grnd(my_f), Z              # L31: LAST_VAL = ROUND(MY_F)
+            end
+        else
+            # L32-38: intra-period: a data year inside a period (MY_FIL) moves to the period's milestone
+            first_val, my_fyear = GZERO, 0.0
+            for ll in st.my_fil
+                x = myarr(ll)
+                iszero(x) && continue                           # LOOP(MY_FIL(LL)$MY_ARRAY(MY_FIL), ...): EPS counts
+                my_f = x
+                Z = yv[ll]
+                F = gv(st.fil2, (ll,)).v
+                if my_fyear < F
+                    # L35: IF(F>MIN(FIRST_VAL,Z), LAST_VAL = MY_F; FIRST_VAL = F)
+                    F > gmin(first_val, gyear(Z)).v && ((last_val, first_val) = (my_f, gyear(F)))
+                    # L36: %1(%2,%5(LL+(F-YEARVAL(LL)))%TAIL%)$(NOT MY_ARRAY(%5)) = LAST_VAL
+                    t = lead(ax, ll, glead(F - yv[ll]))
+                    (t !== nothing && t in yset && iszero(myarr(t))) && gassign!(P, Base.setindex(row, t, yi), last_val)
+                end
+                last_val, my_fyear = my_f, Z                    # L37
+            end
+            dfunc = 0.0                                         # L38
+        end
+        # L40-42: IF(ROUND(DFUNC-5,-1)=10, one period back and forward; DFUNC=DFUNC-10)
+        if round((dfunc - 5) / 10, RoundNearestTiesAway) * 10 == 10
+            for t in years
+                k = Base.setindex(row, t, yi)
+                cond(k) || continue
+                x5 = gif(first_val, yv[t] < F && gv(E, (t,)).v >= F) + gif(last_val, yv[t] > Z && gv(B, (t,)).v <= Z)
+                iszero(x5) || gassign!(P, k, x5)                # $= (G24)
+            end
+            dfunc -= 10
+        end
+        # L43-47: IF(DFUNC GE 2, IF(DFUNC=4, Z=INF; ELSEIF DFUNC=5, F=0; ELSEIF DFUNC=(2-F), LAST_VAL=EPS; Z=0); extrapolate)
+        if dfunc >= 2
+            if dfunc == 4
+                Z = Inf
+            elseif dfunc == 5
+                F = 0.0
+            elseif dfunc == 2 - F
+                last_val, Z = GEPS, 0.0
+            end
+            for t in years
+                k = Base.setindex(row, t, yi)
+                cond(k) || continue
+                x5 = gif(first_val, yv[t] < F) + gif(last_val, yv[t] > Z)
+                iszero(x5) || gassign!(P, k, x5)
+            end
+        end
+        st.DFUNC = GNum(dfunc)
+        st.MY_F, st.F, st.Z, st.LAST_VAL, st.FIRST_VAL, st.MY_FYEAR = my_f, gyear(F), gyear(Z), last_val, first_val, gyear(my_fyear)
+    end
+    last_arr === nothing || set_my_array!(st, last_arr)
+    return rows
 end
 
 """

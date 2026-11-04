@@ -347,3 +347,12 @@ those checks, their figures and their crafted cases are not published
   159 symbols each (CI). New GAMS semantics: G42. Next: change 7
   (preppm.mod L218-253 with preshape.gms, ppmain.mod L249-460), the start of
   the prep -> prelv segment.
+- 3 Nov 2026: M1.3 (7a): preppm.mod L218-252 (preshape.gms) and ppmain.mod
+  L249-328 (the horizon, the commodity groups and RC, the primary and shadow
+  primary groups) match GAMS at the prelv checkpoint on the 39 symbols they
+  settle on the five core models, reduce_off and as_run, and on demo12 in
+  CI. Two crafted demo12 states run by GAMS 54.6.1 cover every preshape.gms
+  option, the commodity-group integrity check, trade and material shadow
+  groups and the capacity-related flows, 192 symbols each (CI). New GAMS
+  semantics: G43. Next: change 7b (ppmain.mod L329-460, the timeslice
+  levels).

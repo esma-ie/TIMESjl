@@ -179,8 +179,9 @@ const PIPELINE = [
   ["Preprocessing","init_ext",142,"done","M1.3 changes 1, 1b"],
   ["Preprocessing","ppmain L1-247, timslice",393,"done","M1.3 changes 2-5"],
   ["Preprocessing","preppm L1-212 + macros",465,"partial","6a · currency conversion refused"],
-  ["Preprocessing","prep_ext",110,"review","6b · POWERFLO, VINTOPT 1 refused"],
-  ["Preprocessing","ppmain L249-614",575,"todo","changes 7-8, next"],
+  ["Preprocessing","prep_ext",110,"partial","6b · POWERFLO, VINTOPT 1 refused"],
+  ["Preprocessing","preshape, ppmain L249-328",164,"review","7a"],
+  ["Preprocessing","ppmain L329-614 + pp_prelv",411,"todo","changes 7b-8, next"],
   ["Preprocessing","ppmain L616-1336 + pp_*",1399,"todo","changes 9-16"],
   ["Preprocessing","REDUCE",397,"todo","change 17"],
   ["Preprocessing","ppm_ext",419,"todo","change 18"],
@@ -226,14 +227,15 @@ const MILESTONES = [
   ["M1.0","foundations","done","gate 18 Oct"],
   ["M1.1","model generation","done","gate 21 Oct"],
   ["M1.2","coefficients","done","gate 31 Oct"],
-  ["M1.3","preprocessing","active","8 of 21 changes merged"],
+  ["M1.3","preprocessing","active","9 of 22 changes merged"],
   ["M1.4","DD reader","todo",""],
   ["M1.5","run options","todo",""],
   ["M1.6","reporting","todo",""],
   ["M1.7","release","todo",""],
   ["Phase 2","performance","todo",""],
 ];
-// docs/m13-plan.md order: change, probe step (null: no step of its own), GAMS, checkpoint, status (done | review | next | todo)
+// docs/m13-plan.md order: change, probe step (null: no step of its own), GAMS, checkpoint, status (done | review | next | todo);
+// a change with several probe steps has one row per step
 const M13_CHANGES = [
   ["0",null,"checkpoint dumps, inventory, probe","","done"],
   ["1","init_ext","init_ext.dsc, init_ext.vda, equcrtp.vda INIT_EXT","init","done"],
@@ -243,8 +245,10 @@ const M13_CHANGES = [
   ["4","timslice","timslice.mod, pp_off.mod","prep","done"],
   ["5","ppmain_rtp","ppmain.mod L199-247","prep","done"],
   ["6a","preppm","preppm.mod L1-212, prepparm, fillparm, filparam, fillvint, prepret.dsc","prep","done"],
-  ["6b","prep_ext","prep_ext.vda, equcrtp.vda PREP_EXT; every symbol at prep","prep","review"],
-  ["7","","preshape.gms; ppmain.mod L249-460","prelv","next"],
+  ["6b","prep_ext","prep_ext.vda, equcrtp.vda PREP_EXT; every symbol at prep","prep","done"],
+  ["7a","preppm_shape","preppm.mod L218-252, preshape.gms","prelv","review"],
+  ["7a","ppmain_topo","ppmain.mod L249-328: horizon, groups, PG/SPG","prelv","review"],
+  ["7b","","ppmain.mod L329-460: timeslice levels, RPCS_VAR","prelv","next"],
   ["8","","ppmain.mod L462-614; pp_prelv.vda","prelv","todo"],
   ["9","","ppmain.mod L616-682, pp_qafs.mod, filshape.gms","ppm","todo"],
   ["10","","ppmain.mod L683-799, pp_lvlfc/br/pk","ppm","todo"],
@@ -258,16 +262,16 @@ const M13_CHANGES = [
   ["18","","ppm_ext.dsc, ppm_ext.vda","ppm","todo"],
 ];
 // scripts/m13_probe.jl on James's workstation against the GAMS 54.6.1 references: GAMS records compared per step,
-// the same for reduce_off and as_run, every step PASS (init_ext to ppmain_rtp: probe at change 5; preppm: 6a; prep_ext, every symbol at prep: 6b)
+// the same for reduce_off and as_run, every step PASS (init_ext to ppmain_rtp: probe at change 5; preppm: 6a; prep_ext, every symbol at prep: 6b; preppm_shape, ppmain_topo: 7a)
 const M13_PROBE = {
-  meta:"probe of 3 Nov 2026 at 6b · 5 models × 2 variants",
-  steps:["init_ext","ppmain_head","ppmain_years","timslice","ppmain_rtp","preppm","prep_ext"],
+  meta:"probe of 3 Nov 2026 at 7a · 5 models × 2 variants",
+  steps:["init_ext","ppmain_head","ppmain_years","timslice","ppmain_rtp","preppm","prep_ext","preppm_shape","ppmain_topo"],
   runs:[
-    {model:"TIMES_Demo-demo12", licence:"CC-BY-4.0", rec:[9324,4393,190,253,2162,8985,23004]},
-    {model:"TIMES-NZ-steady-v308", licence:"MIT", rec:[88954,21803,571,1603,24452,366975,474586]},
-    {model:"OTCGEN-gc_ref", licence:"CC-BY-SA-4.0", rec:[248819,133975,373,596,311429,761841,2161605]},
-    {model:"OTNYC-s1_nyc_ref", licence:"CC-BY-SA-4.0", rec:[403890,148290,195,2026,151220,642158,1149222]},
-    {model:"OTUS9r-reference", licence:"CC-BY-SA-4.0", rec:[1388726,644137,603,3799,305177,1846359,4937078]},
+    {model:"TIMES_Demo-demo12", licence:"CC-BY-4.0", rec:[9324,4393,190,253,2162,8985,23004,55,2981]},
+    {model:"TIMES-NZ-steady-v308", licence:"MIT", rec:[88954,21803,571,1603,24452,366975,474586,378,13490]},
+    {model:"OTCGEN-gc_ref", licence:"CC-BY-SA-4.0", rec:[248819,133975,373,596,311429,761841,2161605,45,86805]},
+    {model:"OTNYC-s1_nyc_ref", licence:"CC-BY-SA-4.0", rec:[403890,148290,195,2026,151220,642158,1149222,35,103118]},
+    {model:"OTUS9r-reference", licence:"CC-BY-SA-4.0", rec:[1388726,644137,603,3799,305177,1846359,4937078,105,423339]},
   ],
 };
 const COEF_FILES = ["coef_cpt","coef_nio","coef_ptr","coef_obj","coef_alt","coef_shp","coef_ext"];
@@ -319,9 +323,11 @@ function renderSlide1(){
 
 // ---- slide 2: preprocessing (M1.3) ------------------------------------------
 function renderPrep(){
-  const merged=M13_CHANGES.filter(c=>c[4]==='done').length, inrev=M13_CHANGES.filter(c=>c[4]==='review').map(c=>c[0]);
-  document.getElementById('metap').innerHTML=`<b>${merged}</b> of <b>${M13_CHANGES.length}</b> changes merged${inrev.length?` · <b>${inrev.join(', ')}</b> in review`:''}<br>${M13_PROBE.meta}`;
-  document.getElementById('chips').innerHTML=M13_CHANGES.map(c=>`<div class="chip ${c[4]}" title="change ${c[0]}: ${c[2]}${c[3]?' · checked at '+c[3]:''} · ${c[4]}">${c[0]}</div>`).join('');
+  // a change with several probe steps has a row per step: count and chip it once
+  const changes=M13_CHANGES.filter((c,i)=>M13_CHANGES.findIndex(d=>d[0]===c[0])===i);
+  const merged=changes.filter(c=>c[4]==='done').length, inrev=changes.filter(c=>c[4]==='review').map(c=>c[0]);
+  document.getElementById('metap').innerHTML=`<b>${merged}</b> of <b>${changes.length}</b> changes merged${inrev.length?` · <b>${inrev.join(', ')}</b> in review`:''}<br>${M13_PROBE.meta}`;
+  document.getElementById('chips').innerHTML=changes.map(c=>`<div class="chip ${c[4]}" title="change ${c[0]}: ${c[2]}${c[3]?' · checked at '+c[3]:''} · ${c[4]}">${c[0]}</div>`).join('');
   const svg=document.getElementById('prepgrid');
   const cols=M13_CHANGES.filter(c=>c[1]!==null).map(c=>({change:c[0],step:c[1],gams:c[2],cp:c[3],status:c[4]}));
   const rows=M13_PROBE.runs.flatMap(r=>["reduce_off","as_run"].map(v=>Object.assign({variant:v},r)));

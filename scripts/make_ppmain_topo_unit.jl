@@ -1,0 +1,67 @@
+# Run ppmain.mod L1-247, preppm.mod L1-212, prep_ext.vda, preppm.mod L218-252
+# and ppmain.mod L249-328 (TIMES v4.9.7) themselves with GAMS on the crafted
+# states of test/unit/ppmain_topo_case.jl, one fixture per case, so the unit
+# test checks preppm_shape! and ppmain_topo! on the paths no core reference
+# run takes (the preshape.gms options, the commodity-group integrity check,
+# trade commodities outside the primary group, user and material shadow
+# groups, capacity-related flows).
+#
+#   julia --project=test scripts/make_ppmain_topo_unit.jl <TIMES_model dir> [<gams executable>]
+#
+# The lines are copied unchanged from <TIMES_model dir>/ppmain.mod and
+# preppm.mod into three work files: L1-247 of ppmain.mod and L1-212 of
+# preppm.mod followed by `$BATINCLUDE prep_ext.vda mod` (as in
+# make_prep_ext_unit.jl); preppm.mod L218-252, a file of its own because L245
+# `$EXIT`s it without %VINTOPT% 1; ppmain.mod L249-328. Each is $BATINCLUDEd
+# with `mod` (scripts/gams_replay.jl). %DATAGDX% is NO and %RETIRE% YES as in
+# make_preppm_unit.jl. No SOLVE, so the PyPI demo GAMS will do (on Windows
+# set TJL_PYTHON to the harness venv's python.exe). Writes
+# test/fixtures/ppmain_topo_unit_gams/<case>/.
+
+const REPO = dirname(@__DIR__)
+include(joinpath(@__DIR__, "gams_replay.jl"))
+include(joinpath(REPO, "test", "unit", "ppmain_head_case.jl"))     # PPMAIN_HEAD_DECLARED
+include(joinpath(REPO, "test", "unit", "timslice_case.jl"))        # TIMSLICE_DECLARED
+include(joinpath(REPO, "test", "unit", "preppm_case.jl"))          # PREPPM_BARE, PREPPM_OUTPUTS
+include(joinpath(REPO, "test", "unit", "prep_ext_case.jl"))        # PREP_EXT_BARE, PREP_EXT_OUTPUTS
+include(joinpath(REPO, "test", "unit", "ppmain_topo_case.jl"))
+
+function main(times_dir, gams...)
+    kw = isempty(gams) ? (;) : (; gams=gams[1])
+    fixtures = joinpath(REPO, "test", "fixtures")
+    outroot = joinpath(fixtures, "ppmain_topo_unit_gams")
+    isdir(outroot) && rm(outroot; recursive=true)
+    ppm = readlines(joinpath(times_dir, "ppmain.mod"))
+    pre = readlines(joinpath(times_dir, "preppm.mod"))
+    vda = readlines(joinpath(times_dir, "prep_ext.vda"))
+    # what preppm.mod declares itself: L47-48 and the write caches of fillparm/prepparm (prep_ext.vda's too); SUBT (ppmain.mod L253)
+    declared = union(["OBJ_VFLO", "RPC_CUR", "RP_RTF", "SUBT"], [m.match for l in vcat(pre, vda) for m in eachmatch(r"\bX_[A-Z]+\b", l)])
+    for name in PPMAIN_TOPO_CASES
+        tm = ppmain_topo_start(fixtures, name)
+        work = mktempdir()
+        head = joinpath(work, "topo_head.mod")                       # ppmain.mod L1-247, preppm.mod L1-212, unchanged; then prep_ext.vda
+        write(head, join(vcat(ppm[1:247], pre[1:212], ["\$BATINCLUDE prep_ext.vda mod"]), "\n") * "\n")
+        shape = joinpath(work, "topo_shape.mod")                     # preppm.mod L218-252, unchanged
+        write(shape, join(pre[218:end], "\n") * "\n")
+        topo = joinpath(work, "topo_main.mod")                       # ppmain.mod L249-328, unchanged
+        write(topo, join(ppm[249:328], "\n") * "\n")
+        # %OBMAC% is YES on any GAMS from 23.0 (initmty.mod L21); %RL% as setglobs.gms L317 sets it without G2X6 (L230)
+        glob = merge(tm.switches, Dict("DFLBL" => "'0'", "PGPRIM" => "\"'ACT'\"", "DATAGDX" => "NO", "G2X6" => "NO", "OBMAC" => "YES",
+                                       "RL" => "'R.TL:MAX(12,CARD(R.TL))'", "RETIRE" => "'YES'"))
+        gams_replay(tm, [head => "mod", shape => "mod", topo => "mod"], PPMAIN_TOPO_OUTPUTS; times_dir,
+                    also_scan=["filparam.gms", "timslice.mod", "pp_off.mod", "pp_qaput.mod", "prepret.dsc", "fillvint.gms", "prepparm.gms",
+                               "fillparm.gms", "prep_ext.vda", "equcrtp.vda", "preshape.gms"],
+                    skip=union(PPMAIN_HEAD_DECLARED, ["MINYR"], TIMSLICE_DECLARED, declared), setglobals=glob, workdir=work, onmulti=true,
+                    bare=Set(PREP_EXT_BARE), kw...)
+        out = joinpath(outroot, name)
+        mkpath(outroot)
+        cp(joinpath(work, "out"), out)
+        mf = joinpath(out, "manifest.json")
+        gdx, label = joinpath(work, "out.gdx"), "<ppmain.mod L1-247 and L249-328, preppm.mod L1-212 and L218-252, prep_ext.vda on test/unit/ppmain_topo_case.jl: $name>"
+        # JSON doubles the backslashes of a Windows path
+        write(mf, replace(read(mf, String), gdx => label, replace(gdx, "\\" => "\\\\") => label))
+        println("wrote ", out)
+    end
+end
+
+main(ARGS...)

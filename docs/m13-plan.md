@@ -78,7 +78,8 @@ GAMS 54.6.1):
 | 5 | ppmain.mod: PASTI migration, START/NOFF, RTP_OFF | 199-247 | prep |
 | 6a | preppm.mod with prepxtra.mod SAVE, curex.gms (refused), prepret.dsc PREP, fillvint.gms, filparam.gms, prepparm.gms, fillparm.gms (interpolation) | 1-212 | prep |
 | 6b | preppm.mod L213-217: prep_ext.vda with equcrtp.vda (PREP_EXT); the segment's all-symbols check; MY_SUM kept by timslice.mod | 213-217; 1-83; 40-62 | prep |
-| 7 | preppm.mod with preshape.gms; ppmain.mod: horizon, topology, PG/SPG, commodity and process timeslice levels, RTPCS_VAR | 218-253; 249-460 | prelv |
+| 7a | preppm.mod with preshape.gms; ppmain.mod: timestep control, horizon, commodity groups and RC, PG/SPG | 218-252; 249-328 | prelv |
+| 7b | ppmain.mod: commodity and process timeslice levels (pp_off.mod for COM_OFF), peaking, RPCS_VAR | 329-460 | prelv |
 | 8 | ppmain.mod: lifetimes, capacity transfer, capacity bounds, availability years, PRC_ACTFLO; pp_prelv.vda | 462-614; 1-124 | prelv |
 | 9 | ppmain.mod with pp_qafs.mod, filshape.gms, filparam.gms: SHAPE/MULTI, defaults, capacity-only flows | 616-682 | ppm |
 | 10 | ppmain.mod with pp_lvlfc.mod, pp_lvlbr.mod, pp_lvlpk.mod: commodity and availability attributes by timeslice | 683-799 | ppm |
@@ -266,6 +267,26 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   ECB, MACRO, ETL, CLI, ABS and MCA extensions, and UC_ACTBET data (whether
   UC_FLOBET is DEFINED then depends on the DD files). On OTUS9r the step
   takes about 3 min, OTCGEN 80 s.
+- (7a) preppm.mod L218-252 (the twelve preshape.gms calls, PRC_MARK from
+  FLO_MARK, DATAYEAR) and ppmain.mod L249-328 (RT_PP, DUR_MAX, EOHYEARS,
+  EACHYEAR, PERIODYR, the commodity groups and RC, NRG_GMAP, PRC_CG,
+  RPC_CAPFLO, the primary and shadow primary groups) match the prelv dump on
+  the 39 symbols they settle (`preppm_shape_symbols`,
+  `ppmain_topo_symbols`; DEM, PRC_CG, RPC_PG, UNCD7, RXX and the scratch Z,
+  F, TRACKP are changed again later in the segment) on the five core models,
+  reduce_off and as_run, and on demo12 in CI. No core model has data for
+  the preshape parameters, NCAP_ICOM, NCAP_OCOM or NCAP_COM, a commodity
+  group named like a commodity, a user PRC_SPG or a trade process with
+  untraded PG commodities; FLO_MARK into PRC_MARK is TIMES-NZ's. Two crafted
+  demo12 states ("shapes", "topology", test/unit/ppmain_topo_case.jl), run
+  through unchanged copies of ppmain.mod L1-247 and L249-328, preppm.mod
+  L1-212 and L218-252 and prep_ext.vda by GAMS 54.6.1, match on 192 symbols
+  each (CI): every preshape.gms option (the default intra-period move, 1-5,
+  2 without data, 11, 15, 1012, -1), rounding and EPS in the step, the
+  group-integrity removal (L272-277), L301, a user and a material shadow
+  group, and the capacity-related flows. GAMS confirmed that MOD keeps the
+  sign of its first argument (G43). Refused: %VINTOPT% 1 (L245-251). L253
+  (`SET SUBT(T) / SET.T /`) is a compile-time data statement, in every dump.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
