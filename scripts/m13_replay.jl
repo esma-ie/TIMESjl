@@ -12,12 +12,15 @@
 # Windows (the harness venv's python.exe). Both variants are run. The work
 # files go to a temporary folder; nothing is written to the reference.
 #
-# Replays: ppmain.mod L616-682 (change 9: pp_qafs.mod, SHAPE/MULTI, the
-# defaults, the capacity-only flows) from the prelv checkpoint.
+# Replays: ppmain.mod L616-797 from the prelv checkpoint (change 9:
+# pp_qafs.mod, SHAPE/MULTI, the defaults, the capacity-only flows; change
+# 10: the commodity attributes by timeslice, COM_FR, RS_FR and RTCS_FR, the
+# elastic demand steps, the availability factors and the peak
+# contributions).
 
 include(joinpath(@__DIR__, "m11_probe.jl"))      # run_switches, runfile_of, suite_switches, parse_probe_args
-include(joinpath(@__DIR__, "make_ppmain_dflt_unit.jl"))
-using TIMES: TimesModel, layer1, pp_qafs!, ppmain_dflt!
+include(joinpath(@__DIR__, "make_ppmain_tsattr_unit.jl"))
+using TIMES: TimesModel, layer1, pp_qafs!, ppmain_dflt!, ppmain_tsattr!
 using TIMES.Reference: ispass
 using JSON
 
@@ -31,11 +34,11 @@ function replay13(refdir, model; roots, variant)
     tm = TimesModel(joinpath(dir, "prelv"); switches=sw)
     kw = haskey(ENV, "TJL_GAMS") ? (; gams=ENV["TJL_GAMS"]) : (;)
     work = mktempdir()
-    tg = @elapsed g = ppmain_dflt_replay(tm, times_dir; workdir=work, kw...)
-    tj = @elapsed (pp_qafs!(tm); ppmain_dflt!(tm))
-    r = layer1(tm, g, PPMAIN_DFLT_OUTPUTS)
+    tg = @elapsed g = ppmain_tsattr_replay(tm, times_dir; workdir=work, kw...)
+    tj = @elapsed (pp_qafs!(tm); ppmain_dflt!(tm); ppmain_tsattr!(tm))
+    r = layer1(tm, g, PPMAIN_TSATTR_OUTPUTS)
     bad = filter(!ispass, r)
-    println("== ", model, "/", variant, " ppmain.mod L616-682 replayed: ", isempty(bad) ? "PASS" : "FAIL", " (", length(r),
+    println("== ", model, "/", variant, " ppmain.mod L616-797 replayed: ", isempty(bad) ? "PASS" : "FAIL", " (", length(r),
             " symbols, ", sum(d -> d.n_ref, r; init=0), " GAMS records; GAMS ", round(tg; digits=1), " s, TIMES.jl ",
             round(tj; digits=1), " s)")
     for d in bad
