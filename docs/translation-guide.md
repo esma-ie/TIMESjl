@@ -372,3 +372,12 @@ those checks, their figures and their crafted cases are not published
   rounding, refits, every capacity-bound path, PRC_AOFF, PRC_FOFF, OBJ LIN,
   %VALIDATE% and PRC_SIMV, 233 symbols each (CI). No new GAMS semantics.
   Next: change 8b (pp_prelv.vda), which ends the prep -> prelv segment.
+- 3 Nov 2026: M1.3 (8b): pp_prelv.vda (with pp_lvlfc.mod for FLO_FR)
+  completes the prep -> prelv segment. From GAMS's prep dump, the
+  translated steps reproduce the prelv dump on every set and parameter (821;
+  the QA-log scalars left out) on the five core models, reduce_off and
+  as_run, and on demo12 in CI. Two crafted demo12 states run by GAMS 54.6.1
+  cover FLO_FR levelling, the 'N' defaults, IRE_BND, storage shares,
+  %SHELL% ANSWER and the VDA_FLOP groups, 246 symbols each (CI). TS_OFF data
+  (dynslite.vda) is refused. New GAMS semantics: G45. Next: change 9
+  (ppmain.mod L616-682), the start of the prelv -> ppm segment.
