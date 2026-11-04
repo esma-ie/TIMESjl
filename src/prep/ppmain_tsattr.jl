@@ -156,58 +156,107 @@ function level_br(tr::TsTree, arr, r, ts)
 end
 
 """
-    lvlfc!(tm, tr, name, N, years, qual, comts; extra=[], weighted=false) -> (UNCD7, TS_ARRAY or nothing)
+    pp_lvlfc!(tm, tr, name, N; sp, years, keyok, targets, qual, take=k->true, weighted=false, p11="") -> (UNCD7, TS_ARRAY or nothing)
 
-pp_lvlfc.mod with %2 = C and %3 = COM_TS, for the calls at ppmain.mod
-L694-701: the records of commodity attribute `name` (N indexes: R, the year
-when `years` is given, C, S, then the `extra` indexes) at timeslices outside
-COM_TS are levelled to the COM_TS timeslices, for the rows (the record
-without S) that `qual` admits (%8). An ANNUAL value alone is copied to them
-(weighted by year fraction when `weighted`, %9 = 1); otherwise each target
-without a value of its own takes [`level_fc`](@ref). `years` is the year set
-of %7 (`nothing` for %7 = ''); `extra` the sets of the controlling indexes
-in %4. Returns UNCD7 (L19, L29) and the TS_ARRAY of the last row.
+pp_lvlfc.mod: the records of attribute `name` (N indexes: R, the year of %7
+unless `years` is `nothing`, the %2 and %10 indexes, S at position `sp`, the
+%4 indexes) at timeslices outside the targets (%3: `targets(key)` lists them
+for the record's R and %2 indexes) are levelled to the targets, for the rows
+(the record without S) that `qual` (%8) and `take` (%12) admit. An ANNUAL
+value alone is copied to them (weighted by year fraction when `weighted`,
+%9 = 1); otherwise each target without a value of its own takes
+[`level_fc`](@ref). `keyok` holds the domain filters of the controlling
+indexes other than R and the year (G8, G27). `p11` is %11: "N" flags the
+rows with values below ANNUAL at year '0' (L25-26) and takes them only;
+"0" fills the targets without a value from ANNUAL (L44); any non-empty
+value deletes the records off the targets that `take` admits (L45). Returns
+UNCD7 (L19, L29) and the TS_ARRAY of the last row.
 
-GAMS: pp_lvlfc.mod L19-45 (%10-%12 empty, %6 = ALL_TS), v4.9.7.
+GAMS: pp_lvlfc.mod L19-45 (%6 = ALL_TS), v4.9.7.
 """
-function lvlfc!(tm, tr::TsTree, name, N, years, qual, comts; extra=Set{String}[], weighted=false)
+function pp_lvlfc!(tm, tr::TsTree, name, N; sp, years, keyok, targets, qual, take=k -> true, weighted=false, p11="")
     x = gvalues(tm, name, N)
-    sp = years === nothing ? 3 : 4                                      # the position of S
+    yrok(k) = years === nothing || k[2] in years
     rowof(k) = (k[1:sp-1]..., k[sp+1:end]...)
     keyat(row, s) = (row[1:sp-1]..., s, row[sp:end]...)
-    # L19: OPTION CLEAR=UNCD7; L29: LOOP((REGY,C,S%4)$((NOT COM_TS(R,C,S))$X(REGY,C,S%4)), UNCD7(REGY,C%4%5)$(%8) = YES)
+    istgt(k, s) = s in targets(k)
+    if p11 == "N"
+        # L26: %1(R,LL--ORD(LL),%2%10,S+STOA(S)%4)$(STOAL(R,S)$%1(R,LL,%2%10,S%4)) = 1
+        stoa, stoal = gvalues(tm, "STOA", 1), gvalues(tm, "STOAL", 2)
+        tsax = OrdAxis(tr.all_ts)
+        lastll = last(gset(tm, "ALLYEAR").keys)[1]                            # LL--ORD(LL) (G31)
+        put = Set{NTuple{N,String}}()
+        for k in keys(x)
+            (k[1] in tr.reg && keyok(k) && !iszero(gv(stoal, (k[1], k[sp])))) || continue
+            t = lead(tsax, k[sp], glead(Float64(gv(stoa, (k[sp],)))))
+            t === nothing || push!(put, NTuple{N,String}((k[1], lastll, k[3:sp-1]..., t, k[sp+1:end]...)))
+        end
+        foreach(k -> (x[k] = 1.0), put)
+        # L25: TAKE = $%1(R,'0',%2%10,'ANNUAL'%4)
+        take = k -> haskey(x, NTuple{N,String}((k[1], "0", k[3:sp-1]..., "ANNUAL", k[sp+1:end]...)))
+    end
+    # L19: OPTION CLEAR=UNCD7; L29: LOOP((REGY,%2%10,S%4)$((NOT %3(R,%2,S))$%1(REGY,%2%10,S%4)), UNCD7(REGY,%2%10%4%5)$(%8%TAKE%) = YES)
     rows = Set{NTuple{N - 1,String}}()
     for k in keys(x)
-        (k[1] in tr.reg && (years === nothing || k[2] in years) && all(i -> k[sp+i] in extra[i], eachindex(extra))) || continue
-        ((k[1], k[sp-1], k[sp]) in comts.set || !qual(k)) && continue
+        (k[1] in tr.reg && yrok(k) && keyok(k)) || continue
+        (istgt(k, k[sp]) || !qual(k) || !take(k)) && continue
         push!(rows, rowof(k))
     end
     uncd7 = Set{NTuple{7,String}}(NTuple{7,String}((r..., ntuple(_ -> "0", 8 - N)...)) for r in rows)
-    isempty(rows) && return uncd7, nothing
-    arr = Dict{String,Float64}()
-    # L33: LOOP(UNCD7(REGY,C%4%5), TS_ARRAY(S) = X(REGY,C,S%4); ...)   in GAMS order
+    arr = nothing
+    # L33: LOOP(UNCD7(REGY,%2%10%4%5), TS_ARRAY(S) = %1(REGY,%2%10,S%4); ...)   in GAMS order
     for row in gams_sort!(collect(rows), tm.data)
-        r, c = row[1], row[sp-1]
+        r = row[1]
         arr = Dict{String,Float64}(s => x[keyat(row, s)] for s in tr.all_ts if haskey(x, keyat(row, s)))
-        targets = get(comts.of, (r, c), String[])
+        tg = targets(keyat(row, "ANNUAL"))
         # L34: IF((NOT SUM(RS_BELOW(R,'ANNUAL',S)$TS_ARRAY(S),1))$TS_ARRAY('ANNUAL'), ...
         if !any(s -> haskey(arr, s), get(tr.below, (r, "ANNUAL"), String[])) && haskey(arr, "ANNUAL")
-            # L35: X(REGY,C,S%4)$COM_TS(R,C,S) = SUM(ANNUAL(ALL_TS),TS_ARRAY(ALL_TS)%IWGT%)
-            for s in targets
+            # L35: %1(REGY,%2%10,S%4)$%3(R,%2,S) = SUM(ANNUAL(%6),TS_ARRAY(%6)%IWGT%)
+            for s in tg
                 v = reduce(+, (weighted ? tsa_at(arr, a) * yrfr_at(tr, r, s) / yrfr_at(tr, r, a) : tsa_at(arr, a) for a in tr.annual); init=GZERO)
                 gassign!(x, keyat(row, s), v)
             end
         else
-            # L38-42: LOOP(COM_TS(R,C,TS)$(NOT TS_ARRAY(TS)), X(REGY,C,TS%4) $= ...)
-            for ts in targets
+            # L38-42: LOOP(%3(R,%2,TS)$(NOT TS_ARRAY(TS)), %1(REGY,%2%10,TS%4) $= ...)
+            for ts in tg
                 haskey(arr, ts) && continue
                 v = level_fc(tr, arr, r, ts, weighted)
                 iszero(v) || gassign!(x, keyat(row, ts), v)
             end
         end
     end
+    if p11 == "0"
+        # L44: %1(REGY,%2%10,S%4)$((NOT %1(REGY,%2%10,S%4))$%3(R,%2,S)) $= %1(REGY,%2%10,'ANNUAL'%4)
+        put = Pair{NTuple{N,String},Float64}[]
+        for (k, v) in x
+            (k[sp] == "ANNUAL" && k[1] in tr.reg && yrok(k) && keyok(k)) || continue
+            foreach(s -> haskey(x, keyat(rowof(k), s)) || push!(put, keyat(rowof(k), s) => v), targets(k))
+        end
+        foreach(((k, v),) -> (x[k] = v), put)
+    end
+    if p11 != ""
+        # L45: %1(R,LL,%2%10,S%4)$((NOT %3(R,%2,S))%TAKE%) = 0   (TAKE read before the statement, G11)
+        del = [k for k in keys(x) if k[1] in tr.reg && keyok(k) && !istgt(k, k[sp]) && take(k)]
+        foreach(k -> delete!(x, k), del)
+    end
     gput!(tm, name, x)
     return uncd7, arr
+end
+
+"""
+    lvlfc!(tm, tr, name, N, years, qual, comts; extra=[], weighted=false) -> (UNCD7, TS_ARRAY or nothing)
+
+[`pp_lvlfc!`](@ref) with %2 = C and %3 = COM_TS, for the commodity
+attributes at ppmain.mod L694-701 (N indexes: R, the year when `years` is
+given, C, S, then the `extra` indexes, %4); `qual` is %8.
+
+GAMS: pp_lvlfc.mod L19-42 (%10-%12 empty, %6 = ALL_TS), v4.9.7.
+"""
+function lvlfc!(tm, tr::TsTree, name, N, years, qual, comts; extra=Set{String}[], weighted=false)
+    sp = years === nothing ? 3 : 4
+    keyok(k) = all(i -> k[sp+i] in extra[i], eachindex(extra))
+    targets(k) = get(comts.of, (k[1], k[sp-1]), String[])
+    return pp_lvlfc!(tm, tr, name, N; sp, years, keyok, targets, qual, weighted)
 end
 
 """

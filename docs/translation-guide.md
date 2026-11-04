@@ -402,3 +402,12 @@ those checks, their figures and their crafted cases are not published
   (CI). TIMES-Micro (L749) and %DYNTS% with TS_OFF data (L742) refused.
   New GAMS semantics: G48. Next: change 11 (ppmain.mod L800-845), the flow
   attributes, FLO_SHAR and FLO_MARK.
+- 4 Nov 2026: M1.3 (11a): ppmain.mod L800-821 (pp_lvlfc.mod for the flow
+  attributes, the FLO_PKCOI default, pp_chp.mod) as the probe step
+  ppmain_flo; change 11 is split into 11a and 11b. Compared at ppm on the
+  13-14 symbols nothing later changes (PASS, five core models, both
+  variants; demo12 in CI); the replay check now runs ppmain.mod L616-821
+  and compares 82 symbols at L821 (PASS, five core models, both variants).
+  Three crafted demo12 states cover what the core models do not reach (CI).
+  Next: change 11b (ppmain.mod L823-845), FLO_FUNC, FLO_SUM, FLO_SHAR and
+  FLO_MARK.
