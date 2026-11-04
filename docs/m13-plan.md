@@ -352,6 +352,30 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   and %POWERFLO% YES. On OTCGEN the step takes about 2-2.5 min, OTUS9r
   3-3.5 min (not profiled). The every-symbol check found one slip in 8a's
   code, fixed here: F keeps an EPS (ppmain.mod L526-531).
+- (9) ppmain.mod L616-682 starts the prelv -> ppm segment in two probe
+  steps: pp_qafs (pp_qafs.mod, the FLO_SHAR checks) and ppmain_dflt (SHAPE
+  and MULTI with filshape.gms and filparam.gms, the defaults, the
+  capacity-only flows). At the ppm checkpoint they are compared on the 17-19
+  symbols nothing later changes, PASS on the five core models, reduce_off
+  and as_run, and on demo12 in CI. FLO_SHAR (pp_chp.mod, pp_lvlbr.mod),
+  NCAP_CHPR and NCAP_BPME (pp_chp.mod, on CHP models), RTP_GRP, UC_CAPFLO,
+  RPC_NOFLO, RPCS_VAR and the scratch change again before ppm, so a new
+  replay check (scripts/m13_replay.jl) runs GAMS on ppmain.mod L616-682 from
+  each core model's own prelv dump and compares every symbol the lines
+  write (34) at L682 (PASS on the five core models, both variants), and
+  lists the checks GAMS's QA log shows. The core models reach the sum of
+  fixed shares (TIMES-NZ 28 groups, OTUS9r 24), the FX+UP auto-relaxation
+  (OTNYC 50, OTUS9r 864), the STG_EFF default (OTCGEN, OTNYC, OTUS9r) and
+  the CHP default (OTCGEN); none reaches FX with LO/UP, the FX+LO excess or
+  a share outside its group, and none has SHAPE, MULTI, COM_ELASTX,
+  NCAP_OCOM, NCAP_ICOM or RPC_NOFLO data. Three crafted demo12 states ("qafs", "dflt",
+  "notgrp", test/unit/ppmain_dflt_case.jl) start from the prelv dump, so
+  GAMS 54.6.1 runs only ppmain.mod L616-682 on them; they match on 34
+  symbols each (CI). GAMS showed that a scalar `$`-condition in a loop
+  domain is evaluated per member, so pp_qafs drops only the first share
+  above the limit, and that `$` binds before NOT (G46); and that a `$IF`
+  with nothing after its condition applies to the next line, as %SHARELAX%
+  NO needs (G47). The steps take under a minute on OTUS9r.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

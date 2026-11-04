@@ -381,3 +381,13 @@ those checks, their figures and their crafted cases are not published
   %SHELL% ANSWER and the VDA_FLOP groups, 246 symbols each (CI). TS_OFF data
   (dynslite.vda) is refused. New GAMS semantics: G45. Next: change 9
   (ppmain.mod L616-682), the start of the prelv -> ppm segment.
+- 4 Nov 2026: M1.3 (9): ppmain.mod L616-682 (pp_qafs.mod, SHAPE/MULTI with
+  filshape.gms and filparam.gms, the defaults, the capacity-only flows)
+  starts the prelv -> ppm segment. The probe compares it at ppm on what
+  nothing later changes (PASS, five core models, both variants; demo12 in
+  CI). The new replay check (scripts/m13_replay.jl) runs ppmain.mod
+  L616-682 in GAMS from the core models' prelv dumps and compares all 34
+  symbols at L682. Three crafted demo12 states cover what the core models
+  do not reach, 34 symbols each (CI). New GAMS semantics: G46, G47. Next:
+  change 10 (ppmain.mod L683-799), the commodity and availability
+  attributes by timeslice.

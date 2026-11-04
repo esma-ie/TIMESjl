@@ -601,13 +601,15 @@ function _preshape!(st::InterpState, P::Dict{NTuple{N,String},Float64}, fs, yi, 
 end
 
 """
-    filparam!(st, name, pre, post, pad, src, tgt; year_in_uncd7=false)
+    filparam!(st, name, pre, post, pad, src, tgt; back=true, fwd=true, year_in_uncd7=false)
 
 filparam.gms with the arguments of one `\$BATINCLUDE filparam` call:
 `name` (%1), the control indices `pre` (%2, which in GAMS ends with a comma)
 and `post` (%3), `pad` (%4), the source data years `src` (%5) and the target
-years `tgt` (%6); %7-%9 are empty in preppm's calls. `year_in_uncd7` when
-%10 is given (UC_TIME, "YEAR,"): UNCD7 then holds '0' at the year position.
+years `tgt` (%6); `back` false for %7 'NO\$' (no backward extrapolation,
+ppmain.mod L631 MULTI), `fwd` likewise for %8; %9 is empty in every call
+translated. `year_in_uncd7` when %10 is given (UC_TIME, "YEAR,"): UNCD7 then
+holds '0' at the year position.
 
 Default (no option): linear interpolation between the data years and
 constant extrapolation both ways, over the target years. Options: < 0 none;
@@ -616,16 +618,17 @@ extrapolation; above 1 by its last digit.
 
 GAMS: filparam.gms L19-42, v4.9.7.
 """
-function filparam!(st::InterpState, name, pre, post, pad, src, tgt; year_in_uncd7::Bool=false)
+function filparam!(st::InterpState, name, pre, post, pad, src, tgt; back::Bool=true, fwd::Bool=true, year_in_uncd7::Bool=false)
     fpre, fpost = ctlsets(st, pre), ctlsets(st, post)
     fs = vcat(fpre, Union{Nothing,Set{String}}[nothing], fpost)
     P = gvalues(st.tm, name, length(fs))
-    _filparam!(st, P, fs, length(fpre) + 1, String.(pad), src, tgt, year_in_uncd7)
+    _filparam!(st, P, fs, length(fpre) + 1, String.(pad), src, tgt, year_in_uncd7; back, fwd)
     gput!(st.tm, name, P)
     return st
 end
 
-function _filparam!(st::InterpState, P::Dict{NTuple{N,String},Float64}, fs, yi, pad, src, tgt, year_in_uncd7) where {N}
+function _filparam!(st::InterpState, P::Dict{NTuple{N,String},Float64}, fs, yi, pad, src, tgt, year_in_uncd7;
+                    back::Bool=true, fwd::Bool=true) where {N}
     yv = st.ax.yearval
     dfl = "0"
     srcset = Set(src)
@@ -679,10 +682,10 @@ function _filparam!(st::InterpState, P::Dict{NTuple{N,String},Float64}, fs, yi, 
                 F = 0.0
             end
         end
-        # L39-40: IF(DFUNC NE 1, %1(%2%6%TAIL2%) $= FIRST_VAL$(YEARVAL(%6) LT F) + LAST_VAL$(YEARVAL(%6) GT Z))
+        # L39-40: IF(DFUNC NE 1, %1(%2%6%TAIL2%) $= FIRST_VAL$(%7(YEARVAL(%6) LT F)) + LAST_VAL$(%8(YEARVAL(%6) GT Z)))
         if dfunc != 1
             for t in tgt
-                x5 = gif(first_val, yv[t] < F) + gif(last_val, yv[t] > Z)
+                x5 = gif(first_val, back && yv[t] < F) + gif(last_val, fwd && yv[t] > Z)
                 iszero(x5) || gassign!(P, Base.setindex(row, t, yi), x5)
             end
         end
