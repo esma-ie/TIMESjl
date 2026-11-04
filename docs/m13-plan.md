@@ -80,7 +80,8 @@ GAMS 54.6.1):
 | 6b | preppm.mod L213-217: prep_ext.vda with equcrtp.vda (PREP_EXT); the segment's all-symbols check; MY_SUM kept by timslice.mod | 213-217; 1-83; 40-62 | prep |
 | 7a | preppm.mod with preshape.gms; ppmain.mod: timestep control, horizon, commodity groups and RC, PG/SPG | 218-252; 249-328 | prelv |
 | 7b | ppmain.mod: commodity and process timeslice levels (pp_off.mod for COM_OFF), peaking, RPCS_VAR | 329-460 | prelv |
-| 8 | ppmain.mod: lifetimes, capacity transfer, capacity bounds, availability years, PRC_ACTFLO; pp_prelv.vda | 462-614; 1-124 | prelv |
+| 8a | ppmain.mod: lifetimes, refits, capacity transfer, capacity bounds, availability years (pp_off.mod for PRC_AOFF, PRC_FOFF), PRC_ACTFLO | 461-611 | prelv |
+| 8b | pp_prelv.vda with pp_lvlfc.mod (FLO_FR); the segment's all-symbols check | 1-125 | prelv |
 | 9 | ppmain.mod with pp_qafs.mod, filshape.gms, filparam.gms: SHAPE/MULTI, defaults, capacity-only flows | 616-682 | ppm |
 | 10 | ppmain.mod with pp_lvlfc.mod, pp_lvlbr.mod, pp_lvlpk.mod: commodity and availability attributes by timeslice | 683-799 | ppm |
 | 11 | ppmain.mod with pp_chp.mod, pp_lvlff.mod, pp_lvlfs.mod, eqflomrk.mod: flow attributes, FLO_SHAR, FLO_MARK | 800-845 | ppm |
@@ -307,6 +308,29 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   COM_PEAK, a peak commodity outside RC, and night storage at DAYNITE and
   ANNUAL with SGS and STS. GAMS confirmed how L380's nested loop domain
   matches labels (G44). On OTUS9r the step takes about 50-60 s.
+- (8a) ppmain.mod L461-611 (lifetimes and lead times, refits, COEF_RPTI,
+  VNT and RTP_CPTYR, capacity bounds, the periods without new capacity,
+  RTP_VARA with PRC_AOFF, RTPC, RTPCS_OUT with PRC_FOFF, PRC_SIMV, RPC_PG,
+  RP_STD, RPC_ACT, CHP, PRC_CAPACT, PRC_ACTFLO, RP_PGACT) matches the prelv
+  dump on the 30 symbols it settles (`ppmain_life_symbols`; NCAP_TLIFE and
+  PRC_ACTFLO are changed again by pp_prelv.vda, RVP only with TS_OFF data)
+  on the five core models, reduce_off and as_run, and on demo12 in CI. The
+  core models reach %CTST% **0 (demo12, TIMES-NZ, OTUS9r: G_ILEDNO -1) and
+  empty (OTCGEN, OTNYC, with lead times), ALTOBJ 1 (demo12) and 0,
+  lifetimes beyond AGE (TIMES-NZ), refits with PRC_RCAP (OTUS9r), capacity
+  bounds (TIMES-NZ, OTCGEN, OTNYC, OTUS9r), STK (OTCGEN, OTNYC) and CHP
+  (OTCGEN). Three crafted demo12 states ("life", "altobj", "validate",
+  test/unit/ppmain_life_case.jl), run through unchanged copies of ppmain.mod
+  L1-247 and L249-611, preppm.mod L1-212 and L218-252 and prep_ext.vda by
+  GAMS 54.6.1, match on 233 symbols each (CI): short and EPS lifetimes,
+  rounded and dropped lead times, past investment on a milestone (PHYR),
+  refit options, every capacity-bound path, NCAP_BND FX EPS, PRC_AOFF,
+  PRC_FOFF, a PG commodity flagged non-interpolated, OBJ LIN (the relaxed
+  capacity transfer), %VALIDATE% and PRC_SIMV. The replay now sets %OBLONG%
+  (OBJ MOD) as initmty.mod L427 does, so ppmain.mod L159 is checked there
+  too. IFQ is 1 unless a region is named like a commodity type (prep_ext.vda
+  L71), so the `IFQ<10` branch of L528 is the only one data can reach. On
+  OTUS9r the step takes about 4 min, OTCGEN 100 s (not profiled).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

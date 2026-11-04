@@ -182,7 +182,8 @@ const PIPELINE = [
   ["Preprocessing","prep_ext",110,"partial","6b · POWERFLO, VINTOPT 1 refused"],
   ["Preprocessing","preshape, ppmain L249-328",164,"review","7a"],
   ["Preprocessing","ppmain L329-460",132,"review","7b"],
-  ["Preprocessing","ppmain L461-614 + pp_prelv",279,"todo","change 8, next"],
+  ["Preprocessing","ppmain L461-611",151,"review","8a"],
+  ["Preprocessing","pp_prelv",128,"todo","change 8b, next"],
   ["Preprocessing","ppmain L616-1336 + pp_*",1399,"todo","changes 9-16"],
   ["Preprocessing","REDUCE",397,"todo","change 17"],
   ["Preprocessing","ppm_ext",419,"todo","change 18"],
@@ -228,7 +229,7 @@ const MILESTONES = [
   ["M1.0","foundations","done","gate 18 Oct"],
   ["M1.1","model generation","done","gate 21 Oct"],
   ["M1.2","coefficients","done","gate 31 Oct"],
-  ["M1.3","preprocessing","active","9 of 22 changes merged"],
+  ["M1.3","preprocessing","active","9 of 23 changes merged"],
   ["M1.4","DD reader","todo",""],
   ["M1.5","run options","todo",""],
   ["M1.6","reporting","todo",""],
@@ -250,7 +251,8 @@ const M13_CHANGES = [
   ["7a","preppm_shape","preppm.mod L218-252, preshape.gms","prelv","review"],
   ["7a","ppmain_topo","ppmain.mod L249-328: horizon, groups, PG/SPG","prelv","review"],
   ["7b","ppmain_tslvl","ppmain.mod L329-460: timeslice levels, RPCS_VAR","prelv","review"],
-  ["8","","ppmain.mod L462-614; pp_prelv.vda","prelv","next"],
+  ["8a","ppmain_life","ppmain.mod L461-611: lifetimes, capacity transfer, bounds, availability","prelv","review"],
+  ["8b","","pp_prelv.vda, pp_lvlfc.mod; every symbol at prelv","prelv","next"],
   ["9","","ppmain.mod L616-682, pp_qafs.mod, filshape.gms","ppm","todo"],
   ["10","","ppmain.mod L683-799, pp_lvlfc/br/pk","ppm","todo"],
   ["11","","ppmain.mod L800-845, pp_chp, pp_lvlff/fs, eqflomrk","ppm","todo"],
@@ -263,16 +265,16 @@ const M13_CHANGES = [
   ["18","","ppm_ext.dsc, ppm_ext.vda","ppm","todo"],
 ];
 // scripts/m13_probe.jl on James's workstation against the GAMS 54.6.1 references: GAMS records compared per step,
-// the same for reduce_off and as_run, every step PASS (init_ext to ppmain_rtp: probe at change 5; preppm: 6a; prep_ext, every symbol at prep: 6b; preppm_shape, ppmain_topo: 7a; ppmain_tslvl: 7b)
+// the same for reduce_off and as_run, every step PASS (init_ext to ppmain_rtp: probe at change 5; preppm: 6a; prep_ext, every symbol at prep: 6b; preppm_shape, ppmain_topo: 7a; ppmain_tslvl: 7b; ppmain_life: 8a)
 const M13_PROBE = {
-  meta:"probe of 3 Nov 2026 at 7b · 5 models × 2 variants",
-  steps:["init_ext","ppmain_head","ppmain_years","timslice","ppmain_rtp","preppm","prep_ext","preppm_shape","ppmain_topo","ppmain_tslvl"],
+  meta:"probe of 3 Nov 2026 at 8a · 5 models × 2 variants",
+  steps:["init_ext","ppmain_head","ppmain_years","timslice","ppmain_rtp","preppm","prep_ext","preppm_shape","ppmain_topo","ppmain_tslvl","ppmain_life"],
   runs:[
-    {model:"TIMES_Demo-demo12", licence:"CC-BY-4.0", rec:[9324,4393,190,253,2162,8985,23004,55,2981,6555]},
-    {model:"TIMES-NZ-steady-v308", licence:"MIT", rec:[88954,21803,571,1603,24452,366975,474586,378,13490,333252]},
-    {model:"OTCGEN-gc_ref", licence:"CC-BY-SA-4.0", rec:[248819,133975,373,596,311429,761841,2161605,45,86805,340345]},
-    {model:"OTNYC-s1_nyc_ref", licence:"CC-BY-SA-4.0", rec:[403890,148290,195,2026,151220,642158,1149222,35,103118,455809]},
-    {model:"OTUS9r-reference", licence:"CC-BY-SA-4.0", rec:[1388726,644137,603,3799,305177,1846359,4937078,105,423339,1453753]},
+    {model:"TIMES_Demo-demo12", licence:"CC-BY-4.0", rec:[9324,4393,190,253,2162,8985,23004,55,2981,6555,15812]},
+    {model:"TIMES-NZ-steady-v308", licence:"MIT", rec:[88954,21803,571,1603,24452,366975,474586,378,13490,333252,266321]},
+    {model:"OTCGEN-gc_ref", licence:"CC-BY-SA-4.0", rec:[248819,133975,373,596,311429,761841,2161605,45,86805,340345,1903399]},
+    {model:"OTNYC-s1_nyc_ref", licence:"CC-BY-SA-4.0", rec:[403890,148290,195,2026,151220,642158,1149222,35,103118,455809,686402]},
+    {model:"OTUS9r-reference", licence:"CC-BY-SA-4.0", rec:[1388726,644137,603,3799,305177,1846359,4937078,105,423339,1453753,3590114]},
   ],
 };
 const COEF_FILES = ["coef_cpt","coef_nio","coef_ptr","coef_obj","coef_alt","coef_shp","coef_ext"];
