@@ -287,6 +287,26 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   group, and the capacity-related flows. GAMS confirmed that MOD keeps the
   sign of its first argument (G43). Refused: %VINTOPT% 1 (L245-251). L253
   (`SET SUBT(T) / SET.T /`) is a compile-time data statement, in every dump.
+- (7b) ppmain.mod L329-460 (the commodity and process timeslice levels:
+  levels a region lacks, COM_TS/COM_TSL, RCS, RCS_COMTS, COM_OFF through
+  pp_off.mod, RTC, RTCS_VARC, COM_PEAK/COM_PKTS, PRC_TS/PRC_TSL, storage
+  (RP_SGS, PRC_MAP, RP_STG), the shadow levels (RPS_S1, RPS_S2, PRC_SGL),
+  RPS_PRCTS, RP_PGFLO, RPC_STG, PRC_NSTTS, RPCS_VAR) matches the prelv dump
+  on the 24 symbols it settles (`ppmain_tslvl_symbols`; COM_BNDPRD,
+  TS_ARRAY, RXX, PRC_ACT, TRACKP, TRACKPC, F and Z are changed again later in
+  the segment) on the five core models, reduce_off and as_run, and on demo12
+  in CI. The core models reach WEEKLY levels (TIMES-NZ), peak timeslices
+  given (OTCGEN, OTNYC, OTUS9r) and not (demo12), storage (TIMES-NZ, OTCGEN,
+  OTNYC, OTUS9r) and SGS storage (OTUS9r). Two crafted demo12 states
+  ("levels", "offpeak", test/unit/ppmain_tslvl_case.jl), run through
+  unchanged copies of ppmain.mod L1-247 and L249-460, preppm.mod L1-212 and
+  L218-252 and prep_ext.vda by GAMS 54.6.1, match on 217 symbols each (CI):
+  a level moved up and one kept (the count rule of L336-337), user COM_TS
+  and PRC_TS (the first timeslice sets the level, G30; timeslices removed or
+  left out, RCS), COM_OFF ranges, COM_PKTS moved up and down, a group
+  COM_PEAK, a peak commodity outside RC, and night storage at DAYNITE and
+  ANNUAL with SGS and STS. GAMS confirmed how L380's nested loop domain
+  matches labels (G44). On OTUS9r the step takes about 50-60 s.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
