@@ -83,7 +83,7 @@ GAMS 54.6.1):
 | 8a | ppmain.mod: lifetimes, refits, capacity transfer, capacity bounds, availability years (pp_off.mod for PRC_AOFF, PRC_FOFF), PRC_ACTFLO | 461-611 | prelv |
 | 8b | pp_prelv.vda with pp_lvlfc.mod (FLO_FR); the segment's all-symbols check | 1-125 | prelv |
 | 9 | ppmain.mod with pp_qafs.mod, filshape.gms, filparam.gms: SHAPE/MULTI, defaults, capacity-only flows | 616-682 | ppm |
-| 10 | ppmain.mod with pp_lvlfc.mod, pp_lvlbr.mod, pp_lvlpk.mod: commodity and availability attributes by timeslice | 683-799 | ppm |
+| 10 | ppmain.mod with pp_lvlfc.mod, pp_lvlbr.mod, pp_lvlpk.mod: commodity and availability attributes by timeslice | 683-797 | ppm |
 | 11 | ppmain.mod with pp_chp.mod, pp_lvlff.mod, pp_lvlfs.mod, eqflomrk.mod: flow attributes, FLO_SHAR, FLO_MARK | 800-845 | ppm |
 | 12 | ppmain.mod with pp_lvlif.mod: trade and marketplaces | 846-935 | ppm |
 | 13 | ppmain.mod with pp_lvlbd.mod: balance types, IRE conversion, bounds, cumulative constraints | 936-1060 | ppm |
@@ -376,6 +376,36 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   above the limit, and that `$` binds before NOT (G46); and that a `$IF`
   with nothing after its condition applies to the next line, as %SHARELAX%
   NO needs (G47). The steps take under a minute on OTUS9r.
+- (10) ppmain.mod L683-797 is one probe step, ppmain_tsattr: the commodity
+  attributes levelled to COM_TS (pp_lvlfc.mod, `lvlfc!`), COM_IE and
+  COM_FR defaulted, COM_FR summed and normalised, RS_FR and RTCS_FR, the
+  elastic demand steps, NCAP_AF levelled to PRC_TS (pp_lvlbr.mod,
+  `lvlbr!`) and defaulted with PRC_TS, RPCS_VAR and RTPCS_OUT, and
+  pp_lvlpk.mod. At the ppm checkpoint it is compared on the 15-18 symbols
+  nothing later changes, among them RPCS_VAR, which change 9 left to the
+  replay (NCAP_AF and PRC_TS without RP_STS, NCAP_PKCNT without CHP,
+  RPC_PKC with %REDUCE% NO and no STG_SIFT): PASS on the five core models,
+  reduce_off and as_run, and on demo12 in CI. DEM (L945), FLO_PKCOI (L808,
+  L817), RTPCS_OUT (L1062, cleared at L1350) and RPC_PKF (pp_reduce.red
+  L185, which follows its REDDONE label and so runs without REDUCE too)
+  change again before ppm, so the replay check now runs ppmain.mod L616-797
+  and compares every symbol the lines write (65) at L797: PASS on the five
+  core models, both variants. GAMS's QA log shows the COM_FR normalisation
+  on demo12 (2 commodities) and TIMES-NZ (16); NCAP_AFS (TIMES-NZ),
+  OBJ_COMNT (TIMES-NZ, OTUS9r) and storage processes (all but demo12) are
+  reached; no core model has an NCAP_AF bound conflict, nor COM_ELAST,
+  COM_BPRICE, COM_BQTY, COM_PKFLX, OBJ_COMPD, PRC_PKAF or PRC_PKNO data.
+  Three crafted demo12 states ("com", "af", "pk",
+  test/unit/ppmain_tsattr_case.jl) cover those paths, 65 symbols each at
+  L797 (CI). The replay showed two things the source does not make plain:
+  the `IF(Z, ...)` that pp_lvlbr.mod L27 opens closes only at the end of
+  L31, so a value below a target timeslice is neither inherited down nor
+  levelled from (the indentation suggests otherwise; only the scratch Z
+  showed it, as no such value has targets below it); and L729 divides for
+  every timeslice, so an ANNUAL COM_FR of 0 stops GAMS even where COM_FR
+  has no record (G48): a commodity with COM_FR needs it in every milestone.
+  The step takes about 3 minutes on OTUS9r (2.1 million GAMS records
+  compared; the gams_sort! of the large symbols dominates, not profiled).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

@@ -391,3 +391,14 @@ those checks, their figures and their crafted cases are not published
   do not reach, 34 symbols each (CI). New GAMS semantics: G46, G47. Next:
   change 10 (ppmain.mod L683-799), the commodity and availability
   attributes by timeslice.
+- 4 Nov 2026: M1.3 (10): ppmain.mod L683-797 (pp_lvlfc.mod for the
+  commodity attributes, COM_FR, RS_FR and RTCS_FR, the elastic demand
+  steps, pp_lvlbr.mod for NCAP_AF, pp_lvlpk.mod) as the probe step
+  ppmain_tsattr. Compared at ppm on the 15-18 symbols nothing later
+  changes (PASS, five core models, both variants; demo12 in CI); the
+  replay check now runs ppmain.mod L616-797 and compares all 65 symbols at
+  L797 (PASS, five core models, both variants). Three crafted demo12
+  states cover the paths the core models do not reach, 65 symbols each
+  (CI). TIMES-Micro (L749) and %DYNTS% with TS_OFF data (L742) refused.
+  New GAMS semantics: G48. Next: change 11 (ppmain.mod L800-845), the flow
+  attributes, FLO_SHAR and FLO_MARK.
