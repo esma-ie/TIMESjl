@@ -335,10 +335,18 @@ iterated in, which is entry order, not alphabetical). Used for sets that
 TIMES.jl computes itself, so that rows are generated in GAMS order.
 """
 function gams_sort!(keys::Vector{NTuple{N,String}}, d::DumpData) where {N}
-    rank(l) = get(d.uelorder, lowercase(l)) do
-        throw(ArgumentError("label '$l' is not in the dump's unique-element list"))
+    # Each label is ranked once (labels repeat across keys), and each key once, before sorting:
+    # ranking inside `by` would redo it at every comparison. As before, a vector of 0 or 1 keys is
+    # left as it is, unranked (sort! never compared, so a label outside the list passed).
+    length(keys) <= 1 && return keys
+    cache = Dict{String,Int}()
+    rank(l) = get!(cache, l) do
+        get(d.uelorder, lowercase(l)) do
+            throw(ArgumentError("label '$l' is not in the dump's unique-element list"))
+        end
     end
-    return sort!(keys; by=k -> ntuple(i -> rank(k[i]), Val(N)))
+    rk = [ntuple(i -> rank(k[i]), Val(N)) for k in keys]
+    return permute!(keys, sortperm(rk))
 end
 
 """
