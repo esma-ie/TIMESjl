@@ -12,7 +12,7 @@
 # Windows (the harness venv's python.exe). Both variants are run. The work
 # files go to a temporary folder; nothing is written to the reference.
 #
-# Replays: ppmain.mod L616-1333 from the prelv checkpoint (change 9:
+# Replays: ppmain.mod L616-1350 from the prelv checkpoint (change 9:
 # pp_qafs.mod, SHAPE/MULTI, the defaults, the capacity-only flows; change
 # 10: the commodity attributes by timeslice, COM_FR, RS_FR and RTCS_FR, the
 # elastic demand steps, the availability factors and the peak
@@ -22,11 +22,12 @@
 # types, trade conversions, bounds; change 13b: cumulative bounds, RHS
 # commodities; change 14: storage; change 15a: the user-constraint
 # defaults; change 15b: the UC group maps, pp_lvlus.mod;
-# change 16: the blending block without blending data).
+# change 16: the blending block without blending data; change 17a:
+# pp_reduce.red, RTPCS_VARF, RTP_VINTYR).
 
 include(joinpath(@__DIR__, "m11_probe.jl"))      # run_switches, runfile_of, suite_switches, parse_probe_args
-include(joinpath(@__DIR__, "make_ppmain_blend_unit.jl"))
-using TIMES: TimesModel, layer1, pp_qafs!, ppmain_dflt!, ppmain_tsattr!, ppmain_flo!, ppmain_flofs!, ppmain_ire!, ppmain_bnd!, ppmain_cum!, ppmain_stg!, ppmain_uc!, ppmain_ucmap!, ppmain_blend!
+include(joinpath(@__DIR__, "make_ppmain_reduce_unit.jl"))
+using TIMES: TimesModel, layer1, pp_qafs!, ppmain_dflt!, ppmain_tsattr!, ppmain_flo!, ppmain_flofs!, ppmain_ire!, ppmain_bnd!, ppmain_cum!, ppmain_stg!, ppmain_uc!, ppmain_ucmap!, ppmain_blend!, ppmain_reduce!
 using TIMES.Reference: ispass
 using JSON
 
@@ -40,11 +41,11 @@ function replay13(refdir, model; roots, variant)
     tm = TimesModel(joinpath(dir, "prelv"); switches=sw)
     kw = haskey(ENV, "TJL_GAMS") ? (; gams=ENV["TJL_GAMS"]) : (;)
     work = mktempdir()
-    tg = @elapsed g = ppmain_blend_replay(tm, times_dir; workdir=work, kw...)
-    tj = @elapsed (pp_qafs!(tm); ppmain_dflt!(tm); ppmain_tsattr!(tm); ppmain_flo!(tm); ppmain_flofs!(tm); ppmain_ire!(tm); ppmain_bnd!(tm); ppmain_cum!(tm); ppmain_stg!(tm); ppmain_uc!(tm); ppmain_ucmap!(tm); ppmain_blend!(tm))
-    r = layer1(tm, g, PPMAIN_BLEND_OUTPUTS)
+    tg = @elapsed g = ppmain_reduce_replay(tm, times_dir; workdir=work, kw...)
+    tj = @elapsed (pp_qafs!(tm); ppmain_dflt!(tm); ppmain_tsattr!(tm); ppmain_flo!(tm); ppmain_flofs!(tm); ppmain_ire!(tm); ppmain_bnd!(tm); ppmain_cum!(tm); ppmain_stg!(tm); ppmain_uc!(tm); ppmain_ucmap!(tm); ppmain_blend!(tm); ppmain_reduce!(tm))
+    r = layer1(tm, g, PPMAIN_REDUCE_OUTPUTS)
     bad = filter(!ispass, r)
-    println("== ", model, "/", variant, " ppmain.mod L616-1333 replayed: ", isempty(bad) ? "PASS" : "FAIL", " (", length(r),
+    println("== ", model, "/", variant, " ppmain.mod L616-1350 replayed: ", isempty(bad) ? "PASS" : "FAIL", " (", length(r),
             " symbols, ", sum(d -> d.n_ref, r; init=0), " GAMS records; GAMS ", round(tg; digits=1), " s, TIMES.jl ",
             round(tj; digits=1), " s)")
     for d in bad

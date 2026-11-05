@@ -24,7 +24,8 @@ const PPMAIN_REPLAY_SCAN = [682 => ["pp_qafs.mod", "pp_qaput.mod", "filshape.gms
                             933 => ["pp_lvlif.mod"],
                             1001 => ["pp_lvlbd.mod"],
                             1179 => ["prepxtra.mod"],
-                            1226 => ["pp_lvlus.mod"]]
+                            1226 => ["pp_lvlus.mod"],
+                            1350 => ["pp_reduce.red"]]
 
 """
     ppmain_replay(tm, times_dir, last; outputs, declared, workdir, kw...) -> DumpData

@@ -473,3 +473,11 @@ those checks, their figures and their crafted cases are not published
   ppmain.mod L616-1333 and compares 198 symbols at L1333 (PASS, five core
   models, both variants). Next: change 17 (pp_reduce.red, dynslite.vda,
   ppmain.mod L1336-1357; cal_red.red).
+- 5 Nov 2026: M1.3 (17a): ppmain.mod L1336-1357 with pp_reduce.red (the
+  reduction of model size, RTPCS_VARF, RTP_VINTYR) as the probe step
+  ppmain_reduce. Compared at ppm on the 18 symbols nothing later changes
+  (PASS, five core models, %REDUCE% NO and YES; demo12 in CI); the replay
+  check now runs ppmain.mod L616-1350 and compares 216 symbols at L1350
+  (PASS, five core models, both variants). Two crafted demo12 states cover
+  %REDUCE% YES and unset (CI). Next: change 17b (cal_red.red, layer 2) and
+  change 18 (ppm_ext).
