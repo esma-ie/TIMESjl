@@ -481,3 +481,12 @@ those checks, their figures and their crafted cases are not published
   (PASS, five core models, both variants). Two crafted demo12 states cover
   %REDUCE% YES and unset (CI). Next: change 17b (cal_red.red, layer 2) and
   change 18 (ppm_ext).
+- 5 Nov 2026: M1.3 (18a): ppm_ext.dsc and ppm_ext.vda L11-58 with
+  pp_actef.vda (the ACT_EFF preparation) as the probe step ppm_ext_actef.
+  Compared at ppm on the 20 symbols nothing later changes (PASS, five core
+  models, both variants; demo12 in CI); the replay check now runs
+  ppmain.mod L616-1357 and ppm_ext.vda L11-58 and compares 229 symbols at
+  L58 (PASS, five core models, both variants). Two crafted demo12 states
+  cover ACT_EFF below the process level, on primary-group commodities and
+  EPS, ramping, partial loads and NORTS (CI). Next: change 18b (ppm_ext.vda
+  L59-169, the segment's all-symbols check), then 17b (cal_red.red).

@@ -38,7 +38,7 @@ Claude Code in the terminal, VS Code, or the desktop app).
 - Approved plans (James, 3 Nov 2026): the Phase 1 plan is approved, with
   M1.3 in the order of `docs/m13-plan.md`. Work through it without waiting
   for a plan approval per change, and stop only to depart from it. James
-  reviews PRs at two check-ins, 9:00 and 16:45. Each PR starts with a
+  reviews PRs at two check-ins, 9:00 and 16:30 (from 5 Nov 2026). Each PR starts with a
   "Decisions for you" list.
 
 ## Validation (every PR)
