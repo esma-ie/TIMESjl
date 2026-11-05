@@ -93,7 +93,8 @@ GAMS 54.6.1):
 | 15a | ppmain.mod with prepxtra.mod UCINT: the user-constraint defaults (years, regions, timeslices, dynamic and cumulative UCs) | 1101-1179; 61-77 | ppm |
 | 15b | ppmain.mod with pp_lvlus.mod: the UC group maps, VAR_CAP and VAR_COMxxx for UCs, UC attributes levelled, RCS_COMBAL/RCS_COMPRD | 1181-1226; 1-40 | ppm |
 | 16 | ppmain.mod: blending (refused unless needed; any non-blending statements in the block translated) | 1228-1333 | ppm |
-| 17 | pp_reduce.red, dynslite.vda, ppmain.mod end; cal_red.red | 1-188; 1-129; 1337-1357; 1-59 | ppm (as_run), layer 2 |
+| 17a | ppmain.mod end with pp_reduce.red (dynslite.vda refused, as in 8b) | 1336-1357; 1-188 | ppm (reduce_off and as_run) |
+| 17b | cal_red.red: flows substituted by activities on the equation side | 1-59 | layer 2 (as_run) |
 | 18 | ppm_ext.dsc; ppm_ext.vda with pp_actef.vda, resloadc.vda, equcrtp.vda (PPM_EXT) | 1-16; 1-169 | ppm |
 
 ## Parity (per change)
@@ -583,6 +584,30 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   demo12 in CI. The replay check now runs ppmain.mod L616-1333 and compares
   198 symbols at L1333: PASS on the five core models, both variants. A
   crafted demo12 state ("blend") keeps a given REFUNIT (CI).
+- (17a) ppmain.mod L1336-1357 with pp_reduce.red is the probe step
+  ppmain_reduce: RVP and RTP_VARA, then pp_reduce.red in its three modes
+  (%REDUCE% NO stops after L11; any other value, unset included, after L56;
+  YES runs it all: PRC_CAP, PRC_ACT, the emission flows substituted, the
+  flows substituted by the activity, NO_ACT, the FLO_FUNC/FLO_SUM
+  substitution, the processes turned off by zero activity bounds, the
+  single producers and consumers, RTP_VARA), then RTPCS_VARF and
+  RTP_VINTYR. Change 17 is split like 11, 13 and 15: 17b is cal_red.red,
+  checked on the matrix. Refused: %ETL% YES with REDUCE YES (L43, SEG),
+  dynslite.vda (L188, as in 8b) and %MACRO% YES (L1354). RP_AFB is a
+  parameter, so `OPTION RP_AFB < NCAP_AF` stores the number of NCAP_AF
+  records (G31). At the ppm checkpoint it is compared on the 18 symbols
+  nothing later changes (ppm_ext.vda, change 18, changes PRC_ACT, RP_AFB,
+  FS_EMIS, RPC_EMIS, NO_ACT, RP_XRED, RPCG_PTRAN, RPC_FFUNC, RPCC_FFUNC,
+  RTPS_BD and RVP): PASS on the five core models, reduce_off (%REDUCE% NO)
+  and as_run (%REDUCE% YES), and on demo12 in CI. RPC_PKF, ACT_BND and
+  RHS_COMPRD, which earlier steps compared only without the reduction, are
+  now compared in both variants. The replay check now runs ppmain.mod
+  L616-1350 and compares 216 symbols at L1350 (L1351-1357 are the refused
+  MACRO and the log file): PASS on the five core models, both variants. Two
+  crafted demo12 states cover %REDUCE% YES with zero activity bounds
+  ("yes") and %REDUCE% unset ("mid"), 216 symbols each (CI). In demo12 the
+  dummy imports (IMPNRGZ) produce every commodity, so no commodity has a
+  single producer and RTCS_SING ends empty.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
