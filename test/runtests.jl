@@ -124,4 +124,7 @@ const FIXTURES = joinpath(@__DIR__, "fixtures")
     @testset "Preprocessing: ppm_ext.vda L11-58, pp_actef.vda (M1.3)" begin
         include("unit/test_m13_ppm_ext.jl")
     end
+    @testset "Preprocessing: ppm_ext.vda L59-169, the prelv -> ppm segment (M1.3)" begin
+        include("unit/test_m13_ppm_ext_end.jl")
+    end
 end

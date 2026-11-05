@@ -636,6 +636,28 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   writes. NORTS on a milestone also zeroes COM_FR there (ppmain.mod L720),
   so the "upl" case sets it on a past vintage: on a milestone demo12's
   COM_FR stops GAMS with a division by EPS (G48).
+- (18b) ppm_ext.vda L59-169 with equcrtp.vda PPM_EXT is the probe step
+  ppm_ext, the last of the prelv -> ppm segment: the FLO_FUNCX shape
+  indexes of the shadow group (L61-65), the ACT_EFF flows kept from the
+  reduction (L67-75), the singleton ACT_EFF flows into RPC_FFUNC
+  (L86-101), the commodity availabilities (NCAP_AFC and NCAP_AFCS levelled
+  and split, RTPS_BD, RPS_CAFLAC, RPG_AFCX, PRC_SC, RP_STL, L104-142), the
+  automatic NCAP_AFCS of ECT CHPs (L145-156), the NCAP_AFX and NCAP_AFM
+  options (L159-164) and the dynamic UCs taken out of the standard UCs
+  (equcrtp.vda L64-71). Refused: RP_FFSGG (L76-83, the stochastic
+  extension) and dynslite.vda (L169, %DYNTS% YES with TS_OFF data).
+  `OPTION VDA_CEH < NCAP_CEH` (L156) has the same domains on both sides, so
+  it copies the values (G34), not the counts a projection gives (G31). It
+  ends the segment, so it is compared on every set and parameter of the
+  prelv dump at ppm (the QA scalars PUTOUT, PUTGRP, ERRLEV left out, as at
+  the other segment ends): PASS on the five core models, both variants, and
+  on demo12 in CI (821 symbols). With it the four segments input -> init ->
+  prep -> prelv -> ppm all match GAMS at 1e-9, each from GAMS's state at
+  its start. The replay check now runs ppmain.mod L616-1357 and the whole
+  of ppm_ext.vda; GAMS runs five crafted demo12 states to the end of
+  ppm_ext.vda: "ace" and "upl" (18a), "chp" (an ECT CHP: NCAP_CEH 2 on
+  ELCTEGAS00), "afx" (NCAP_AFX and NCAP_AFM options) and "funcx"
+  (FLO_FUNCX shape indexes), all PASS (CI).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

@@ -1,8 +1,10 @@
-# Crafted states for ppm_ext.vda L11-58 with pp_actef.vda LVL (v4.9.7): the
-# ACT_EFF preparation. The TIMES_Demo demo12 prelv checkpoint
-# (test/fixtures/demo12_off_prelv) is given data no core reference run has,
-# and GAMS runs ppmain.mod L616-1357 and ppm_ext.vda L11-58 itself on it
-# (scripts/make_ppm_ext_unit.jl; test/unit/test_m13_ppm_ext.jl).
+# Crafted states for ppm_ext.vda (v4.9.7): L11-58 with pp_actef.vda LVL,
+# the ACT_EFF preparation (18a), and L59-169 (18b). The TIMES_Demo demo12
+# prelv checkpoint (test/fixtures/demo12_off_prelv) is given data no core
+# reference run has, and GAMS runs ppmain.mod L616-1357 and ppm_ext.vda
+# L11-58 or L11-169 itself on it (scripts/make_ppm_ext_unit.jl;
+# test/unit/test_m13_ppm_ext.jl, test/unit/test_m13_ppm_ext_end.jl). The
+# 18b cases need ppmain_flo_case! (test/unit/ppmain_flo_case.jl).
 #
 # demo12, REG1: ELCTECOA00 runs at SEASON (PRC_TSL), takes ELCCOA (its
 # shadow group NRG) and makes ELC (its primary group) and ELCCO2; it has
@@ -43,6 +45,7 @@ function ppm_ext_start(fixtures, name)
     fx = only(filter(f -> f["prefix"] == "demo12_off", TOML.parsefile(joinpath(fixtures, "public_fixtures.toml"))["fixture"]))
     sw = Dict{String,String}(k => string(v) for (k, v) in fx["switches"])
     tm = TimesModel(joinpath(fixtures, "demo12_off_prelv"); switches=sw)
+    name in PPM_EXT_CASES_B && return ppm_ext_case_b!(tm, name)
     ae = gvalues(tm, "ACT_EFF", 5)
     ace = gmembers(tm, "RPC_ACE", 3)
     if name == "ace"
@@ -69,5 +72,43 @@ function ppm_ext_start(fixtures, name)
     end
     gput!(tm, "ACT_EFF", ae)
     gput!(tm, "RPC_ACE", ace)
+    return tm
+end
+
+"""
+The cases of ppm_ext.vda L59-169 run by GAMS (18b), on top of PPM_EXT_CASES:
+
+- "chp": test/unit/ppmain_flo_case.jl's "chp" state (REFEOIL00 and
+  ELCTEGAS00 made CHPs), with NCAP_CEH 2 on ELCTEGAS00 in 2010 and 2015
+  (an ECT CHP: the automatic NCAP_AFCS of ppm_ext.vda L145-156) and an
+  NCAP_AF 'UP' at ANNUAL in 2010.
+- "afx": the NCAP_AFX and NCAP_AFM options at '0' (L159-164): ELCTECOA00
+  1001 (odd: NCAP_AFSX for UP and FX), ELCTEGAS00 5000 (RP_AFB -1),
+  FTE-AGRELC 2000 (even: LO); NCAP_AFM 2000 on ELCTECOA00 (NCAP_AFSM) and
+  5000 on ELCTEGAS00 (its NCAP_AFM at the model years dropped).
+- "funcx": FLO_FUNCX shape indexes (L61-65) on ELCTECOA00 (ACT to its
+  shadow group NRG, ACT to the primary group ELC) and FTE-AGRELC.
+"""
+const PPM_EXT_CASES_B = ["chp", "afx", "funcx"]
+
+function ppm_ext_case_b!(tm, name)
+    put!(n, N, kv...) = (v = gvalues(tm, n, N); foreach(((k, x),) -> v[k] = x, kv); gput!(tm, n, v))
+    r = "REG1"
+    if name == "chp"
+        ppmain_flo_case!(tm, "chp")
+        put!("NCAP_CEH", 3, (r, "2010", "ELCTEGAS00") => 2.0, (r, "2015", "ELCTEGAS00") => 2.0)
+        put!("NCAP_AF", 5, (r, "2010", "ELCTEGAS00", "ANNUAL", "UP") => 0.9)
+    elseif name == "afx"
+        put!("NCAP_AFX", 3, (r, "0", "ELCTECOA00") => 1001.0, (r, "2010", "ELCTECOA00") => 0.05, (r, "2020", "ELCTECOA00") => -0.1,
+             (r, "0", "ELCTEGAS00") => 5000.0, (r, "2010", "ELCTEGAS00") => 0.02,
+             (r, "0", "FTE-AGRELC") => 2000.0, (r, "2015", "FTE-AGRELC") => 0.03)
+        put!("NCAP_AFM", 3, (r, "0", "ELCTECOA00") => 2000.0, (r, "2010", "ELCTECOA00") => 2.0,
+             (r, "0", "ELCTEGAS00") => 5000.0, (r, "2010", "ELCTEGAS00") => 3.0, (r, "2015", "ELCTEGAS00") => 3.0)
+    elseif name == "funcx"
+        put!("FLO_FUNCX", 5, (r, "2010", "ELCTECOA00", "ACT", "ACT") => 2.0, (r, "2015", "ELCTECOA00", "ACT", "ELCCOA") => 3.0,
+             (r, "2010", "FTE-AGRELC", "NRG", "ACT") => 4.0, (r, "2020", "FTE-AGRELC", "ACT", "ACT") => 5.0)
+    else
+        error("unknown ppm_ext case $name")
+    end
     return tm
 end
