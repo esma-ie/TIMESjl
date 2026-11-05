@@ -336,7 +336,9 @@ TIMES.jl computes itself, so that rows are generated in GAMS order.
 """
 function gams_sort!(keys::Vector{NTuple{N,String}}, d::DumpData) where {N}
     # Each label is ranked once (labels repeat across keys), and each key once, before sorting:
-    # ranking inside `by` would redo it at every comparison.
+    # ranking inside `by` would redo it at every comparison. As before, a vector of 0 or 1 keys is
+    # left as it is, unranked (sort! never compared, so a label outside the list passed).
+    length(keys) <= 1 && return keys
     cache = Dict{String,Int}()
     rank(l) = get!(cache, l) do
         get(d.uelorder, lowercase(l)) do
