@@ -98,6 +98,14 @@ GAMS 54.6.1):
 | 17c | crafted case TIMES_Demo-demo12_red17b for the 17b paths demo12 does not reach (cal_red.red L37-38 with an RPC_ACT source; bnd_flo.mod L37-39) (James, 5 Nov 2026) | — | layers 2-3 (both variants) |
 | 18a | ppm_ext.dsc; ppm_ext.vda with pp_actef.vda (LVL): dispatching and partial loads, the VDA_EMCB sums, ACT_EFF prepared, inherited and levelled | 1-16; 11-58; 9-48 | ppm |
 | 18b | ppm_ext.vda with equcrtp.vda (PPM_EXT): shape indexes, flows kept from the reduction, commodity and CHP availabilities, NCAP_AFX/AFM options; the segment's all-symbols check (resloadc.vda refused, dynslite.vda refused) | 59-169; 64-72 | ppm |
+| 19 | eqstgips.mod: EQ_STGIPS, inter-period storage (James, 5 Nov 2026: the families M1.1 left untranslated become M1.3 changes) | 13-44 | layers 2-3 OTNYC (both variants); EQ_STGIPS rows on OTCGEN |
+| 19b | eqstgaux.mod: the inter-period storage terms of EQ_STGAUX | 25-32 | EQ_STGAUX rows on OTCGEN; crafted demo12 case (CI) |
+| 20 | equcrtp.vda (EQU_EXT): EQ(l)_UCRTP and EQN_UCRTC, dynamic process and commodity bounds | 73-123 | layers 2-3 OTUS9r |
+| 21 | equserco.mod: dynamic user constraints in the RHS direction (UC_DYNDIR 'RHS', uc_pasti.mod) | 80-106 | TIMES-NZ, OTCGEN |
+| 22 | uc_*.mod: user-constraint attributes other than GROWTH (CAP, SYNC, ...) | | TIMES-NZ |
+| 23 | eqflomrk.mod: EQ(l)_FLOMRK, market-share flow constraints | | TIMES-NZ |
+| 24 | eqactups.vda: EQ_SLSIFT, load shifting (with the demo12 load-shifting variant) | 131- | layers 2-3 TIMES-NZ (both variants) |
+| 25 | eqmain.mod preparation and pp_qack.mod: the coef -> pre-solve step, so the CI chain runs end to end | | presolve (demo12 in CI) |
 
 ## Parity (per change)
 
@@ -147,6 +155,26 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   the four large core models.
 
 ## Findings so far
+
+- (19) eqstgips.mod, EQ_STGIPS (inter-period storage, `src/model/eqstgips.jl`):
+  two kinds of row, as IPS = {IN, N} (setglobs.gms L154) and LIM =
+  {LO, FX, UP, N}: N, for every RTP_VINTYR tuple of an STK process with
+  PRC_STGIPS, the end-of-period level = the level at the end of T-1 (the
+  activity dated LL-LEAD(LL) before the first period) times
+  POWER(1-STG_LOSS, D(T)), plus the charging less the discharging, each
+  year discounted for losses to E(T); IN, for V = T = the first
+  milestone only, the vintages' activity at LL-LEAD(LL) = STG_CHRG there.
+  `SUM(IO(IPS), x)` with IPS controlled is x when IPS is in IO (G14). One
+  slip found by the check and fixed before commit: the loss sum is over
+  PERIODYR(T,Y_EOH), and Y_EOH is a set of its own, so the years PERIODYR
+  gives the last period past the horizon are left out (123 vs 3 on
+  OTNYC's 2055 rows). Checked: OTNYC layer 2 PASS (reduce_off 504,698
+  rows, 858,299 columns, 2,531,196 nonzeros; as_run 236,650 rows, 557,258
+  columns, 1,863,168 nonzeros) and layer 3 PASS (HiGHS vs CPLEX:
+  9,656,876.73 and 9,657,725.87), the first large core model through
+  layers 2-3; EQ_STGIPS rows on OTCGEN (384 rows, 1,504 coefficients,
+  both variants), which needs change 21 before its whole model. Not
+  translated: eqstgips.lin (OBJ LIN), refused.
 
 - (1) init_ext.dsc, init_ext.vda with equcrtp.vda INIT_EXT (31 Oct 2026):
   the input -> init segment matches GAMS on every set and parameter at the
