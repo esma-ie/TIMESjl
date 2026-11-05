@@ -101,6 +101,7 @@ GAMS 54.6.1):
 | 19 | eqstgips.mod: EQ_STGIPS, inter-period storage (James, 5 Nov 2026: the families M1.1 left untranslated become M1.3 changes) | 13-44 | layers 2-3 OTNYC (both variants); EQ_STGIPS rows on OTCGEN |
 | 19b | eqstgaux.mod: the inter-period storage terms of EQ_STGAUX | 25-32 | EQ_STGAUX rows on OTCGEN; crafted demo12 case (CI) |
 | 20 | equcrtp.vda (EQU_EXT): EQ(l)_UCRTP and EQN_UCRTC, dynamic process and commodity bounds | 73-123 | layers 2-3 OTUS9r |
+| 20b | prepret.dsc: early retirement and refits (EQ_DSCRET, EQ_CUMRET, EQL_SCAP, EQL_REFIT; the VAR_RCAP/VAR_SCAP terms of the objective, eqobj.mod L39, eqobjfix.mod L214, eqobsalv.mod L105) — DSC code that OTUS9r uses (found 5 Nov 2026 by demo12 variant 5) | | layers 2-3 OTUS9r; demo12_refit (CI) |
 | 21 | equserco.mod: dynamic user constraints in the RHS direction (UC_DYNDIR 'RHS', uc_pasti.mod) | 80-106 | TIMES-NZ, OTCGEN |
 | 22 | uc_*.mod: user-constraint attributes other than GROWTH (CAP, SYNC, ...) | | TIMES-NZ |
 | 23 | eqflomrk.mod: EQ(l)_FLOMRK, market-share flow constraints | | TIMES-NZ |

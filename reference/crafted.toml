@@ -51,3 +51,17 @@ redistribute = "public"
 kind = "run"
 run_file = "{crafted}/demo12_uc/demo12_uc.run"
 idirs = ["{times_demo}/model", "{crafted}/demo12_uc"]
+
+# TIMES_Demo demo12 + refit.dd (5 Nov 2026): demo12 variant 5 (docs/demo12-variants.md),
+# retrofits and lifetime extensions (PRC_REFIT; User Note, Version.log 4.1.2).
+[[model]]
+name = "TIMES_Demo-demo12_refit"
+tier = "crafted"
+source_repo = "etsap-TIMES/TIMES_Demo"
+licence_url = "https://github.com/etsap-TIMES/TIMES_Demo/blob/master/NOTICE-CC-BY-4.0.txt"
+licence_checked = "2026-10-27"
+licence = "CC-BY-4.0"
+redistribute = "public"
+kind = "run"
+run_file = "{crafted}/demo12_refit/demo12_refit.run"
+idirs = ["{times_demo}/model", "{crafted}/demo12_refit"]

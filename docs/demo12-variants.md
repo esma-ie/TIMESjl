@@ -35,8 +35,8 @@ MACRO, stochastics, ETL, climate and damage after M1.7.
 | # | Variant | Case | First release (Version.log) | GAMS | Status |
 | --- | --- | --- | --- | --- | --- |
 | 2 | Dispatching and unit commitment | `TIMES_Demo-demo12_uc` | 3.7.0, Aug 2014 (ramping, `eqactups.vda`); 3.9.0, Oct 2015 (linear dispatch); 3.9.7, Jul 2016 (unit commitment by start-up type, `eqlducs.vda`), announced 4.0.0 | `eqactups.vda`, `eqlducs.vda` | made (5 Nov 2026) |
-| 5 | Retrofits and lifetime extensions | | 4.1.2, Mar 2017 (`PRC_REFIT`); 4.1.6, 4.6.4, 4.6.7-8, 4.7.1 | User Note `TIMES-Refits-Note.pdf` | next |
-| 1 | Load shifting | | 4.3.0, Jan 2019 (`STG_SIFT`); 4.3.6 (asymmetric) | User Note `TIMES-Load-Shifting.pdf`; `eqactups.vda` | with M1.3 change 24 |
+| 5 | Retrofits and lifetime extensions | `TIMES_Demo-demo12_refit` | 4.1.2, Mar 2017 (`PRC_REFIT`); 4.1.6, 4.6.4, 4.6.7-8, 4.7.1 | User Note `TIMES-Refits-Note.pdf`; `prepret.dsc`, `ppmain.mod` L484-487 | made (5 Nov 2026) |
+| 1 | Load shifting | | 4.3.0, Jan 2019 (`STG_SIFT`); 4.3.6 (asymmetric) | User Note `TIMES-Load-Shifting.pdf`; `eqactups.vda` | next (with M1.3 change 24) |
 | 4 | Dynamic time slices | | 4.3.2, Mar 2019 (varying cycles); 4.4.1, Feb 2020 (time-slice trees, `dynslite.vda`) | User Note `User_Note-TIMES-Dynamic-timeslices.docx` | |
 | 3 | Flexible time-slice storage (STSFLX) | | 4.5.8, Sep 2021 | User Note `TIMES-Experimental-STS-Variant.pdf` | |
 | 7a | Recent attributes, first batch | | 4.6.3-4.7.5, Jul 2022 - Oct 2023: `G_RFRIR`, `NCAP_AFSX`, emissions on CHP activity, non-vintaged `ACT_FLO`, `NCAP_ICOM` for past investments | Version.log | |
@@ -71,3 +71,34 @@ eq_sudtime and 16 eq_sudpll rows. TIMES.jl: the M1.3 chain from the input
 dump PASS at every checkpoint on both variants (821 symbols); model
 generation refuses the eight untranslated groups (all 14 families). CI
 fixture `demo12_uc` (as_run).
+
+## Variant 5: retrofits and lifetime extensions (5 Nov 2026)
+
+From the User Note "Retrofits and Lifetime Extensions in TIMES" (TIMES v4.1
+User Note, March 2017, updated April 2023): `PRC_REFIT(r,prc,p)` maps a host
+process to an option, +1 mod 2 a lifetime extension, -1 mod 2 a retrofit;
+values with |N| > 2, or +2/+4 on the host itself, force the refitted capacity
+to equal the retired capacity, and +4 stops forced retrofits cascading. Each
+option is characterised as a full new technology; refits need early
+retirement (demo12.run's DSCAUTO YES gives it).
+
+`reference/dd/demo12_refit/refit.dd`: host ELCTECOA00 (demo12's existing coal
+plant, residual capacity to 2035); options ELCLECOA01 (lifetime extension,
+efficiency 0.384, investment 600, life 20) and ELCRFCOA01 (efficiency
+retrofit, 0.42, 300, 15), both from 2010. REG1: +1 and -1. REG2: +3 and -3,
+and +4 on the host.
+
+GAMS 54.6.1, both variants, optimal (objective 23,926,037.11 by CPLEX and
+HiGHS): 24 EQL_REFIT, 7 EQL_SCAP and 17 EQ_CUMRET rows, 41 VAR_RCAP and 31
+VAR_SCAP columns; the optimum buys the retrofit in both regions. TIMES.jl:
+the M1.3 chain PASS on both variants (822 symbols).
+
+The variant found a silent gap in model generation: TIMES.jl built the model
+without the 48 retirement rows and 72 columns, with no error. Both checks for
+early retirement (`untranslated_families`, `objective_unported`) looked for
+the symbol VNRET, which is a `$MACRO` (prepret.dsc L41) and so never in a
+dump. They now look for RP_RTF, which prepret.dsc declares (L22) exactly
+when it defines VNRET. OTUS9r-reference has early retirement on (55 PRC_REFIT
+and 948 RCAP_BND records; 660 EQL_REFIT and 2,008 EQ_CUMRET rows in GAMS), so
+its model now also refuses for that reason, and needs the retirement
+equations (docs/m13-plan.md, change 20b).
