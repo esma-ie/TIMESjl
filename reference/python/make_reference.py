@@ -26,6 +26,11 @@ reference (the manifest's other runs and dumps are kept); where the reference
 has no ppm/ or coef/ yet, the pre-solve run writes those too. It needs no solve,
 so it works for every model under the GAMS demo licence.
 
+``--only convert`` runs just the CONVERT run (``matrix/``, ``matrix_dictmap/``
+and ``raw/tjl_model.mps.gz``) and adds it to a reference in the same way; it
+needs no solve, but CONVERT generates the model, so it needs a licence for the
+model's size. ``--only presolve,convert`` runs both.
+
 Example (from the TIMES.jl repository root):
 
     python reference/python/make_reference.py \\
@@ -58,7 +63,7 @@ from runfile import build_dd_run, patch_run  # noqa: E402
 from runlimits import RunSlot, default_max_parallel, default_slot_dir, default_threads, limit_threads  # noqa: E402
 from gdx2arrow import convert_gdx, gams_system_directory  # noqa: E402
 
-HARNESS_VERSION = "0.3.0"  # 0.3.0 (31 Oct 2026): M1.3 checkpoints, --only presolve; 0.2.4 (29 Oct 2026): run limits (threads, parallel runs); 0.2.3: model overrides; 0.2.2: raw/tjl_<run>.run; 0.2.1: extra_dd_dirs; 0.2.0: pre-solve run
+HARNESS_VERSION = "0.3.1"  # 0.3.1 (5 Nov 2026): --only convert; 0.3.0 (31 Oct 2026): M1.3 checkpoints, --only presolve; 0.2.4 (29 Oct 2026): run limits (threads, parallel runs); 0.2.3: model overrides; 0.2.2: raw/tjl_<run>.run; 0.2.1: extra_dd_dirs; 0.2.0: pre-solve run
 EXPECTED_TIMES_VERSION = "4.9.7"
 EXPECTED_TIMES_COMMIT = "d9a6a25"
 VARIANTS = {"reduce_off": {"REDUCE": "NO"}, "as_run": {}}
@@ -212,9 +217,9 @@ def make_one(args, suite, model_name: str, variant: str, source_info: dict):
             raise SystemExit(f"{model_name}: suite override {k} clashes with variant {variant}")
         overrides[k.upper()] = str(v)
     out = args.out / model_name / variant
-    only_presolve = getattr(args, "only", None) == "presolve"
+    only = parse_only(getattr(args, "only", None))     # empty: the full reference
     old_manifest = None
-    if only_presolve and (out / "manifest.json").exists():
+    if only and (out / "manifest.json").exists():
         old_manifest = json.loads((out / "manifest.json").read_text())
     elif out.exists():
         shutil.rmtree(out)
@@ -243,13 +248,14 @@ def make_one(args, suite, model_name: str, variant: str, source_info: dict):
     }
 
     if old_manifest is not None:
-        # keep what the reference already has; this pass adds the pre-solve run's dumps
-        for key in ("runs", "dumps", "patch"):
+        # keep what the reference already has; this pass adds its runs' dumps
+        for key in ("runs", "dumps", "patch", "presolve_pass", "convert_pass"):
             if key in old_manifest:
                 manifest[key] = old_manifest[key]
         manifest["harness_version"] = old_manifest.get("harness_version")
         manifest["created_utc"] = old_manifest.get("created_utc")
-        manifest["presolve_pass"] = {"harness_version": HARNESS_VERSION,
+        for o in only:
+            manifest[f"{o}_pass"] = {"harness_version": HARNESS_VERSION,
                                      "created_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
                                      "host": manifest["host"], "inputs": manifest["inputs"]}
         manifest["host"] = old_manifest.get("host", manifest["host"])
@@ -259,7 +265,7 @@ def make_one(args, suite, model_name: str, variant: str, source_info: dict):
                              f"{old_manifest.get('overrides')}, not {overrides}; rerun it in full")
 
     # Run 1..n: solves. The first solver also writes the ppm/coef dumps.
-    for k, solver in enumerate([] if only_presolve else args.solvers):
+    for k, solver in enumerate([] if only else args.solvers):
         tag = f"solve_{solver.lower()}"
         work = work_root / tag
         runfile, report = prepare_workdir(work, model, overrides, find_solver_opts(model, solver),
@@ -292,12 +298,22 @@ def make_one(args, suite, model_name: str, variant: str, source_info: dict):
     # is generated, so demo-licence size limits do not apply.
     # The same run writes the M1.3 checkpoints (TJL_CHECKPOINTS, CHECKPOINTS
     # above). In a --only presolve pass it also writes ppm/ and coef/ where the
-    # reference has none.
+    # reference has none. A --only pass runs only the runs it names.
+    if not only or "presolve" in only:
+        presolve_run(args, model, overrides, idirs, extra, out, work_root, manifest, model_name, variant,
+                     ppm_coef_here=bool(only) and not ((out / "ppm").is_dir() and (out / "coef").is_dir()))
+    if only and "convert" not in only:
+        return finish(out, manifest, model_name, variant)
+    convert_run(args, model, overrides, idirs, extra, out, work_root, manifest, model_name, variant)
+    return finish(out, manifest, model_name, variant)
+
+
+def presolve_run(args, model, overrides, idirs, extra, out, work_root, manifest, model_name, variant, ppm_coef_here):
+    """The pre-solve run (comment in make_one): presolve/ and the M1.3 checkpoints, and ppm/, coef/ if asked."""
     tag = "presolve"
     work = work_root / tag
     runfile, _ = prepare_workdir(work, model, {**overrides, "SOLVE_NOW": "NO"}, {})
     shutil.copy(work / runfile, out / "raw" / f"tjl_{tag}.run")
-    ppm_coef_here = only_presolve and not ((out / "ppm").is_dir() and (out / "coef").is_dir())
     flags = ["--TJL_CHECKPOINTS=1", *([] if ppm_coef_here else ["--TJL_NODUMP=1"])]
     print(f"[{model_name}/{variant}] GAMS pre-solve state and M1.3 checkpoints ...", flush=True)
     res = run_gams(args.gams, work, runfile, idirs, args.solvers[0], [*extra, *flags], tag,
@@ -312,10 +328,10 @@ def make_one(args, suite, model_name: str, variant: str, source_info: dict):
         manifest["dumps"]["coef"] = convert(work / "tjl_coef.gdx", out / "coef", args.sysdir)
     for f in work.glob(f"tjl_{tag}*"):
         shutil.copy(f, out / "raw" / f.name)
-    if only_presolve:
-        return finish(out, manifest, model_name, variant)
 
-    # Last run: CONVERT for the matrix.
+
+def convert_run(args, model, overrides, idirs, extra, out, work_root, manifest, model_name, variant):
+    """Last run: CONVERT for the matrix (matrix/, matrix_dictmap/) and the MPS file (raw/tjl_model.mps.gz)."""
     tag = "convert"
     work = work_root / tag
     runfile, _ = prepare_workdir(work, model, overrides, {"convert.opt": REPO / "reference" / "gams" / "convert.opt"})
@@ -341,7 +357,19 @@ def make_one(args, suite, model_name: str, variant: str, source_info: dict):
     for f in work.glob(f"tjl_{tag}*"):
         shutil.copy(f, out / "raw" / f.name)
 
-    return finish(out, manifest, model_name, variant)
+
+ONLY_RUNS = ("presolve", "convert")
+
+
+def parse_only(only: str | None) -> tuple[str, ...]:
+    """``--only`` as a tuple of run names (``presolve``, ``convert``); empty for a full reference."""
+    if not only:
+        return ()
+    runs = tuple(dict.fromkeys(x.strip().lower() for x in only.split(",") if x.strip()))
+    bad = [x for x in runs if x not in ONLY_RUNS]
+    if bad or not runs:
+        raise SystemExit(f"--only takes {', '.join(ONLY_RUNS)} or both, comma-separated; not '{only}'")
+    return runs
 
 
 def finish(out: Path, manifest: dict, model_name: str, variant: str) -> str:
@@ -381,9 +409,10 @@ def main(argv=None):
     p.add_argument("--solvers", default="CPLEX", help="comma-separated; the first is the reference solver")
     p.add_argument("--gams", default="gams", help="GAMS executable")
     p.add_argument("--allow-other-version", action="store_true")
-    p.add_argument("--only", choices=["presolve"], default=None,
+    p.add_argument("--only", default=None,
                    help="presolve: only the pre-solve run (M1.3 checkpoints, pre-solve dump; ppm/coef where "
-                        "missing), added to an existing reference; needs no solve")
+                        "missing); convert: only the CONVERT run (matrix, dictionary, MPS); presolve,convert: "
+                        "both. Added to an existing reference; no solve")
     # Local run limits (James, 29 Oct 2026; runlimits.py). 0 disables a limit.
     p.add_argument("--threads", type=int, default=default_threads(),
                    help="solver threads per run: GAMS threads= and the threads line of solver option files "
@@ -395,6 +424,7 @@ def main(argv=None):
                    help="directory of the shared run-slot files (default <temp>/timesjl-run-slots, or "
                         "TIMESJL_SLOT_DIR)")
     a = p.parse_args(argv)
+    parse_only(a.only)
     a.solvers = [s.strip().upper() for s in a.solvers.split(",") if s.strip()]
     a.work = a.work or (a.out / "_work")
     a.limits = {"threads": a.threads, "max_parallel": a.max_parallel, "slot_dir": a.slot_dir}

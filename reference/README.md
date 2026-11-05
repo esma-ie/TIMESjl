@@ -16,7 +16,7 @@ For each model and variant, under `<out>/<model>/<variant>/`:
 | `input/`, `init/`, `prep/`, `prelv/` | M1.3 checkpoints (harness 0.3.0), written by the pre-solve run: every symbol before `$BATINCLUDE maindrv.mod` (the state preprocessing starts from: DD files read, switches set), after the extensions' `init_ext` (`maindrv.mod` L55), at their `prep_ext` (`preppm.mod` L217) and at their `pp_prelv` (`ppmain.mod` L615). With `ppm/` they split preprocessing into four segments (`scripts/m13_inventory.jl`) | Input data and layer 1 for M1.3 (`docs/m13-plan.md`); `input/` is also what the M1.4 DD reader must reproduce |
 | `final/` | Every symbol at the end of the run (`gdx=`), including levels and marginals | Layers 3–4 |
 | `matrix/`, `matrix_dictmap/` | CONVERT `DumpGDX` and `DictMap` of the scalar model | Layer 2 |
-| `raw/` | CONVERT dictionary and MPS file, listings, logs, GAMS profile, each run's patched run file (`tjl_<run>.run`, harness 0.2.2+) | Debugging, timings, switches for `scripts/m11_probe.jl` |
+| `raw/` | CONVERT dictionary and MPS file (`tjl_model.mps.gz`: CPLEX MPS, gzipped), listings, logs, GAMS profile, each run's patched run file (`tjl_<run>.run`, harness 0.2.2+) | Debugging, timings, switches for `scripts/m11_probe.jl` |
 | `manifest.json` | TIMES version and commit, GAMS version, solver and options, wall times, model attributes (`resGen`, `resUsd`, `numEqu`, `numVar`, `numNZ`, `objVal`, ...), input checksums | Provenance, benchmarks |
 
 Variants: `reduce_off` (forces `$SET REDUCE NO`, used first for matrix
@@ -62,6 +62,21 @@ M1.3. It needs no solve, so it works for every model under the PyPI GAMS demo
 licence (tested with GAMS 54.6.1 on TIMES_Demo demo12, OTCGEN and OTNYC: its
 demo12 `ppm/` equals the licensed reference's at 1e-9). On James's workstation:
 `scripts\run_references.ps1 -Checkpoints -Resume` does it for the core tier.
+
+### Matrix and MPS without a solve: `--only convert`
+
+`make_reference.py --only convert` (harness 0.3.1) runs only the CONVERT run and
+adds `matrix/`, `matrix_dictmap/`, `raw/tjl_dict.txt` and `raw/tjl_model.mps.gz`
+to a reference, keeping the manifest's other runs and dumps (recorded under
+`convert_pass`), or makes a reference with only those when there is none.
+`--only presolve,convert` runs both passes. There is no solve, so it fits models
+whose full reference would take hours (JRC-EU-TIMES); CONVERT still generates
+the model, so it needs a GAMS licence for the model's size. The MPS file is
+CONVERT's `CplexMPS` output (`reference/gams/convert.opt`), gzipped; tested
+with GAMS 54.6.1 on TIMES_Demo demo12, where it equals the full reference's MPS
+file apart from the date line. On James's workstation:
+`scripts\run_references.ps1 -Models <model> -Matrix -Resume` (with
+`-Checkpoints` for both passes).
 
 ## Requirements
 

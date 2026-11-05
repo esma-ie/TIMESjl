@@ -49,6 +49,14 @@
     exist (make_reference.py --only presolve). No solve; -Resume skips references
     that already have them. No gate, no zips.
 
+.EXAMPLE
+    powershell -ExecutionPolicy Bypass -File scripts\run_references.ps1 -Models JRC-EU-TIMES-cli_ll -Matrix -Resume
+    CONVERT only (harness 0.3.1): matrix/, matrix_dictmap/ and raw/tjl_model.mps.gz,
+    added to the reference or made without one (make_reference.py --only convert).
+    No solve, but CONVERT generates the model, so it needs the licensed GAMS.
+    -Resume skips references whose CONVERT run is there and made with -GamsMajor.
+    With -Checkpoints as well, both runs (--only presolve,convert). No gate, no zips.
+
 .PARAMETER Python
     Use only this interpreter for the venv (path to python.exe).
 
@@ -89,6 +97,8 @@ param(
     [switch]$SkipPack,
     # M1.3 checkpoints only: make_reference.py --only presolve (no solve, no gate, no zips)
     [switch]$Checkpoints,
+    # CONVERT only: make_reference.py --only convert (matrix and MPS; no solve, no gate, no zips)
+    [switch]$Matrix,
     # Local run limits (James, 29 Oct 2026; reference/python/runlimits.py): solver
     # threads per run, and GAMS runs at a time on this machine. 0 disables a limit.
     [int]$Threads = 12,
@@ -97,8 +107,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$ScriptVersion = '0.1.18'
-if ($Checkpoints) { $SkipGate = $true; $SkipPack = $true }
+$ScriptVersion = '0.1.19'
+if ($Checkpoints -or $Matrix) { $SkipGate = $true; $SkipPack = $true }
 
 $OnWindows = ($PSVersionTable.PSEdition -eq 'Desktop') -or $IsWindows
 $Repo = Split-Path -Parent $PSScriptRoot
@@ -409,7 +419,9 @@ if (-not $SkipGate) {
 $Packed = Join-Path $Out '_packed'
 New-Item -ItemType Directory -Force -Path $Packed | Out-Null
 # a -Checkpoints pass keeps summary.csv as the last full batch left it
-if ($Checkpoints) { $SummaryCsv = Join-Path $Out 'summary-checkpoints.csv' } else { $SummaryCsv = Join-Path $Out 'summary.csv' }
+if ($Checkpoints) { $SummaryCsv = Join-Path $Out 'summary-checkpoints.csv' }
+elseif ($Matrix) { $SummaryCsv = Join-Path $Out 'summary-matrix.csv' }
+else { $SummaryCsv = Join-Path $Out 'summary.csv' }
 $Summary = New-Object System.Collections.ArrayList
 $started = Get-Date
 
@@ -459,6 +471,29 @@ function Test-Checkpoints([string]$dir) {
     return $true
 }
 
+# CONVERT (harness 0.3.1 for --only convert): a reference has its matrix and MPS when
+# both matrix dumps and raw/tjl_model.mps.gz are there and the CONVERT run ended with
+# return code 0 under -GamsMajor.
+function Test-Matrix([string]$dir) {
+    $mf = Join-Path $dir 'manifest.json'
+    if (-not (Test-Path $mf)) { return $false }
+    if (-not (Test-Path (Join-Path $dir 'raw/tjl_model.mps.gz'))) { return $false }
+    $m = Get-Content -Raw $mf | ConvertFrom-Json
+    foreach ($d in @('matrix', 'matrix_dictmap')) { if ($null -eq (Get-Prop $m.dumps $d)) { return $false } }
+    $p = Get-Prop $m.runs 'convert'
+    if ($null -eq $p -or $p.returncode -ne 0) { return $false }
+    if ($GamsMajor -and -not ("$(Get-Prop $p 'gams_version')" -match "GAMS\s+$GamsMajor\.")) { return $false }
+    return $true
+}
+
+# The runs a -Checkpoints / -Matrix pass still owes one model/variant (--only).
+function Get-OnlyRuns([string]$dir) {
+    $runs = @()
+    if ($Checkpoints -and -not ($Resume -and (Test-Checkpoints $dir))) { $runs += 'presolve' }
+    if ($Matrix -and -not ($Resume -and (Test-Matrix $dir))) { $runs += 'convert' }
+    return ,$runs
+}
+
 $i = 0
 foreach ($model in $Models) {
     $i++
@@ -469,21 +504,31 @@ foreach ($model in $Models) {
         Write-Host "skipped: its source folder ($($needs -join ', ')) is not in $SrcRoot" -ForegroundColor Yellow
         continue
     }
-    if ($Checkpoints) {
-        $todo = @($Variants | Where-Object { -not ($Resume -and (Test-Checkpoints (Join-Path (Join-Path $Out $model) $_))) })
+    $mrBase = @((Join-Path (Join-Path (Join-Path $Repo 'reference') 'python') 'make_reference.py'),
+                '--suite', $Suite, '--out', $Out, '--solvers', ($okSolvers -join ','), '--gams', $Gams,
+                '--model', $model, '--threads', $Threads, '--max-parallel', $MaxParallel) + $RootArgs
+    if ($Checkpoints -or $Matrix) {
+        # one make_reference call per variant, each with the runs that variant still owes
+        $did = 0
+        foreach ($v in $Variants) {
+            $runs = Get-OnlyRuns (Join-Path (Join-Path $Out $model) $v)
+            if ($runs.Count -eq 0) { continue }
+            $did++
+            $log = Join-Path $Logs "$model-$v-$($runs -join '-').log"
+            $code = Invoke-Native $VenvPy (@('-u') + $mrBase + @('--only', ($runs -join ','), '--variant', $v)) '' $log
+            if ($code -ne 0) { Write-Host "make_reference reported CHECK for $model/$v (see $log)." -ForegroundColor Yellow }
+        }
+        if ($did -eq 0) { Write-Host 'already done (-Resume)' }
     } else {
         $todo = @($Variants | Where-Object { -not ($Resume -and (Test-RunOK (Join-Path (Join-Path $Out $model) $_))) })
-    }
-    if ($todo.Count -gt 0) {
-        $mrArgs = @((Join-Path (Join-Path (Join-Path $Repo 'reference') 'python') 'make_reference.py'),
-                    '--suite', $Suite, '--out', $Out, '--solvers', ($okSolvers -join ','), '--gams', $Gams,
-                    '--model', $model, '--threads', $Threads, '--max-parallel', $MaxParallel) + $RootArgs
-        if ($Checkpoints) { $mrArgs += @('--only', 'presolve') }
-        foreach ($v in $todo) { $mrArgs += @('--variant', $v) }
-        $code = Invoke-Native $VenvPy (@('-u') + $mrArgs) '' (Join-Path $Logs "$model.log")
-        if ($code -ne 0) { Write-Host "make_reference reported CHECK for $model (see $Logs\$model.log)." -ForegroundColor Yellow }
-    } else {
-        Write-Host 'already done (-Resume)'
+        if ($todo.Count -gt 0) {
+            $mrArgs = $mrBase
+            foreach ($v in $todo) { $mrArgs += @('--variant', $v) }
+            $code = Invoke-Native $VenvPy (@('-u') + $mrArgs) '' (Join-Path $Logs "$model.log")
+            if ($code -ne 0) { Write-Host "make_reference reported CHECK for $model (see $Logs\$model.log)." -ForegroundColor Yellow }
+        } else {
+            Write-Host 'already done (-Resume)'
+        }
     }
 
     foreach ($v in $Variants) {
@@ -494,7 +539,11 @@ foreach ($model in $Models) {
                            wall_highs_s = ''; wall_convert_s = ''; gams = '' }
         if (Test-Path $mf) {
             $m = Get-Content -Raw $mf | ConvertFrom-Json
-            if (Test-RunOK $dir) { $row.status = 'OK' } else { $row.status = 'CHECK' }
+            if ($Checkpoints -or $Matrix) {
+                # a -Checkpoints / -Matrix pass is OK when the runs it makes are there
+                $ok = ((-not $Checkpoints) -or (Test-Checkpoints $dir)) -and ((-not $Matrix) -or (Test-Matrix $dir))
+            } else { $ok = Test-RunOK $dir }
+            if ($ok) { $row.status = 'OK' } else { $row.status = 'CHECK' }
             $c = Get-Prop $m.runs 'solve_cplex'; $h = Get-Prop $m.runs 'solve_highs'; $cv = Get-Prop $m.runs 'convert'
             $ci = Get-Prop $c 'solveinfo'; $hi = Get-Prop $h 'solveinfo'
             $row.rows = Get-Prop $ci 'numequ'; $row.cols = Get-Prop $ci 'numvar'; $row.nonzeros = Get-Prop $ci 'numnz'
