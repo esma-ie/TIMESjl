@@ -1,0 +1,29 @@
+# demo12 variants for advanced TIMES features (docs/demo12-variants.md; James, 5 Nov 2026),
+# checked in CI by test/unit/test_variants.jl. Each is a crafted case in
+# reference/crafted.toml, made with GAMS 54.6.1 on James's workstation (TIMES v4.9.7 @
+# d9a6a25), fixtures by scripts/make_variant_fixture.jl: <prefix>_input, _ppm, _presolve.
+#
+# [[variant]]
+# prefix   = "demo12_uc"
+# model    = "TIMES_Demo-demo12_uc"     # name in reference/crafted.toml
+# variant  = "as_run"
+# reduce   = true
+# switches = { ... }                    # every $SET of the pre-solve run file (one line)
+# # the equation families TIMES.jl must refuse until they are translated, exactly as
+# # untranslated_families names them; when a change translates one, it leaves this list
+# untranslated = ["EQ_CAPLOAD"]
+#
+# Checks: preprocessing from the input dump to ppm on every symbol (M1.3), and the
+# refusal of exactly the families listed (no silently missing rows). A variant with
+# an empty list moves to public_fixtures.toml (layers 2-3).
+
+# Variant 2: dispatching and unit commitment (eqactups.vda, eqlducs.vda; Version.log
+# 3.7.0 Aug 2014 to 4.0.0 Sep 2016).
+[[variant]]
+prefix   = "demo12_uc"
+model    = "TIMES_Demo-demo12_uc"
+variant  = "as_run"
+reduce   = true
+switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "YES", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "NO", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
+untranslated = ["EQ_CAPLOAD", "EQ_ACTRAMP", "EQ(l)_ACTUPS", "EQL_ACTUPC", "EQ_ACTPL", "EQ_ACTRMPC",
+                "eq_sdlogic/eq_sudupt/eq_sdslant", "eq_sdminon/eq_sudload/eq_sudtime/eq_sudpll"]
