@@ -90,7 +90,8 @@ GAMS 54.6.1):
 | 13a | ppmain.mod with pp_lvlbd.mod: balance types, IRE conversion, bounds | 936-1001 | ppm |
 | 13b | ppmain.mod: cumulative constraints, VAR_COMxxx on the balance RHS | 1003-1056 | ppm |
 | 14 | ppmain.mod: storage | 1061-1101 | ppm |
-| 15 | ppmain.mod with pp_lvlus.mod, prepxtra.mod UCINT: user constraints | 1102-1229 | ppm |
+| 15a | ppmain.mod with prepxtra.mod UCINT: the user-constraint defaults (years, regions, timeslices, dynamic and cumulative UCs) | 1101-1179; 61-77 | ppm |
+| 15b | ppmain.mod with pp_lvlus.mod: the UC group maps, VAR_CAP and VAR_COMxxx for UCs, UC attributes levelled, RCS_COMBAL/RCS_COMPRD | 1181-1226; 1-40 | ppm |
 | 16 | ppmain.mod: blending (refused unless needed; any non-blending statements in the block translated) | 1230-1336 | ppm |
 | 17 | pp_reduce.red, dynslite.vda, ppmain.mod end; cal_red.red | 1-188; 1-129; 1337-1357; 1-59 | ppm (as_run), layer 2 |
 | 18 | ppm_ext.dsc; ppm_ext.vda with pp_actef.vda, resloadc.vda, equcrtp.vda (PPM_EXT) | 1-16; 1-169 | ppm |
@@ -518,6 +519,27 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   (TIMES-NZ), a flexible storage (OTNYC) and STG_LOSS (OTCGEN); a crafted
   demo12 state ("stg", test/unit/ppmain_stg_case.jl) makes a flexible
   stockpile storage, 151 symbols at L1099 (CI).
+- (15a) ppmain.mod L1101-1179 with prepxtra.mod UCINT (L61-77) is the
+  probe step ppmain_uc: the year specifications through %DFLBL% (UC_T_SUM
+  filled in between, UC_T_EACH/UC_T_SUCC on every milestone, years moved to
+  their milestones), UC_RHSRTS levelled to the UC timeslice levels (UC_TSL,
+  UC_DS, R_UC), the obsolete UC_RHSS/UC_RHSRS, the UC_R_EACH/UC_R_SUM,
+  UC_TS_EACH/UC_TS_SUM and UC_T_EACH/UC_T_SUM defaults, the cumulative and
+  dynamic UCs (UC_ATTR, UC_DYNDIR, UC_T_SUCC), RS_PREV and G_UDS. Change 15
+  is split in two like 11 and 13: 15b is L1181-1226 with pp_lvlus.mod. At
+  the ppm checkpoint 15a is compared on the 13-15 symbols nothing later
+  changes (UC_R_EACH and UC_R_SUM only without UC_DYNBND, which equcrtp.vda
+  PPM_EXT changes them under; OTUS9r has UC_DYNBND): PASS on the five core
+  models, reduce_off and as_run, and on demo12 in CI. The replay check now
+  runs ppmain.mod L616-1179 and compares 172 symbols at L1179: PASS on the
+  five core models, both variants. The core models reach dynamic UCs
+  (TIMES-NZ, OTCGEN, OTNYC), UC_T_SUCC (TIMES-NZ, OTCGEN, OTUS9r) and
+  UC_R_SUM (TIMES-NZ, OTUS9r); none has a UC timeslice level (UC_TSL) or a
+  %DFLBL% year. A crafted demo12 state ("uc", test/unit/ppmain_uc_case.jl)
+  covers those, the obsolete UC_RHSS, the cost-attribute mapping and the
+  CUMSUM/SYNC/ANNUL attributes, 172 symbols at L1179 (CI). The UC_T_SUCC
+  year given off a milestone (2012) is kept beside the milestone added for
+  it (2010), as GAMS keeps it.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

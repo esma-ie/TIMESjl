@@ -450,3 +450,10 @@ those checks, their figures and their crafted cases are not published
   L1099 (PASS, five core models, both variants). A crafted demo12 state
   covers a flexible stockpile storage (CI). Next: change 15 (ppmain.mod
   L1101-1226), user constraints, in two parts.
+- 5 Nov 2026: M1.3 (15a): ppmain.mod L1101-1179 with prepxtra.mod UCINT
+  (the user-constraint defaults) as the probe step ppmain_uc. Compared at
+  ppm on the 13-15 symbols nothing later changes (PASS, five core models,
+  both variants; demo12 in CI); the replay check now runs ppmain.mod
+  L616-1179 and compares 172 symbols at L1179 (PASS, five core models, both
+  variants). A crafted demo12 state covers the paths the core models do not
+  reach (CI). Next: change 15b (ppmain.mod L1181-1226, pp_lvlus.mod).
