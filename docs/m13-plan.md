@@ -503,6 +503,21 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   and COM_AGG; two crafted demo12 states ("cum", "lin",
   test/unit/ppmain_cum_case.jl) cover the other cumulative bounds, the cost
   flags and the bound checks of L1051 and L1055 (CI).
+- (14) ppmain.mod L1058-1099 is the probe step ppmain_stg: RTPCS_OUT of the
+  storage flows, the demand-sifting storages (TRACKPC from STG_SIFT,
+  RPC_SPG, RPC_STGN, RPC_LS, STG_SIFT levelled to the sifting level,
+  ACT_TIME), the flexible storages (RPS_STG, RP_STS, PRC_TS, PRC_STGTSS,
+  STG_LOSS, RP_STL, NCAP_AF), STG_LOSS and STG_SIFT levelled (pp_lvlfc.mod,
+  now with %6 S2) and STG_LOSS converted to year fractions. At the ppm
+  checkpoint it is compared on the 12-13 symbols nothing later changes
+  (NCAP_AF and PRC_TS, which change 10 compared only without RP_STS, now
+  always; RPC_PKC with %REDUCE% NO): PASS on the five core models,
+  reduce_off and as_run, and on demo12 in CI. The replay check now runs
+  ppmain.mod L616-1099 and compares 151 symbols at L1099: PASS on the five
+  core models, both variants. The core models reach demand sifting
+  (TIMES-NZ), a flexible storage (OTNYC) and STG_LOSS (OTCGEN); a crafted
+  demo12 state ("stg", test/unit/ppmain_stg_case.jl) makes a flexible
+  stockpile storage, 151 symbols at L1099 (CI).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

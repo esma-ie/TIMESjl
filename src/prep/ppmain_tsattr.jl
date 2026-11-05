@@ -169,12 +169,13 @@ value alone is copied to them (weighted by year fraction when `weighted`,
 indexes other than R and the year (G8, G27). `p11` is %11: "N" flags the
 rows with values below ANNUAL at year '0' (L25-26) and takes them only;
 "0" fills the targets without a value from ANNUAL (L44); any non-empty
-value deletes the records off the targets that `take` admits (L45). Returns
+value deletes the records off the targets that `take` admits (L45). `s2`
+is %6 = S2: the rows of L29 are taken at the targets too (L23). Returns
 UNCD7 (L19, L29) and the TS_ARRAY of the last row.
 
-GAMS: pp_lvlfc.mod L19-45 (%6 = ALL_TS), v4.9.7.
+GAMS: pp_lvlfc.mod L19-45, v4.9.7.
 """
-function pp_lvlfc!(tm, tr::TsTree, name, N; sp, years, keyok, targets, qual, take=k -> true, weighted=false, p11="")
+function pp_lvlfc!(tm, tr::TsTree, name, N; sp, years, keyok, targets, qual, take=k -> true, weighted=false, p11="", s2=false)
     x = gvalues(tm, name, N)
     yrok(k) = years === nothing || k[2] in years
     rowof(k) = (k[1:sp-1]..., k[sp+1:end]...)
@@ -196,10 +197,11 @@ function pp_lvlfc!(tm, tr::TsTree, name, N; sp, years, keyok, targets, qual, tak
         take = k -> haskey(x, NTuple{N,String}((k[1], "0", k[3:sp-1]..., "ANNUAL", k[sp+1:end]...)))
     end
     # L19: OPTION CLEAR=UNCD7; L29: LOOP((REGY,%2%10,S%4)$((NOT %3(R,%2,S))$%1(REGY,%2%10,S%4)), UNCD7(REGY,%2%10%4%5)$(%8%TAKE%) = YES)
+    #   (with %6 = S2, L23 leaves out the (NOT %3(R,%2,S))$)
     rows = Set{NTuple{N - 1,String}}()
     for k in keys(x)
         (k[1] in tr.reg && yrok(k) && keyok(k)) || continue
-        (istgt(k, k[sp]) || !qual(k) || !take(k)) && continue
+        ((!s2 && istgt(k, k[sp])) || !qual(k) || !take(k)) && continue
         push!(rows, rowof(k))
     end
     uncd7 = Set{NTuple{7,String}}(NTuple{7,String}((r..., ntuple(_ -> "0", 8 - N)...)) for r in rows)

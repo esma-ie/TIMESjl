@@ -443,3 +443,10 @@ those checks, their figures and their crafted cases are not published
   140 symbols at L1056 (PASS, five core models, both variants). Two crafted
   demo12 states cover the rest (CI). Next: change 14 (ppmain.mod
   L1058-1101), storage.
+- 5 Nov 2026: M1.3 (14): ppmain.mod L1058-1099 (the storage processes) as
+  the probe step ppmain_stg. Compared at ppm on the 12-13 symbols nothing
+  later changes (PASS, five core models, both variants; demo12 in CI); the
+  replay check now runs ppmain.mod L616-1099 and compares 151 symbols at
+  L1099 (PASS, five core models, both variants). A crafted demo12 state
+  covers a flexible stockpile storage (CI). Next: change 15 (ppmain.mod
+  L1101-1226), user constraints, in two parts.

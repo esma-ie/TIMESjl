@@ -106,4 +106,7 @@ const FIXTURES = joinpath(@__DIR__, "fixtures")
     @testset "Preprocessing: ppmain.mod L1003-1056, cumulative bounds and RHS (M1.3)" begin
         include("unit/test_m13_ppmain_cum.jl")
     end
+    @testset "Preprocessing: ppmain.mod L1058-1099, storage (M1.3)" begin
+        include("unit/test_m13_ppmain_stg.jl")
+    end
 end
