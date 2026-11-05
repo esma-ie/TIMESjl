@@ -37,3 +37,17 @@ redistribute = "public"
 kind = "run"
 run_file = "{crafted}/demo12_ips/demo12_ips.run"
 idirs = ["{times_demo}/model", "{crafted}/demo12_ips"]
+
+# TIMES_Demo demo12 + uc.dd (5 Nov 2026): demo12 variant 2 (docs/demo12-variants.md),
+# dispatching and unit commitment (eqactups.vda, eqlducs.vda; Version.log 3.7.0-4.0.0).
+[[model]]
+name = "TIMES_Demo-demo12_uc"
+tier = "crafted"
+source_repo = "etsap-TIMES/TIMES_Demo"
+licence_url = "https://github.com/etsap-TIMES/TIMES_Demo/blob/master/NOTICE-CC-BY-4.0.txt"
+licence_checked = "2026-10-27"
+licence = "CC-BY-4.0"
+redistribute = "public"
+kind = "run"
+run_file = "{crafted}/demo12_uc/demo12_uc.run"
+idirs = ["{times_demo}/model", "{crafted}/demo12_uc"]

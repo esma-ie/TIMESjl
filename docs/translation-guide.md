@@ -528,3 +528,10 @@ those checks, their figures and their crafted cases are not published
   terms of EQ_STGAUX (rows match on OTCGEN), and the crafted case
   TIMES_Demo-demo12_ips that brings inter-period storage into CI (layers
   2-3 and the M1.3 chain PASS on both variants).
+- 5 Nov 2026: demo12 variants for advanced features (docs/demo12-variants.md;
+  James approved the list and the release order). Variant 2, dispatching and
+  unit commitment (TIMES_Demo-demo12_uc): GAMS generates all 14 families;
+  TIMES.jl's preprocessing passes from the input dump, and model generation
+  refuses the untranslated families. New CI check for variants
+  (test/unit/test_variants.jl): preprocessing input -> ppm, and the exact
+  list of refused families.
