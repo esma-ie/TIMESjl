@@ -125,6 +125,26 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   matrix (layer 2) and the objective (layer 3), REDUCE off and on.
 - Preprocessing timed against GAMS (docs/timings.md).
 
+### Gate checks, 5 Nov 2026 (changes 0-18b and 17b in review)
+
+- The chain from the input dump (`scripts/m13_gate.jl`: TIMES.jl's own
+  state carried across the checkpoints; at each, every set and parameter of
+  the segment's start dump, less PUTOUT, PUTGRP and ERRLEV): PASS at init,
+  prep, prelv and ppm on the five core models, reduce_off and as_run
+  (821 symbols, 822 on OTUS9r; at ppm 66,471 GAMS records on demo12 to
+  19,186,490 on OTUS9r as_run). TIM-bau: to run on James's machine (local
+  log, nothing committed).
+- CI on demo12 (`test/unit/test_m13_chain.jl`): the chain from the input
+  dump to ppm, then the whole coefficient stage against the coef dump; the
+  model from the pre-solve dump with the matrix (layer 2) and the objective
+  (layer 3), REDUCE off (`demo12_off`) and on (`demo12_red`, change 17b).
+  The step between the coef and pre-solve dumps (eqmain.mod's preparation,
+  pp_qack.mod) is not part of M1.3, so the model is generated from the
+  pre-solve dump, as in M1.1.
+- Preprocessing timed against GAMS (`scripts/m13_timing.jl`,
+  docs/timings.md): TIMES.jl warm 3.0x GAMS on demo12 and 4.8x to 5.5x on
+  the four large core models.
+
 ## Findings so far
 
 - (1) init_ext.dsc, init_ext.vda with equcrtp.vda INIT_EXT (31 Oct 2026):
