@@ -1,0 +1,25 @@
+# Crafted cases for the reference harness (make_reference.py --suite reference/crafted.toml).
+#
+# Each case is an open suite model with a few records added, to reach GAMS paths
+# that no suite model's data reaches; the added files live in reference/dd/<case>/
+# (provenance in reference/dd/README.md). They are never models of their own:
+# they inherit the licence of the model they extend and are used only for
+# fixtures and checks of the paths they were made for. Same fields as
+# reference/suite.toml; {crafted} is reference/dd.
+
+[roots]
+crafted = "dd"
+
+# TIMES_Demo demo12 + red17b.dd (5 Nov 2026): change 17b (cal_red.red L37-38 with an
+# RPC_ACT source flow; bnd_flo.mod L37-39). Fixture demo12_red17b (test/fixtures).
+[[model]]
+name = "TIMES_Demo-demo12_red17b"
+tier = "crafted"
+source_repo = "etsap-TIMES/TIMES_Demo"
+licence_url = "https://github.com/etsap-TIMES/TIMES_Demo/blob/master/NOTICE-CC-BY-4.0.txt"
+licence_checked = "2026-10-27"
+licence = "CC-BY-4.0"
+redistribute = "public"
+kind = "run"
+run_file = "{crafted}/demo12_red17b/demo12_red17b.run"
+idirs = ["{times_demo}/model", "{crafted}/demo12_red17b"]

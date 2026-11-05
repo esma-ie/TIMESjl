@@ -76,3 +76,30 @@ switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DU
 rows = 3233
 cols = 4485
 nonzeros = 18375
+
+# Crafted case TIMES_Demo-demo12_red17b (reference/crafted.toml: demo12 + red17b.dd),
+# 5 Nov 2026 (GAMS 54.6.1 + CPLEX and HiGHS on James's workstation; TIMES v4.9.7 @
+# d9a6a25). With %REDUCE% YES: an emission whose source flow is an activity flow
+# (cal_red.red L37-38) and FLO_BND on that flow (bnd_flo.mod L37-39), M1.3 change 17b.
+# Layers 2 and 3 only.
+[[fixture]]
+prefix   = "demo12_red17b"
+model    = "TIMES_Demo-demo12_red17b"
+variant  = "as_run"
+reduce   = true
+switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "YES", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "YES", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
+rows = 3233
+cols = 4485
+nonzeros = 18387
+
+# The same case with %REDUCE% NO: FLO_BND as VAR_FLO bounds (bnd_flo.mod L25-27) and
+# the EQ(l)_FLOBND completeness check with FLO_BND data. Layers 2 and 3 only.
+[[fixture]]
+prefix   = "demo12_red17b_off"
+model    = "TIMES_Demo-demo12_red17b"
+variant  = "reduce_off"
+reduce   = false
+switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "NO", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "NO", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
+rows = 8695
+cols = 9669
+nonzeros = 31403

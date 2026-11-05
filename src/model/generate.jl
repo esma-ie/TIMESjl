@@ -63,7 +63,7 @@ function untranslated_families(tm::TimesModel)
         end
     end
     # EQ(l)_FLOBND (eqflobnd.mod L15-21; eqmain.mod L111-113)
-    let flo_bnd = gparam(tm, "FLO_BND"), varf_of = indexby(gset(tm, "RTPCS_VARF"), (1, 2, 3)),
+    let flo_bnd = gparam(tm, "FLO_BND"), varf_of = indexby(gset(tm, "RTPCS_VARF"), (1, 2, 3)), rtp_vara = gset(tm, "RTP_VARA"),
         ts_map = gset(tm, "TS_MAP"), gmap = gset(tm, "COM_GMAP"), below = gset(tm, "RS_BELOW"),
         dflbl = "0"                                                   # initmty.mod L367
         for (r, t, p, cg, s, bd) in flo_bnd.keys
