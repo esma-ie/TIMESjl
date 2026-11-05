@@ -13,8 +13,11 @@
 #     =E=
 #     SUM(ANNUAL(SL), PRC_ACTFLO(R,V,P,C) *
 #         (SUM(PRC_TS(R,P,TS)$TS_MAP(R,TS,S), VAR_ACT(R,V,T,P,TS)/RS_STGPRD(R,TS)) * G_YRFR(R,S)
-#          - [PRC_STGIPS in/outflows in the latter half of the period, refused]
-#         ) * (1+[...]$PRC_MAP(R,'STK',P)))
+#          - SUM(TOP(PRC_STGIPS(R,P,COM),IO),
+#              (VAR_SIN(R,V,T,P,COM,SL)$IPS(IO) - VAR_SOUT(R,V,T,P,COM,SL)$(NOT IPS(IO)))/PRC_ACTFLO(R,V,P,COM)) *
+#            SUM(PERIODYR(T,Y_EOH)$(YEARVAL(Y_EOH) GE M(T)),
+#              MIN(1,YEARVAL(Y_EOH)-M(T)+MAX(0,M(T)+D(T)/2-E(T))) * ((1-STG_LOSS(R,V,P,SL))**(E(T)-YEARVAL(Y_EOH)+0.5)))
+#         ) * (1+((1-STG_LOSS(R,V,P,SL))**(M(T)-E(T)-MIN(0.5,MAX(0,M(T)+D(T)/2-E(T))))-1)$PRC_MAP(R,'STK',P)))
 #     + SUM((COM_GMAP(R,CG,COM),TOP(RPC_STG(R,P,COM),'IN'),RPCS_VAR(R,P,COM,TS))$COEF_PTRAN(R,V,P,CG,COM,C,TS),
 #           (VAR_SIN(R,V,T,P,COM,TS)*COEF_PTRAN(R,V,P,CG,COM,C,TS))$((NOT PRC_MAP(R,'NST',P))+PRC_NSTTS(R,P,TS)) *
 #           RS_FR(R,S,TS)*(1+RTCS_FR(R,T,C,S,TS)))
@@ -28,8 +31,13 @@
 # over the one element ANNUAL, so the level term is counted once. Macro
 # expansions as in eqstgtss.jl.
 #
-# Not translated yet; data that needs it raises UnportedError:
-# - inter-period storage (PRC_MAP(R,'STK',P) / PRC_STGIPS), L25-32.
+# Inter-period storage (L25-32, M1.3 change 19b): the in- and outflows of
+# the stored commodities (PRC_STGIPS) in the latter half of the period are
+# subtracted from the level, each year from M(T) weighted by the part of it
+# after the middle of the period and discounted for losses to E(T); for a
+# STK process the whole bracket is scaled up to the level in the middle of
+# the period. Y_EOH is a set of its own (setglobs.gms L146-147), as in
+# eqstgips.jl. `IPS(IO)`: IN charges, OUT discharges (IPS = {IN, N}).
 
 """
     eq_stgaux!(tm::TimesModel) -> Int
@@ -54,6 +62,8 @@ function eq_stgaux!(tm::TimesModel)
     ptran_in = indexby(coef_ptran, (1, 2, 3, 6))                  # (r,v,p,c) -> COEF_PTRAN(r,v,p,cg,com,c,ts)
     ptran_out = indexby(coef_ptran, (1, 2, 3, 5, 7))              # (r,v,p,c,s) -> COEF_PTRAN(r,v,p,cg,c,com,s)
     varts_of = indexby(x.rpcs_var, (1, 2, 3))                     # (r,p,com) -> RPCS_VAR(r,p,com,ts)
+    ipx = (pM = gparam(tm, "M"), pD = gparam(tm, "D"), pE = gparam(tm, "E"), yearval = gparam(tm, "YEARVAL"),
+           periodyr_of_t = indexby(gset(tm, "PERIODYR"), (1,)), y_eoh = gset(tm, "Y_EOH"))
     n = 0
     for (r, v, t, p) in gset(tm, "RTP_VINTYR")
         (r, p) in x.rp_stg || continue
@@ -61,16 +71,26 @@ function eq_stgaux!(tm::TimesModel)
         nst = (r, "NST", p) in x.prc_map
         for (_, _, c, s) in get(aux_of_rp, (r, p), NTuple{4,String}[])
             ((r, p, c) in x.rpc_stg_set || (r, p, c) in rpc_emis) && continue
-            stk && throw(UnportedError("eqstgaux.mod L25-32: inter-period storage terms of EQ_STGAUX for ($r, $p)"))
             lhs = JuMP.AffExpr(0.0)
             addterm!(lhs, one, tm, "VAR_FLO", r, v, t, p, c, s)                              # L17
             rhs = JuMP.AffExpr(0.0)
-            # Storage level, L22-24 (the IPS terms L25-32 vanish without STK/PRC_STGIPS).
+            # Storage level, L22-24, less the IPS flows L25-30, scaled by L32 for STK.
             af = gv(x.prc_actflo, (r, v, p, c))
             if !iszero(af)
+                f = stk ? ips_mid_factor(ipx, x, r, v, t, p) : one                          # L32
                 for (_, _, ts) in get(ts_of_rp, (r, p), NTuple{3,String}[])
                     (r, ts, s) in ts_map || continue
-                    addterm!(rhs, af * (one / gv(rs_stgprd, (r, ts)) * gv(g_yrfr, (r, s))), tm, "VAR_ACT", r, v, t, p, ts)
+                    addterm!(rhs, af * (one / gv(rs_stgprd, (r, ts)) * gv(g_yrfr, (r, s))) * f, tm, "VAR_ACT", r, v, t, p, ts)
+                end
+                ips = get(x.stgips_of_rp, (r, p), NTuple{3,String}[])
+                if !isempty(ips)
+                    w = ips_late_weight(ipx, x, r, v, t, p)                                  # L28-30
+                    for (_, _, com) in ips, io in ("IN", "OUT")
+                        (r, p, com, io) in x.top || continue
+                        k = af * (w / gv(x.prc_actflo, (r, v, p, com))) * f
+                        io == "IN" ? addterm!(rhs, -k, tm, "VAR_SIN", r, v, t, p, com, "ANNUAL") :
+                                     addterm!(rhs, k, tm, "VAR_SOUT", r, v, t, p, com, "ANNUAL")
+                    end
                 end
             end
             # Charging flows, L35-37.
@@ -96,4 +116,46 @@ function eq_stgaux!(tm::TimesModel)
         end
     end
     return n
+end
+
+"`MAX(0,M(T)+D(T)/2-E(T))`: how far the middle of period T lies past its end year less half a period (eqstgaux.mod L30, L32)."
+ips_shift(ipx, t) = gmax(GZERO, gv(ipx.pM, (t,)) + gv(ipx.pD, (t,)) / GNum(2.0) - gv(ipx.pE, (t,)))
+
+"""
+    ips_late_weight(ipx, x, r, v, t, p) -> GNum
+
+`SUM(PERIODYR(T,Y_EOH)\$(YEARVAL(Y_EOH) GE M(T)), MIN(1,YEARVAL(Y_EOH)-M(T)+MAX(0,M(T)+D(T)/2-E(T))) *
+((1-STG_LOSS(R,V,P,'ANNUAL'))**(E(T)-YEARVAL(Y_EOH)+0.5)))`: the IPS flows of the
+latter half of period T, discounted for losses to its end.
+
+GAMS: eqstgaux.mod L28-30, v4.9.7.
+"""
+function ips_late_weight(ipx, x, r, v, t, p)
+    one, half = GNum(1.0), GNum(0.5)
+    m, e = gv(ipx.pM, (t,)), gv(ipx.pE, (t,))
+    sh = ips_shift(ipx, t)
+    base = one - gv(x.stg_loss, (r, v, p, "ANNUAL"))
+    w = GZERO
+    for (_, y) in get(ipx.periodyr_of_t, (t,), NTuple{2,String}[])
+        (y,) in ipx.y_eoh || continue
+        yv = gv(ipx.yearval, (y,))
+        yv.v >= m.v || continue
+        w = w + gmin(one, yv - m + sh) * gpow(base, e - yv + half)
+    end
+    return w
+end
+
+"""
+    ips_mid_factor(ipx, x, r, v, t, p) -> GNum
+
+`1+((1-STG_LOSS(R,V,P,'ANNUAL'))**(M(T)-E(T)-MIN(0.5,MAX(0,M(T)+D(T)/2-E(T))))-1)`: for a STK
+process, the level in the middle of period T relative to the level at its end.
+
+GAMS: eqstgaux.mod L32, v4.9.7.
+"""
+function ips_mid_factor(ipx, x, r, v, t, p)
+    one = GNum(1.0)
+    base = one - gv(x.stg_loss, (r, v, p, "ANNUAL"))
+    ex = gv(ipx.pM, (t,)) - gv(ipx.pE, (t,)) - gmin(GNum(0.5), ips_shift(ipx, t))
+    return one + (gpow(base, ex) - one)
 end

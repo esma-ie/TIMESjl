@@ -524,3 +524,7 @@ those checks, their figures and their crafted cases are not published
   (docs/m13-plan.md). M1.3 (19): eqstgips.mod, EQ_STGIPS. OTNYC passes
   layers 2 and 3 on both variants, the first large core model to do so;
   EQ_STGIPS rows match on OTCGEN.
+- 5 Nov 2026: M1.3 (19b): eqstgaux.mod L25-32, the inter-period storage
+  terms of EQ_STGAUX (rows match on OTCGEN), and the crafted case
+  TIMES_Demo-demo12_ips that brings inter-period storage into CI (layers
+  2-3 and the M1.3 chain PASS on both variants).
