@@ -84,7 +84,8 @@ GAMS 54.6.1):
 | 8b | pp_prelv.vda with pp_lvlfc.mod (FLO_FR); the segment's all-symbols check | 1-125 | prelv |
 | 9 | ppmain.mod with pp_qafs.mod, filshape.gms, filparam.gms: SHAPE/MULTI, defaults, capacity-only flows | 616-682 | ppm |
 | 10 | ppmain.mod with pp_lvlfc.mod, pp_lvlbr.mod, pp_lvlpk.mod: commodity and availability attributes by timeslice | 683-797 | ppm |
-| 11 | ppmain.mod with pp_chp.mod, pp_lvlff.mod, pp_lvlfs.mod, eqflomrk.mod: flow attributes, FLO_SHAR, FLO_MARK | 800-845 | ppm |
+| 11a | ppmain.mod with pp_lvlfc.mod (the flow attributes), pp_chp.mod: flow attributes by timeslice, the FLO_PKCOI default, CHP | 800-821; 1-71 | ppm |
+| 11b | ppmain.mod with pp_lvlff.mod, pp_lvlfs.mod, pp_lvlbr.mod (FLO_SHAR), eqflomrk.mod: FLO_FUNC, FLO_SUM, FLO_SHAR, FLO_MARK | 823-845 | ppm |
 | 12 | ppmain.mod with pp_lvlif.mod: trade and marketplaces | 846-935 | ppm |
 | 13 | ppmain.mod with pp_lvlbd.mod: balance types, IRE conversion, bounds, cumulative constraints | 936-1060 | ppm |
 | 14 | ppmain.mod: storage | 1061-1101 | ppm |
@@ -406,6 +407,30 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   has no record (G48): a commodity with COM_FR needs it in every milestone.
   The step takes about 3 minutes on OTUS9r (2.1 million GAMS records
   compared; the gams_sort! of the large symbols dominates, not profiled).
+- (11a) ppmain.mod L800-821 is the probe step ppmain_flo: the eight
+  pp_lvlfc.mod calls for the flow attributes (FLO_COST, FLO_DELIV, FLO_SUB,
+  FLO_TAX with %11 N, FLO_PKCOI, FLO_BDLVL twice, ACT_FLO with %11 0),
+  for which `lvlfc!` became the general `pp_lvlfc!` (all its arguments
+  but %6 S2; change 10's calls re-checked), the FLO_PKCOI default of 1, and
+  pp_chp.mod. Change 11 is split in two (11a, 11b) like 6, 7 and 8. At the
+  ppm checkpoint it is compared on the 13-14 symbols nothing later changes
+  (NCAP_PKCNT, NCAP_CHPR and NCAP_BPME, which changes 9 and 10 left to the
+  replay when CHP has members, are now among them): PASS on the five core
+  models, reduce_off and as_run, and on demo12 in CI. The replay check now
+  runs ppmain.mod L616-821 and compares 82 symbols at L821: PASS on the five
+  core models, both variants. The core models reach FLO_DELIV (TIMES-NZ,
+  OTUS9r), ACT_FLO (OTUS9r), the FLO_PKCOI default (all) and CHP with FX
+  ratios and no NCAP_CDME (OTCGEN, 8 processes). Three crafted demo12 states
+  ("flo", "chp", "chpnrg", test/unit/ppmain_flo_case.jl) cover the rest of
+  pp_lvlfc.mod's arguments (the year-'0' flag of %11 N and its deletions, a
+  year outside DATAYEAR, the group and commodity calls of FLO_BDLVL) and of
+  pp_chp.mod (NCAP_CDME and NCAP_BPME, slopes below and above 1,
+  back-pressure units through COM_LIM 'N', FX with LO, FLO_EFF, a
+  one-commodity primary group, the share over NRG, NCAP_PKCNT), 82 symbols
+  each at L821 (CI). pp_chp.mod L23 replaces PRC_ACT and L71 clears it,
+  so PRC_ACT is empty after L821 until pp_reduce.red L10 sets it again.
+  The step takes about 4 minutes on OTUS9r and 3 on OTCGEN (copying and
+  sorting FLO_SUM and FLO_SHAR, not profiled).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

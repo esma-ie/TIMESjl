@@ -185,8 +185,9 @@ const PIPELINE = [
   ["Preprocessing","ppmain L461-611",151,"done","8a"],
   ["Preprocessing","pp_prelv, pp_lvlfc (FLO_FR)",153,"partial","8b · TS_OFF (dynslite) refused"],
   ["Preprocessing","ppmain L616-682, pp_qafs, filshape",203,"done","9"],
-  ["Preprocessing","ppmain L683-797, pp_lvlbr, pp_lvlpk",225,"review","10 · TIMES-Micro refused"],
-  ["Preprocessing","ppmain L798-1336 + pp_*",971,"todo","changes 11-16, next"],
+  ["Preprocessing","ppmain L683-797, pp_lvlbr, pp_lvlpk",225,"partial","10 · TIMES-Micro refused"],
+  ["Preprocessing","ppmain L800-821, pp_chp",93,"review","11a"],
+  ["Preprocessing","ppmain L822-1336 + pp_*",878,"todo","changes 11b-16, next"],
   ["Preprocessing","REDUCE",397,"todo","change 17"],
   ["Preprocessing","ppm_ext",419,"todo","change 18"],
   ["Coefficients","coef_cpt",63,"partial","shaped availabilities refused"],
@@ -231,7 +232,7 @@ const MILESTONES = [
   ["M1.0","foundations","done","gate 18 Oct"],
   ["M1.1","model generation","done","gate 21 Oct"],
   ["M1.2","coefficients","done","gate 31 Oct"],
-  ["M1.3","preprocessing","active","14 of 23 changes merged"],
+  ["M1.3","preprocessing","active","15 of 24 changes merged"],
   ["M1.4","DD reader","todo",""],
   ["M1.5","run options","todo",""],
   ["M1.6","reporting","todo",""],
@@ -257,8 +258,9 @@ const M13_CHANGES = [
   ["8b","pp_prelv","pp_prelv.vda, pp_lvlfc.mod; every symbol at prelv","prelv","done"],
   ["9","pp_qafs","pp_qafs.mod: the FLO_SHAR checks","ppm","done"],
   ["9","ppmain_dflt","ppmain.mod L619-682: SHAPE/MULTI, defaults, capacity-only flows","ppm","done"],
-  ["10","ppmain_tsattr","ppmain.mod L683-797: commodity and availability attributes by timeslice, pp_lvlfc/br/pk","ppm","review"],
-  ["11","","ppmain.mod L800-845, pp_chp, pp_lvlff/fs, eqflomrk","ppm","next"],
+  ["10","ppmain_tsattr","ppmain.mod L683-797: commodity and availability attributes by timeslice, pp_lvlfc/br/pk","ppm","done"],
+  ["11a","ppmain_flo","ppmain.mod L800-821: flow attributes by timeslice, FLO_PKCOI default, pp_chp","ppm","review"],
+  ["11b","","ppmain.mod L823-845, pp_lvlff/fs, FLO_SHAR, eqflomrk","ppm","next"],
   ["12","","ppmain.mod L846-935, pp_lvlif","ppm","todo"],
   ["13","","ppmain.mod L936-1060, pp_lvlbd","ppm","todo"],
   ["14","","ppmain.mod L1061-1101, storage","ppm","todo"],
@@ -268,16 +270,16 @@ const M13_CHANGES = [
   ["18","","ppm_ext.dsc, ppm_ext.vda","ppm","todo"],
 ];
 // scripts/m13_probe.jl on James's workstation against the GAMS 54.6.1 references: GAMS records compared per step,
-// the same for reduce_off and as_run, every step PASS (init_ext to ppmain_rtp: probe at change 5; preppm: 6a; prep_ext, every symbol at prep: 6b; preppm_shape, ppmain_topo: 7a; ppmain_tslvl: 7b; ppmain_life: 8a; pp_prelv, every symbol at prelv: 8b; pp_qafs, ppmain_dflt: 9; ppmain_tsattr: 10, the reduce_off counts, as as_run leaves out RPC_PKC under REDUCE)
+// the same for reduce_off and as_run, every step PASS (init_ext to ppmain_rtp: probe at change 5; preppm: 6a; prep_ext, every symbol at prep: 6b; preppm_shape, ppmain_topo: 7a; ppmain_tslvl: 7b; ppmain_life: 8a; pp_prelv, every symbol at prelv: 8b; pp_qafs, ppmain_dflt: 9; ppmain_tsattr: 10; ppmain_flo: 11a; for these the reduce_off counts, as as_run leaves out RPC_PKC under REDUCE)
 const M13_PROBE = {
-  meta:"nightly probe of 4 Nov 2026 on main 8c774b3, ppmain_tsattr on the change 10 branch · 5 models × 2 variants",
-  steps:["init_ext","ppmain_head","ppmain_years","timslice","ppmain_rtp","preppm","prep_ext","preppm_shape","ppmain_topo","ppmain_tslvl","ppmain_life","pp_prelv","pp_qafs","ppmain_dflt","ppmain_tsattr"],
+  meta:"nightly probe of 4 Nov 2026 on main 8c774b3, ppmain_tsattr and ppmain_flo on the change 10 and 11a branches · 5 models × 2 variants",
+  steps:["init_ext","ppmain_head","ppmain_years","timslice","ppmain_rtp","preppm","prep_ext","preppm_shape","ppmain_topo","ppmain_tslvl","ppmain_life","pp_prelv","pp_qafs","ppmain_dflt","ppmain_tsattr","ppmain_flo"],
   runs:[
-    {model:"TIMES_Demo-demo12", licence:"CC-BY-4.0", rec:[9324,4393,190,253,2162,8985,23004,55,2981,6555,15812,45311,15,1853,8739]},
-    {model:"TIMES-NZ-steady-v308", licence:"MIT", rec:[88954,21803,571,1603,24452,366975,474586,378,13490,333252,266321,1053073,59,22898,1222608]},
-    {model:"OTCGEN-gc_ref", licence:"CC-BY-SA-4.0", rec:[248819,133975,373,596,311429,761841,2161605,45,86805,340345,1903399,4200605,873,136056,429665]},
-    {model:"OTNYC-s1_nyc_ref", licence:"CC-BY-SA-4.0", rec:[403890,148290,195,2026,151220,642158,1149222,35,103118,455809,686402,2519159,2269,58514,412764]},
-    {model:"OTUS9r-reference", licence:"CC-BY-SA-4.0", rec:[1388726,644137,603,3799,305177,1846359,4937078,105,423339,1453753,3590114,9861598,3351,243750,2085343]},
+    {model:"TIMES_Demo-demo12", licence:"CC-BY-4.0", rec:[9324,4393,190,253,2162,8985,23004,55,2981,6555,15812,45311,15,1853,8739,3456]},
+    {model:"TIMES-NZ-steady-v308", licence:"MIT", rec:[88954,21803,571,1603,24452,366975,474586,378,13490,333252,266321,1053073,59,22898,1222608,88985]},
+    {model:"OTCGEN-gc_ref", licence:"CC-BY-SA-4.0", rec:[248819,133975,373,596,311429,761841,2161605,45,86805,340345,1903399,4200605,873,136056,429665,768964]},
+    {model:"OTNYC-s1_nyc_ref", licence:"CC-BY-SA-4.0", rec:[403890,148290,195,2026,151220,642158,1149222,35,103118,455809,686402,2519159,2269,58514,412764,364284]},
+    {model:"OTUS9r-reference", licence:"CC-BY-SA-4.0", rec:[1388726,644137,603,3799,305177,1846359,4937078,105,423339,1453753,3590114,9861598,3351,243750,2085343,1182054]},
   ],
 };
 const COEF_FILES = ["coef_cpt","coef_nio","coef_ptr","coef_obj","coef_alt","coef_shp","coef_ext"];
