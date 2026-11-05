@@ -502,3 +502,11 @@ those checks, their figures and their crafted cases are not published
   layers 2 and 3 (now in CI as `demo12_red`); the other core models wait for
   M1.1's untranslated equation families in both variants. Next: the M1.3
   gate.
+- 5 Nov 2026: M1.3 gate checks (docs/m13-plan.md, "Gate checks"): the
+  chain from the input dump PASS at every checkpoint on the five core
+  models, both variants (`scripts/m13_gate.jl`); in CI the demo12 chain
+  through the coefficients (`test/unit/test_m13_chain.jl`) and the model
+  with REDUCE off and on; preprocessing 3.0x GAMS on demo12, 4.8x to 5.5x
+  on the large core models (`scripts/m13_timing.jl`, docs/timings.md).
+  Outstanding for the gate: TIM-bau on James's machine, and the merge of
+  #44-#47.

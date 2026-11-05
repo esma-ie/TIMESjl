@@ -11,6 +11,34 @@ From 29 Oct 2026 local runs on James's workstation keep to the run limits in
 Timings made before then used each solver's own setting (GAMS default: one
 solver thread) and are not directly comparable with later ones.
 
+## M1.3 preprocessing, 5 Nov 2026, same machine (James's workstation)
+
+The M1.3 gate figures. `scripts/m13_timing.jl`: the preprocessing chain from
+the input dump (TIMES.jl's state carried across the checkpoints, the
+carrying not timed), first pass with compilation, then warm, against the GAMS
+profile of the same lines in each model's CPLEX reference solve
+(`raw/tjl_solve_cplex_profile.txt`; the harness's checkpoint unloads left
+out): init_ext (maindrv.mod L55), ppmain.mod with prep_ext.vda and
+pp_prelv.vda (L56), ppm_ext (L58). James's workstation (2x Intel Xeon Gold
+6256, Windows 11 Pro for Workstations), under the run limits; GAMS 54.6.1,
+Julia 1.13.2, one thread; the 17b/gate branch (changes 0-18b).
+
+| Model (reduce_off) | init_ext | ppmain | ppm_ext | Total, TIMES.jl warm | Total, GAMS | Ratio |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| TIMES_Demo-demo12 | 0.010 | 0.162 | 0.014 | 0.19 s | 0.062 s | 3.0 |
+| TIMES-NZ-steady-v308 | 0.029 | 6.567 | 0.568 | 7.2 s | 1.39 s | 5.2 |
+| OTCGEN-gc_ref | 0.224 | 43.44 | 6.261 | 49.9 s | 9.11 s | 5.5 |
+| OTNYC-s1_nyc_ref | 0.435 | 16.38 | 1.250 | 18.1 s | 3.69 s | 4.9 |
+| OTUS9r-reference | 2.539 | 90.60 | 7.745 | 100.9 s | 20.8 s | 4.8 |
+
+TIMES.jl seconds per part (warm). The slowest steps (warm): pp_prelv
+(OTUS9r 23.3 s, OTCGEN 9.0 s), ppmain_flofs (OTCGEN 13.6 s), ppmain_life,
+ppmain_reduce and ppm_ext_actef; on TIMES-NZ ppmain_tsattr (3.1 s). On the
+large models the first pass and the warm pass take about the same time. The
+GAMS profile counts in steps of 1/64 s, so demo12's ratio is rough. Unlike
+the coefficient stage (75x to 359x, below), preprocessing is near the
+Phase 1 target of 5x without any performance work.
+
 ## M1.2 coefficient stage, 31 Oct 2026, same machine (James's workstation)
 
 The M1.2 figures of record. `scripts/m12_timing.jl` as in the section below,
