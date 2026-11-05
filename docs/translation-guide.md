@@ -427,3 +427,12 @@ those checks, their figures and their crafted cases are not published
   variants). Two crafted demo12 states cover the marketplace and
   distribution paths (CI). Next: change 13 (ppmain.mod L936-1056), in two
   parts like 11.
+- 5 Nov 2026: M1.3 (13a): ppmain.mod L936-1001 (the commodity subsets and
+  COM_LIM defaults, the trade conversions, pp_lvlbd.mod, FLO_BND and ACT_BND
+  from FLO_BDLVL) as the probe step ppmain_bnd. Compared at ppm on the
+  16-17 symbols nothing later changes (PASS, five core models, both
+  variants; demo12 in CI); the replay check now runs ppmain.mod L616-1001
+  and compares 126 symbols at L1001 (PASS, five core models, both
+  variants). One crafted demo12 state covers the bound aggregation (CI).
+  Next: change 13b (ppmain.mod L1003-1056), the cumulative bounds and the
+  RHS commodities.

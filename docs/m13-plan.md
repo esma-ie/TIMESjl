@@ -87,7 +87,8 @@ GAMS 54.6.1):
 | 11a | ppmain.mod with pp_lvlfc.mod (the flow attributes), pp_chp.mod: flow attributes by timeslice, the FLO_PKCOI default, CHP | 800-821; 1-71 | ppm |
 | 11b | ppmain.mod with pp_lvlff.mod, pp_lvlfs.mod, pp_lvlbr.mod (FLO_SHAR), eqflomrk.mod: FLO_FUNC, FLO_SUM, FLO_SHAR, FLO_MARK | 823-845 | ppm |
 | 12 | ppmain.mod with pp_lvlif.mod: trade and marketplaces | 846-935 | ppm |
-| 13 | ppmain.mod with pp_lvlbd.mod: balance types, IRE conversion, bounds, cumulative constraints | 936-1060 | ppm |
+| 13a | ppmain.mod with pp_lvlbd.mod: balance types, IRE conversion, bounds | 936-1001 | ppm |
+| 13b | ppmain.mod: cumulative constraints, VAR_COMxxx on the balance RHS | 1003-1056 | ppm |
 | 14 | ppmain.mod: storage | 1061-1101 | ppm |
 | 15 | ppmain.mod with pp_lvlus.mod, prepxtra.mod UCINT: user constraints | 1102-1229 | ppm |
 | 16 | ppmain.mod: blending (refused unless needed; any non-blending statements in the block translated) | 1230-1336 | ppm |
@@ -468,6 +469,25 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   the trade attributes, 112 symbols each at L933 (CI). The replay needs
   %PGPRIM% as initmty.mod L138 sets it ("'ACT'", quoted, which COM holds as
   a member, L141), now set in scripts/ppmain_replay.jl.
+- (13a) ppmain.mod L936-1001 is the probe step ppmain_bnd: the commodity
+  subsets and COM_LIM defaults, the trade timeslice and commodity
+  conversions (IRE_TSCVT; IRE_CCVT, its reverse from `OPTION RC_RC <
+  IRE_CCVT`, which swaps the region and commodity pairs, G26), the five
+  pp_lvlbd.mod calls and FLO_BND and ACT_BND from FLO_BDLVL; TIMES-MACRO and
+  TIMES-MICRO (L962-963) refused. Change 13 is split in two (13a, 13b). At
+  the ppm checkpoint it is compared on the 16-17 symbols nothing later
+  changes (DEM, which change 10 left to the replay, among them; ACT_BND
+  only with %REDUCE% NO): PASS on the five core models, reduce_off and
+  as_run, and on demo12 in CI. The replay check now runs ppmain.mod
+  L616-1001 (under $onMulti, as pp_lvlbd.mod declares BDVAL and TS_BD at
+  each of its five inclusions) and compares 126 symbols at L1001: PASS on
+  the five core models, both variants. One crafted demo12 state ("bnd",
+  test/unit/ppmain_bnd_case.jl) covers the aggregation of pp_lvlbd.mod
+  (sums, FX where LO and UP meet, a value at the target and below, an UP
+  not covering the target, negative bounds), the rate bounds and the
+  reverse conversion, 126 symbols at L1001 (CI). With the faster
+  gams_sort! (PR #35) the replayed chain ppmain.mod L616-1001 takes 32 s in
+  TIMES.jl on OTUS9r, GAMS 60 s (it took 17 minutes before).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
