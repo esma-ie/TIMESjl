@@ -490,3 +490,10 @@ those checks, their figures and their crafted cases are not published
   cover ACT_EFF below the process level, on primary-group commodities and
   EPS, ramping, partial loads and NORTS (CI). Next: change 18b (ppm_ext.vda
   L59-169, the segment's all-symbols check), then 17b (cal_red.red).
+- 5 Nov 2026: M1.3 (18b): ppm_ext.vda L59-169 with equcrtp.vda PPM_EXT as
+  the probe step ppm_ext, the end of the prelv -> ppm segment, compared on
+  every set and parameter at ppm (PASS, five core models, both variants;
+  demo12 in CI). All four preprocessing segments now match GAMS from their
+  own start. Five crafted demo12 states against GAMS to the end of
+  ppm_ext.vda (CI). Next: change 17b (cal_red.red, layer 2), then the M1.3
+  gate (the chain from the input dump, CI on demo12, timings).
