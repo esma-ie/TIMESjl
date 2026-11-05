@@ -540,6 +540,37 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   CUMSUM/SYNC/ANNUL attributes, 172 symbols at L1179 (CI). The UC_T_SUCC
   year given off a milestone (2012) is kept beside the milestone added for
   it (2010), as GAMS keeps it.
+- (15b) ppmain.mod L1181-1226 with pp_lvlus.mod is the probe step
+  ppmain_ucmap: the UC group maps (UC_MAP_FLO, UC_MAP_IRE, UC_QAFLO for the
+  trade processes in UC_FLO and the other processes in UC_IRE, UC_CAPFLO,
+  UC_GMAP_C, UC_GMAP_P through UC_JMAP), the dynamic attributes of COMCON
+  groups, RTP_VARP for UC capacities, RHS_COMBAL and RHS_COMPRD for UC
+  commodities, UC_ACT, UC_FLO, UC_IRE and UC_COM levelled to the process
+  and commodity timeslices (pp_lvlus.mod: aggregated where the UC is finer
+  than the finest level of the process or commodity, inherited where it is
+  coarser, ANNUAL copied down), and RCS_COMBAL/RCS_COMPRD. pp_lvlus.mod
+  carries the scalar F from one record to the next and from one call to
+  the next (L17 compares with the F the previous record left), so the
+  translation keeps F as running state, in GAMS's loop order. UC_JMAP is
+  not empty on entry: with UC_DYNBND, equcrtp.vda INIT_EXT L59 left its
+  J='1' tuples there, and L1198-1200 add to them, so UC_GMAP_P (L1201) also
+  maps the processes of the dynamic UC bounds (OTUS9r: 1,693 tuples; the
+  replay found this). At the ppm
+  checkpoint it is compared on the 10-17 symbols nothing later changes
+  (UC_GMAP_P, UC_ON, UC_ACT and UC_COM only without UC_DYNBND, which
+  equcrtp.vda PPM_EXT changes them under; RHS_COMPRD only with %REDUCE% NO,
+  pp_reduce.red L161; RHS_COMBAL and RCS_COMBAL only without GR_VARGEN,
+  resloadc.vda): PASS on the five core models, reduce_off and as_run, and
+  on demo12 in CI. The replay check now runs ppmain.mod L616-1226 and
+  compares 185 symbols at L1226: PASS on the five core models, both
+  variants. The core models level UC_ACT (TIMES-NZ, OTUS9r), UC_FLO (all),
+  UC_IRE (OTNYC, OTUS9r) and UC_COM (OTCGEN, OTNYC, OTUS9r). A crafted
+  demo12 state ("ucmap", test/unit/ppmain_ucmap_case.jl) covers
+  aggregation, inheritance and the ANNUAL copy for all four attributes, both
+  UC_QAFLO checks, a COMCON group and UC_DYNBND, 185 symbols at L1226 (CI).
+  Not reached by any model: L17's true branch (a group already marked OUT
+  meeting a timeslice finer than F), which needs a timeslice level between
+  the UC's and the process's own that no suite model has.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
