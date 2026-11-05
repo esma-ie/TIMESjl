@@ -70,6 +70,7 @@ include("prep/ppmain_dflt.jl")
 include("prep/ppmain_tsattr.jl")
 include("prep/ppmain_flo.jl")
 include("prep/ppmain_flofs.jl")
+include("prep/ppmain_ire.jl")
 include("model/generate.jl")
 
 end # module TIMES

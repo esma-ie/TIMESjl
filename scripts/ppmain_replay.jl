@@ -9,7 +9,8 @@
 # GAMS 23 and later), and $BATINCLUDEd with `mod` (scripts/gams_replay.jl);
 # %MX% empty (maindrv.mod L30 outside the stochastic extension), %DFLBL% '0'
 # as initmty.mod L367 sets it, %RL%, %PL% and %CL% as setglobs.gms L317 sets
-# them without G2X6 (L230), the other control variables from the model's
+# them without G2X6 (L230), %PGPRIM% 'ACT' unless the run sets it (initmty.mod
+# L138), the other control variables from the model's
 # switches. No SOLVE, so the PyPI demo GAMS will do (on Windows set
 # TJL_PYTHON to the harness venv's python.exe).
 
@@ -19,7 +20,8 @@ include(joinpath(@__DIR__, "gams_replay.jl"))
 const PPMAIN_REPLAY_SCAN = [682 => ["pp_qafs.mod", "pp_qaput.mod", "filshape.gms", "filparam.gms"],
                             797 => ["pp_lvlfc.mod", "pp_lvlbr.mod", "pp_lvlpk.mod"],
                             821 => ["pp_chp.mod"],
-                            843 => ["pp_lvlff.mod", "pp_lvlfs.mod", "eqflomrk.mod"]]
+                            843 => ["pp_lvlff.mod", "pp_lvlfs.mod", "eqflomrk.mod"],
+                            933 => ["pp_lvlif.mod"]]
 
 """
     ppmain_replay(tm, times_dir, last; outputs, declared, workdir, kw...) -> DumpData
@@ -36,7 +38,8 @@ function ppmain_replay(tm, times_dir, last; outputs, declared, workdir=mktempdir
     main_ = joinpath(workdir, "ppm_replay.mod")
     write(main_, join(vcat(tsl[39:39], ppm[13:13], ppm[616:last]), "\n") * "\n")
     glob = merge(tm.switches, Dict("DFLBL" => "'0'", "RL" => "'R.TL:MAX(12,CARD(R.TL))'", "PL" => "'P.TL:MAX(12,CARD(P.TL))'",
-                                   "CL" => "C.TL:MAX(12,CARD(C.TL))", "MX" => "", "RTS" => "S", "OBMAC" => "YES"))
+                                   "CL" => "C.TL:MAX(12,CARD(C.TL))", "MX" => "", "RTS" => "S", "OBMAC" => "YES",
+                                   "PGPRIM" => "\"" * get(tm.switches, "PGPRIM", "'ACT'") * "\""))   # initmty.mod L138: "'ACT'"
     scan = reduce(vcat, (fs for (l, fs) in PPMAIN_REPLAY_SCAN if l <= last); init=String[])
     return gams_replay(tm, [main_ => "mod"], outputs; times_dir, also_scan=scan, skip=Set(declared), setglobals=glob, workdir, kw...)
 end

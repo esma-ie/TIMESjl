@@ -449,7 +449,25 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   is the last milestone (G49). pp_lvlfs.mod L42 runs after L41 clears
   FSCKS and so does nothing, in GAMS as here. The step is slow on the large
   models: about 11-12 minutes on OTCGEN and 7.5 on OTUS9r (the FLO_SHAR
-  and FLO_SUM levelling; to be profiled).
+  and FLO_SUM levelling; to be profiled). Profiled: the time went to
+  gams_sort! in the two gput! of FLO_SUM, which ranked the labels at every
+  comparison; ranked once per key it gives the same order about 140 times
+  faster (PR #35, separate).
+- (12) ppmain.mod L846-933 is the probe step ppmain_ire: IRE_PRICE and
+  IRE_FLOSUM levelled (pp_lvlfc.mod), IRE_FLO levelled (pp_lvlif.mod), the
+  trade indicators, the marketplaces and their import commodities, links
+  and IRE_FLO, RPC_EQIRE and RPC_MARKET IMP, RTPC of shut-down periods,
+  RP_AIRE, IRE_FLOSUM of the activity moved to the PG commodities and the
+  IRE_FLO defaults. At the ppm checkpoint it is compared on the 11 symbols
+  nothing later changes: PASS on the five core models, reduce_off and
+  as_run, and on demo12 in CI. The replay check now runs ppmain.mod L616-933
+  and compares 112 symbols at L933: PASS on the five core models, both
+  variants. Two crafted demo12 states ("ire", "dist",
+  test/unit/ppmain_ire_case.jl) make REG1 a marketplace (two import
+  commodities in REG2) and, in "dist", a distribution process, and level
+  the trade attributes, 112 symbols each at L933 (CI). The replay needs
+  %PGPRIM% as initmty.mod L138 sets it ("'ACT'", quoted, which COM holds as
+  a member, L141), now set in scripts/ppmain_replay.jl.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
