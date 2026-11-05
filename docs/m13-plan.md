@@ -92,7 +92,7 @@ GAMS 54.6.1):
 | 14 | ppmain.mod: storage | 1061-1101 | ppm |
 | 15a | ppmain.mod with prepxtra.mod UCINT: the user-constraint defaults (years, regions, timeslices, dynamic and cumulative UCs) | 1101-1179; 61-77 | ppm |
 | 15b | ppmain.mod with pp_lvlus.mod: the UC group maps, VAR_CAP and VAR_COMxxx for UCs, UC attributes levelled, RCS_COMBAL/RCS_COMPRD | 1181-1226; 1-40 | ppm |
-| 16 | ppmain.mod: blending (refused unless needed; any non-blending statements in the block translated) | 1230-1336 | ppm |
+| 16 | ppmain.mod: blending (refused unless needed; any non-blending statements in the block translated) | 1228-1333 | ppm |
 | 17 | pp_reduce.red, dynslite.vda, ppmain.mod end; cal_red.red | 1-188; 1-129; 1337-1357; 1-59 | ppm (as_run), layer 2 |
 | 18 | ppm_ext.dsc; ppm_ext.vda with pp_actef.vda, resloadc.vda, equcrtp.vda (PPM_EXT) | 1-16; 1-169 | ppm |
 
@@ -571,6 +571,18 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   Not reached by any model: L17's true branch (a group already marked OUT
   meeting a timeslice finer than F), which needs a timeslice level between
   the UC's and the process's own that no suite model has.
+- (16) ppmain.mod L1228-1333 is the probe step ppmain_blend: the blending
+  block. No suite model has blending data (BL_TYPE, OPR), so it is refused
+  (UnportedError) when BL_TYPE or OPR has data. Without them every statement
+  but one acts on an empty set: BLE_SPE comes from BL_TYPE and the other
+  BLE_* sets, BL_UNIT, BLE_BAL and RU_CVT follow from it; BLE_INP is only
+  declared (its assignments are comments), so PEAKDA_BL is never written;
+  RU_FEQ runs over OPR. The one that acts, the REFUNIT default (L1251), is
+  translated. At the ppm checkpoint it is compared on the 13 symbols the
+  block writes: PASS on the five core models, reduce_off and as_run, and on
+  demo12 in CI. The replay check now runs ppmain.mod L616-1333 and compares
+  198 symbols at L1333: PASS on the five core models, both variants. A
+  crafted demo12 state ("blend") keeps a given REFUNIT (CI).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
