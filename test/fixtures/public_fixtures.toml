@@ -18,7 +18,7 @@
 # prefix   = "demo12_off"
 # model    = "TIMES_Demo-demo12"      # name in reference/suite.toml
 # variant  = "reduce_off"
-# reduce   = false                    # REDUCE is not translated yet (M1.3)
+# reduce   = false                    # %REDUCE% YES: cal_red.red (M1.3 change 17b)
 # switches = { OBJ = "MOD", VDA = "YES", DSCAUTO = "YES" }   # the run file's $SET switches
 # # optional: expected sizes, checked when given
 # rows = 0
@@ -62,3 +62,17 @@ coef_symbols = ["SOW", "SW_T", "B", "E", "M", "D", "MY_TS", "NCAP_AF", "NCAP_AFS
                 "NCAP_PASTI", "PRC_RESID", "RTFORC", "RP_STL", "COEF_AFUPS", "ACT_CSTUP", "RCS_COMBAL", "RTCS_VARC",
                 "RPC_CONLY", "TOP_IRE", "TRACKC", "RCS", "UC_TIME", "UC_ON", "R_UC", "ACT_EFF", "TRACKPC", "CG_GRP",
                 "RP_DCGG", "RPCG_PTRAN", "UNCD7", "VDA_DISC", "COEF_ILED"]
+
+# TIMES_Demo demo12 with %REDUCE% YES (the as_run variant: flows substituted by
+# activities, cal_red.red; M1.3 change 17b), from the licensed reference run
+# of 31 Oct 2026 (GAMS 54.6.1 + CPLEX on James's workstation; TIMES v4.9.7 @
+# d9a6a25). Layers 2 and 3 only.
+[[fixture]]
+prefix   = "demo12_red"
+model    = "TIMES_Demo-demo12"
+variant  = "as_run"
+reduce   = true
+switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "YES", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "YES", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
+rows = 3233
+cols = 4485
+nonzeros = 18375

@@ -151,7 +151,8 @@ to generation. In M1.1 `data` is a GAMS pre-solve dump (see gams_data.jl); later
 computed data behind the same interface.
 
 `reduce` is the `%REDUCE%` switch (`\$SET REDUCE YES/NO` in the run file):
-the reference harness's `reduce_off` variant corresponds to `reduce=false`.
+the reference harness's `reduce_off` variant corresponds to `reduce=false`,
+the suite's `as_run` variants to `reduce=true` (cal_red.red, M1.3 change 17b).
 
 `switches` holds the other GAMS compile-time switches the run sets
 (`\$SET OBJ AUTO`, ...), by upper-case name, as strings; `gswitch` reads them

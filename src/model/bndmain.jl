@@ -37,7 +37,7 @@
 # concern columns no equation references (docs/discrepancies.md U5).
 #
 # Not translated yet; data or switches that need them raise UnportedError:
-# REDUCE YES (bnd_flo.mod L34-39), elastic demand (bnd_elas.mod), cumulative
+# elastic demand (bnd_elas.mod), cumulative
 # cost bounds (bnd_cum.mod L44-48), MACRO (bnd_macro.tm),
 # STAGES, dynamic timeslices (dynslite.vda, NORTS), VDA trade bounds
 # (bnd_ire.vda, PREMILE), DSC semi-continuous capacity (mod_vars.dsc L18-19,
@@ -92,7 +92,6 @@ function bounds_unported(tm::TimesModel)
     yes(name) = uppercase(gswitch(tm, name, "")) == "YES"
     notempty_set(name, N) = !isempty(gset_opt(d, name, N))
     notempty_par(name, N) = !isempty(gparam_opt(d, name, N))
-    tm.reduce && throw(UnportedError("bnd_flo.mod L34-39 (REDUCE YES: flow bounds moved to activities)"))
     (yes("TIMESED") || yes("MICRO")) && throw(UnportedError("bnd_elas.mod (elastic demand steps)"))
     yes("MACRO") && throw(UnportedError("bnd_macro.tm (MACRO)"))
     yes("STAGES") && throw(UnportedError("stochastic bounds (STAGES)"))
@@ -166,7 +165,10 @@ end
     VAR_FLO.LO(RTP_VINTYR(R,T,T,P),C,S)\$((RTPCS_VARF(R,T,P,C,S)*TRACKPC(R,P,C))\$FLO_BND(R,T,P,C,S,'LO')) = FLO_BND(R,T,P,C,S,'LO');
     (.UP, .FX alike)
 
-GAMS: bnd_flo.mod L12-31, v4.9.7. L22-23 mark FLO_BND entries under the
+Under %REDUCE% YES (L34-39) the bounds of a flow that the activity replaces
+(RPC_ACT, processes without vintages) go to VAR_ACT, divided by PRC_ACTFLO.
+
+GAMS: bnd_flo.mod L12-39, v4.9.7. L22-23 mark FLO_BND entries under the
 '%DFLBL%' year for eqflobnd.mod and do not affect bounds (file header).
 """
 function bnd_flo!(bt::BoundTable, tm::TimesModel)
@@ -192,6 +194,24 @@ function bnd_flo!(bt::BoundTable, tm::TimesModel)
         which = bd == "LO" ? :lo : bd == "UP" ? :up : bd == "FX" ? :fx : continue
         ((r, t, p) in vint_tt && (c,) in com && (r, t, p, c, s) in rtpcs_varf && (r, p, c) in trackpc) || continue
         setbound!(bt, tm, "VAR_FLO", (r, t, t, p, c, s), which, x)
+    end
+    tm.reduce || return bt                                                      # L34: $IF NOT '%REDUCE%' == 'YES' $EXIT
+    # L37-39: LOOP(RTPCS_VARF(R,T,P,C,S)$(((NOT PRC_VINT(R,P))*RPC_ACT(R,P,C))$FLO_BND(R,T,P,C,S,'LO')),
+    #   VAR_ACT.LO(R,T,T,P,S) = MAX(VAR_ACT.LO(R,T,T,P,S),FLO_BND(R,T,P,C,S,'LO')/PRC_ACTFLO(R,T,P,C)));
+    #   .UP with MIN; .FX(R,T,T,P,S) = FLO_BND(R,T,P,C,S,'FX')/PRC_ACTFLO(R,T,P,C)   (each a loop of its own)
+    actflo = gparam(tm, "PRC_ACTFLO")
+    varf = [k for k in rtpcs_varf.keys if !((k[1], k[3]) in prc_vint) && (k[1], k[3], k[4]) in rpc_act]
+    for (bd, which) in (("LO", :lo), ("UP", :up), ("FX", :fx))
+        for (r, t, p, c, s) in varf
+            x = get(flo_bnd, (r, t, p, c, s, bd), nothing)
+            x === nothing && continue
+            y = x / gv(actflo, (r, t, p, c))
+            key = (r, t, t, p, s)
+            lo, up = bounds(bt, tm, "VAR_ACT", key)
+            which === :lo && (y = gmax(GNum(lo), y))
+            which === :up && (y = gmin(GNum(up), y))
+            setbound!(bt, tm, "VAR_ACT", key, which, y)
+        end
     end
     return bt
 end

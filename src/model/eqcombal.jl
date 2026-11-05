@@ -21,8 +21,7 @@
 # - blending, L30-35 and L75-80 (BLE_OPR, BLE_ENV, BLE_TP);
 # - elastic demand, L67 and L101 under %TIMESED% (COM_ELAST);
 # - non-linear demand VAR_DEM, L110 (RD_NLP);
-# - cal_ire.mod L30 when %IREAUXBAL% is set;
-# - cal_fflo.mod L35-50 under REDUCE YES (cal_red.red).
+# - cal_ire.mod L30 when %IREAUXBAL% is set.
 # The sets these equations read (RCS_COMBAL, RTPCS_VARF, RTP_VNTBYR, ...)
 # come from the pre-solve dump: pp_qack.mod changes them after eqmain.
 
@@ -112,12 +111,15 @@ when RTP_FFCS is DEFINED]. The caller's arguments:
 eqpeak.mod L44 passes `'*(NCAP_PKCNT(R,V,P,S)**RPC_PKF(R,P,C))' '\$RPC_PKF(R,P,C)'`,
 L65 `'*FLO_PKCOI(R,T,P,C,TS)'`.
 
-GAMS: cal_fflo.mod L15-33, v4.9.7 (the REDUCE path L35-50 is not translated).
+Under %REDUCE% YES the flows go through cal_red.red instead (L35-50,
+`cal_fflo_red!`).
+
+GAMS: cal_fflo.mod L15-50, v4.9.7.
 """
 function cal_fflo!(expr::JuMP.AffExpr, tm::TimesModel, mult::GNum, io::String,
                    r::String, t::String, c::String, s::String; pk=nothing, pcond=nothing)
-    tm.reduce && throw(UnportedError("cal_fflo.mod L35-50 (REDUCE YES, cal_red.red)"))
     x = combal_context(tm)
+    tm.reduce && return cal_fflo_red!(expr, tm, x, mult, io, r, t, c, s; pk, pcond)
     for (_, p, _, _) in get(x.top_of_rcio, (r, c, io), NTuple{4,String}[])
         (r, p) in x.rp_flo || continue
         pcond === nothing || pcond(p)::Bool || continue          # %4 (both branches, L25 and L28)
@@ -138,6 +140,45 @@ function cal_fflo!(expr::JuMP.AffExpr, tm::TimesModel, mult::GNum, io::String,
                         k = mult * (gv(x.coef_ptran, (r, v, p, cg3, com2, c, ts)) * shp1 * _pk(pk, p, v, ts) * w)
                         addterm!(expr, k, tm, "VAR_FLO", r, v, t, p, com2, ts)
                     end
+                end
+            end
+        end
+    end
+    return expr
+end
+
+"""
+    cal_fflo_red!(expr, tm, x, mult, io, r, t, c, s; pk, pcond) -> expr
+
+cal_fflo.mod's REDUCE path (%REDUCE% YES), the flows of `cal_fflo!` through
+cal_red.red (`cal_red!`):
+
+    SUM(TOP(RP_FLO(R,P),C,'%1')\$(NOT PRC_VINT(R,P)),
+        SUM(RTPCS_VARF(R,V(T),P,C,TS),
+            [cal_red.red C COM TS P T '' T] * RS_FR(R,S,TS)*(1+RTCS_FR(R,T,C,S,TS)) %3)%4) +
+    SUM((TOP(PRC_VINT(RP_FLO(R,P)),C,'%1'),RTPCS_VARF(R,T,P,C,TS))%4,
+        [cal_red.red C COM TS P T '' V SUM 'RTP_VNTBYR(R,T,P,V),' %3] * RS_FR(R,S,TS)*(1+RTCS_FR(R,T,C,S,TS))) +
+
+A process without vintages takes its flows at V = T (`V(T)`), with the shape
+factors of %7 = T; a vintaged one sums cal_red.red over RTP_VNTBYR, %3
+multiplying each term (%10), with those of %7 = V. %3 is `pk(p, v, ts)`
+(TS the flow's own timeslice, V = T for the first sum), %4 `pcond(p)`.
+
+GAMS: cal_fflo.mod L35-50, cal_red.red L15-56, v4.9.7.
+"""
+function cal_fflo_red!(expr::JuMP.AffExpr, tm::TimesModel, x, mult::GNum, io::String,
+                       r::String, t::String, c::String, s::String; pk=nothing, pcond=nothing)
+    for (_, p, _, _) in get(x.top_of_rcio, (r, c, io), NTuple{4,String}[])
+        (r, p) in x.rp_flo || continue
+        pcond === nothing || pcond(p)::Bool || continue                  # %4
+        for (_, _, _, _, ts) in get(x.varf_of_rtpc, (r, t, p, c), NTuple{5,String}[])
+            haskey(x.rs_fr, (r, s, ts)) || continue                      # RS_FR(R,S,TS) multiplies: no record, no term
+            w = mult * (gv(x.rs_fr, (r, s, ts)) * (1 + gv(x.rtcs_fr, (r, t, c, s, ts))))
+            if !((r, p) in x.prc_vint)
+                cal_red!(expr, tm, w * _pk(pk, p, t, ts), r, t, t, p, c, ts; mode="T")
+            else
+                for (_, _, _, v) in get(x.vint_of_rtp, (r, t, p), NTuple{4,String}[])
+                    cal_red!(expr, tm, w * _pk(pk, p, v, ts), r, v, t, p, c, ts; mode="V")
                 end
             end
         end

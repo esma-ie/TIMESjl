@@ -658,6 +658,26 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   ppm_ext.vda: "ace" and "upl" (18a), "chp" (an ECT CHP: NCAP_CEH 2 on
   ELCTEGAS00), "afx" (NCAP_AFX and NCAP_AFM options) and "funcx"
   (FLO_FUNCX shape indexes), all PASS (CI).
+- (17b) cal_red.red, the flow term of every equation under %REDUCE% YES
+  (`cal_red!` in src/model/cal_red.jl; `cal_nored!` hands over to it, so
+  every translated equation that takes `%cal_red%` uses it), with
+  cal_fflo.mod's REDUCE path (L35-50, the balance and peak equations:
+  processes without vintages at V = T, vintaged ones summed over
+  RTP_VNTBYR) and bnd_flo.mod L34-39 (the bounds of a flow the activity
+  replaces moved to VAR_ACT). %2 = COM is an alias of COM, so the SUM over
+  RPC_ACT(R,P,%2) skips the ACTCG members pp_reduce.red L87 adds (G27).
+  scripts/m11_probe.jl takes `--variant as_run` and sets REDUCE from the run
+  file. Checked on the matrix (layer 2) and the optimum (layer 3): demo12
+  as_run (REDUCE YES: 253 flows substituted by the activity, 237 by
+  ACT_FLO, 92 emission flows whose source is such a flow, two vintaged
+  processes) PASS, 3,233 rows, 4,485 columns, 18,375 nonzeros, the objective
+  of CPLEX and HiGHS at 1e-6, now a CI fixture (`demo12_red`). The other
+  core models need equation families M1.1 left untranslated (EQ_FLOMRK,
+  EQ_STGIPS, the dynamic-RHS and VDA dynamic UCs, EQ_SLSIFT), in both
+  variants, so they have no layer 2 yet. Not reached by demo12: the bounds
+  moved to VAR_ACT (bnd_flo.mod L37-39, no FLO_BND on a reduced flow) and
+  an emission whose source flow the activity replaces; translated as
+  written.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
