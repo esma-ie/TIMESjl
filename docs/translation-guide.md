@@ -457,3 +457,11 @@ those checks, their figures and their crafted cases are not published
   L616-1179 and compares 172 symbols at L1179 (PASS, five core models, both
   variants). A crafted demo12 state covers the paths the core models do not
   reach (CI). Next: change 15b (ppmain.mod L1181-1226, pp_lvlus.mod).
+- 5 Nov 2026: M1.3 (15b): ppmain.mod L1181-1226 with pp_lvlus.mod (the UC
+  group maps, the UC attributes levelled to the process and commodity
+  timeslices, RCS_COMBAL/RCS_COMPRD) as the probe step ppmain_ucmap.
+  Compared at ppm on the 10-17 symbols nothing later changes (PASS, five
+  core models, both variants; demo12 in CI); the replay check now runs
+  ppmain.mod L616-1226 and compares 185 symbols at L1226 (PASS, five core
+  models, both variants). A crafted demo12 state covers the levelling paths
+  (CI). Next: change 16 (ppmain.mod L1228-1336), blending.
