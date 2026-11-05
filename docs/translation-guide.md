@@ -436,3 +436,10 @@ those checks, their figures and their crafted cases are not published
   variants). One crafted demo12 state covers the bound aggregation (CI).
   Next: change 13b (ppmain.mod L1003-1056), the cumulative bounds and the
   RHS commodities.
+- 5 Nov 2026: M1.3 (13b): ppmain.mod L1003-1056 (the cumulative bounds,
+  the RHS commodities) as the probe step ppmain_cum. Compared at ppm on the
+  15 symbols nothing later changes (PASS, five core models, both variants;
+  demo12 in CI); the replay check now runs ppmain.mod L616-1056 and compares
+  140 symbols at L1056 (PASS, five core models, both variants). Two crafted
+  demo12 states cover the rest (CI). Next: change 14 (ppmain.mod
+  L1058-1101), storage.

@@ -72,6 +72,7 @@ include("prep/ppmain_flo.jl")
 include("prep/ppmain_flofs.jl")
 include("prep/ppmain_ire.jl")
 include("prep/ppmain_bnd.jl")
+include("prep/ppmain_cum.jl")
 include("model/generate.jl")
 
 end # module TIMES

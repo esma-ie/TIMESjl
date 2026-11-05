@@ -488,6 +488,21 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   reverse conversion, 126 symbols at L1001 (CI). With the faster
   gams_sort! (PR #35) the replayed chain ppmain.mod L616-1001 takes 32 s in
   TIMES.jl on OTUS9r, GAMS 60 s (it took 17 minutes before).
+- (13b) ppmain.mod L1003-1056 is the probe step ppmain_cum: the
+  cumulative bounds moved from BOH and EOH to the first and last years
+  (`BOHYEAR+BEOH(BOHYEAR)` leads along BOHYEAR: BOH is 1960, EOH 2200 in
+  the suite), UC_CUMACT and ACT_CUM as flows of %PGPRIM%, RPC_CUMFLO and
+  RC_CUMCOM, and the commodities on the RHS of the balance (RC_AGP,
+  RTC_NET, RTC_PRD, the COM_CSTNET and COM_CSTPRD flags at year '0' and
+  the last timeslice). At the ppm checkpoint it is compared on the 15
+  symbols nothing later changes (RHS_COMBAL and RHS_COMPRD are changed
+  again at L1067 and L1209-1226): PASS on the five core models, reduce_off
+  and as_run, and on demo12 in CI. The replay check now runs ppmain.mod
+  L616-1056 and compares 140 symbols at L1056: PASS on the five core
+  models, both variants. The core models reach ACT_CUM up to EOH (demo12)
+  and COM_AGG; two crafted demo12 states ("cum", "lin",
+  test/unit/ppmain_cum_case.jl) cover the other cumulative bounds, the cost
+  flags and the bound checks of L1051 and L1055 (CI).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols
