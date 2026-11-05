@@ -4,7 +4,7 @@
 # checks the translated steps up to ppmain_stg! on the paths no core
 # reference run takes.
 #
-#   julia --project=test scripts/make_ppmain_flo_unit.jl <TIMES_model dir> [<gams executable>]
+#   julia --project=test scripts/make_ppmain_stg_unit.jl <TIMES_model dir> [<gams executable>]
 #
 # The states start from the demo12 prelv checkpoint, so only ppmain.mod
 # L616-1099 runs (scripts/ppmain_replay.jl: the lines unchanged, the control
