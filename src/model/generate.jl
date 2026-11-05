@@ -104,7 +104,10 @@ function untranslated_families(tm::TimesModel)
             ("EQ_MSNCAP*", "mod_ext.vda L51-52", "RTC_MS", 3, :s),
             ("EQ_GG_*", "mod_ext.vda L54-55", "GG_MM", 2, :s),
             ("EQ_DSCNCAP/EQ_DSCONE", "equ_ext.dsc L21-28", "PRC_DSCNCAP", 2, :s),
-            ("EQ_DSCRET/EQ_CUMRET/EQL_SCAP/EQL_REFIT", "mod_equa.mod L212", "VNRET", 0, :decl))
+            # `$IF DEFINED VNRET`: VNRET is a $MACRO (prepret.dsc L41), never in a dump. prepret.dsc
+            # PREP declares RP_RTF at L22, past its only exit (L20, no PRC_RCAP defined) and before
+            # the macro, so RP_RTF is declared exactly when VNRET is defined (early retirement on).
+            ("EQ_DSCRET/EQ_CUMRET/EQL_SCAP/EQL_REFIT", "mod_equa.mod L212, prepret.dsc", "RP_RTF", 0, :decl))
         if kind === :decl
             Reference.has_symbol(d.dump, sym) && note!(fam, gams, "$sym is declared")
         elseif Reference.has_symbol(d.dump, sym) && !isempty(kind === :p ? P(sym, N) : S(sym, N))

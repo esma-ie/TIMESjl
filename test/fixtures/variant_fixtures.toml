@@ -27,3 +27,13 @@ reduce   = true
 switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "YES", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "NO", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
 untranslated = ["EQ_CAPLOAD", "EQ_ACTRAMP", "EQ(l)_ACTUPS", "EQL_ACTUPC", "EQ_ACTPL", "EQ_ACTRMPC",
                 "eq_sdlogic/eq_sudupt/eq_sdslant", "eq_sdminon/eq_sudload/eq_sudtime/eq_sudpll"]
+
+# Variant 5: retrofits and lifetime extensions (PRC_REFIT; User Note, Version.log 4.1.2,
+# Mar 2017), with early retirement (prepret.dsc, through DSCAUTO YES).
+[[variant]]
+prefix   = "demo12_refit"
+model    = "TIMES_Demo-demo12_refit"
+variant  = "as_run"
+reduce   = true
+switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "YES", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "NO", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
+untranslated = ["EQ_DSCRET/EQ_CUMRET/EQL_SCAP/EQL_REFIT"]

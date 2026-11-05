@@ -535,3 +535,9 @@ those checks, their figures and their crafted cases are not published
   refuses the untranslated families. New CI check for variants
   (test/unit/test_variants.jl): preprocessing input -> ppm, and the exact
   list of refused families.
+- 5 Nov 2026: demo12 variant 5, retrofits and lifetime extensions
+  (TIMES_Demo-demo12_refit). It found a silent gap: the early-retirement
+  checks looked for VNRET, a $MACRO never in a dump, so a model with
+  retirements was built without its retirement rows; now keyed on RP_RTF.
+  OTUS9r uses early retirement and refits, so M1.3 gains change 20b
+  (prepret.dsc equations).
