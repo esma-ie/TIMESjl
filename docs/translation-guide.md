@@ -519,3 +519,8 @@ those checks, their figures and their crafted cases are not published
   CI fixtures. It also found and fixed an undefined variable in the
   EQ(l)_FLOBND completeness check (M1.1 code, first reached by FLO_BND
   data).
+- 5 Nov 2026: the equation families M1.1 left untranslated become M1.3
+  changes 19-25 (James), with demo12 variants for advanced features
+  (docs/m13-plan.md). M1.3 (19): eqstgips.mod, EQ_STGIPS. OTNYC passes
+  layers 2 and 3 on both variants, the first large core model to do so;
+  EQ_STGIPS rows match on OTCGEN.

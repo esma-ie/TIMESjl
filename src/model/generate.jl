@@ -79,7 +79,6 @@ function untranslated_families(tm::TimesModel)
     for (fam, gams, sym, N, kind) in (
             ("EQ(l)_FLOFR", "eqflofr.mod L15", "FLO_FR", 6, :p),
             ("EQ(l)_FLOMRK", "eqflomrk.mod L63", "RTX_MARK", 6, :s),
-            ("EQ_STGIPS", "eqstgips.mod L13", "PRC_STGIPS", 3, :s),
             ("EQ_BNDCST", "eqbndcst.mod L81", "REG_CUMCST", 6, :p),
             ("EQ(l)_BLND", "eqblnd.mod L67", "BLE_TP", 3, :s),
             ("EQ(l)_CAPVAC", "coef_csv.mod, mod_equa.mod L74", "PRC_SIMV", 2, :s),
@@ -170,7 +169,7 @@ then generate the translated equation families, apply the bounds and set
 
 GAMS: eqmain.mod L34 (objective), L41 (EQ_ACTFLO), L47-49 (EQ(l)_ACTBND), L64-66 (EQ_CAPACT), L92
 (EQ_CUMFLO), L98-106 (EQ_COMBAL, EQE_COMPRD), L146 (EQ_IRE), L159 (EQ_PEAK), L164
-(EQ_PTRANS), L170 (EQ_STGAUX), L175 (EQ_STGTSS, EQ_STSBAL), L180-185 (EQ(l)_STGIN/STGOUT), L229 (EQE_UCT/UCRT/UCTS/UCRTS, the dynamic EQE_UCSU/UCRSU/UCRSUS/UCSUS and EQE_UCRS); equ_ext.vda L85 (EQE_ACTEFF);
+(EQ_PTRANS), L169 (EQ_STGIPS), L170 (EQ_STGAUX), L175 (EQ_STGTSS, EQ_STSBAL), L180-185 (EQ(l)_STGIN/STGOUT), L229 (EQE_UCT/UCRT/UCTS/UCRTS, the dynamic EQE_UCSU/UCRSU/UCRSUS/UCSUS and EQE_UCRS); equ_ext.vda L85 (EQE_ACTEFF);
 equ_ext.vda L88-89 (EQ(l)_CAFLAC, EQL_CAPFLO); equ_ext.vda L94-96 (EQ(l)_ASHAR); bndmain.mod; solve.mod L37, v4.9.7.
 """
 function generate!(tm::TimesModel)
@@ -189,6 +188,7 @@ function generate!(tm::TimesModel)
     n += eq_ire!(tm)                 # L146
     n += eq_peak!(tm)                # L159
     n += eq_ptrans!(tm)              # L164
+    n += eq_stgips!(tm)              # L169
     n += eq_stgaux!(tm)              # L170
     n += eq_stgtss!(tm)              # L175
     n += eq_stgflo!(tm)              # L180-185
