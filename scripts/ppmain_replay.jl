@@ -21,7 +21,8 @@ const PPMAIN_REPLAY_SCAN = [682 => ["pp_qafs.mod", "pp_qaput.mod", "filshape.gms
                             797 => ["pp_lvlfc.mod", "pp_lvlbr.mod", "pp_lvlpk.mod"],
                             821 => ["pp_chp.mod"],
                             843 => ["pp_lvlff.mod", "pp_lvlfs.mod", "eqflomrk.mod"],
-                            933 => ["pp_lvlif.mod"]]
+                            933 => ["pp_lvlif.mod"],
+                            1001 => ["pp_lvlbd.mod"]]
 
 """
     ppmain_replay(tm, times_dir, last; outputs, declared, workdir, kw...) -> DumpData
@@ -41,5 +42,8 @@ function ppmain_replay(tm, times_dir, last; outputs, declared, workdir=mktempdir
                                    "CL" => "C.TL:MAX(12,CARD(C.TL))", "MX" => "", "RTS" => "S", "OBMAC" => "YES",
                                    "PGPRIM" => "\"" * get(tm.switches, "PGPRIM", "'ACT'") * "\""))   # initmty.mod L138: "'ACT'"
     scan = reduce(vcat, (fs for (l, fs) in PPMAIN_REPLAY_SCAN if l <= last); init=String[])
-    return gams_replay(tm, [main_ => "mod"], outputs; times_dir, also_scan=scan, skip=Set(declared), setglobals=glob, workdir, kw...)
+    # pp_lvlbd.mod L22-23 declares BDVAL and TS_BD at each of its five inclusions (ppmain.mod L991-995):
+    # TIMES compiles under $onMulti (initsys.mod L22)
+    return gams_replay(tm, [main_ => "mod"], outputs; times_dir, also_scan=scan, skip=Set(declared), setglobals=glob, workdir,
+                       onmulti=last >= 991, kw...)
 end
