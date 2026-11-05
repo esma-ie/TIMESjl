@@ -95,6 +95,7 @@ GAMS 54.6.1):
 | 16 | ppmain.mod: blending (refused unless needed; any non-blending statements in the block translated) | 1228-1333 | ppm |
 | 17a | ppmain.mod end with pp_reduce.red (dynslite.vda refused, as in 8b) | 1336-1357; 1-188 | ppm (reduce_off and as_run) |
 | 17b | cal_red.red: flows substituted by activities on the equation side | 1-59 | layer 2 (as_run) |
+| 17c | crafted case TIMES_Demo-demo12_red17b for the 17b paths demo12 does not reach (cal_red.red L37-38 with an RPC_ACT source; bnd_flo.mod L37-39) (James, 5 Nov 2026) | — | layers 2-3 (both variants) |
 | 18a | ppm_ext.dsc; ppm_ext.vda with pp_actef.vda (LVL): dispatching and partial loads, the VDA_EMCB sums, ACT_EFF prepared, inherited and levelled | 1-16; 11-58; 9-48 | ppm |
 | 18b | ppm_ext.vda with equcrtp.vda (PPM_EXT): shape indexes, flows kept from the reduction, commodity and CHP availabilities, NCAP_AFX/AFM options; the segment's all-symbols check (resloadc.vda refused, dynslite.vda refused) | 59-169; 64-72 | ppm |
 
@@ -698,6 +699,22 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   moved to VAR_ACT (bnd_flo.mod L37-39, no FLO_BND on a reduced flow) and
   an emission whose source flow the activity replaces; translated as
   written.
+- (17c) The two paths demo12 does not reach, on a crafted case (James, 5 Nov
+  2026): TIMES_Demo-demo12_red17b (`reference/crafted.toml`, files in
+  `reference/dd/demo12_red17b/`) adds VDA_EMCB OIL->INDCO2 and four FLO_BND
+  records on REFEOIL00's OIL input, the activity flow of a process without
+  vintages. Under REDUCE that gives FS_EMIT(REFEOIL00, INDCO2, INDCO2, OIL)
+  with an RPC_ACT source (cal_red.red L37-38) and VAR_ACT bounds by
+  bnd_flo.mod L37-39: LO by MAX (9000), UP by MIN below (12000) and above
+  (the ACT_BND 19584.21 kept) the bound already set, FX (10436.1); with
+  REDUCE off, VAR_FLO bounds (L25-27). Reference made with GAMS 54.6.1
+  (CPLEX and HiGHS, both variants, OK); layer 2 PASS (as_run 3,233 rows,
+  4,485 columns, 18,387 nonzeros; reduce_off 8,695 rows, 9,669 columns,
+  31,403 nonzeros) and layer 3 PASS (CPLEX and HiGHS); the M1.3 chain from
+  the input dump PASS on both variants. Now CI fixtures (`demo12_red17b`,
+  `demo12_red17b_off`). The case found one bug in M1.1 code: the
+  EQ(l)_FLOBND completeness check (`untranslated_families`) used an
+  undefined `rtp_vara`, reached for the first time by FLO_BND data; fixed.
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

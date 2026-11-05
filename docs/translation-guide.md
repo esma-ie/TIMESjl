@@ -510,3 +510,12 @@ those checks, their figures and their crafted cases are not published
   on the large core models (`scripts/m13_timing.jl`, docs/timings.md).
   Outstanding for the gate: TIM-bau on James's machine, and the merge of
   #44-#47.
+- 5 Nov 2026: M1.3 (17c): the two REDUCE paths demo12 does not reach (an
+  emission whose source flow is the activity flow, cal_red.red L37-38;
+  FLO_BND on that flow, bnd_flo.mod L37-39), on a crafted case,
+  TIMES_Demo-demo12_red17b (demo12 + red17b.dd; `reference/crafted.toml`,
+  a crafted-case suite next to the model suite). Layers 2 and 3 PASS on
+  both variants (GAMS 54.6.1, CPLEX and HiGHS), the M1.3 chain PASS; two
+  CI fixtures. It also found and fixed an undefined variable in the
+  EQ(l)_FLOBND completeness check (M1.1 code, first reached by FLO_BND
+  data).

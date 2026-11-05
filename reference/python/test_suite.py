@@ -120,5 +120,32 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("unknown model 'NoSuchModel'", str(cm.exception))
 
 
+CRAFTED = HERE.parent / "crafted.toml"
+
+
+class CraftedTests(unittest.TestCase):
+    """reference/crafted.toml: cases built on an open suite model, with files in reference/dd/."""
+
+    def test_every_crafted_case_extends_an_open_public_model(self):
+        roots = {r: f"/roots/{r}" for r in ROOTS}
+        suite = load_suite(SUITE, roots)
+        public_sources = {m["source_repo"] for m in suite["models"].values() if m["redistribute"] == "public"}
+        crafted = load_suite(CRAFTED, roots)
+        self.assertTrue(crafted["models"])
+        check_roots(crafted, list(crafted["models"]))
+        for name, model in crafted["models"].items():
+            with self.subTest(model=name):
+                self.assertNotIn(name, suite["models"])
+                self.assertIn(model["licence"], OPEN_LICENCES)
+                self.assertEqual(model["redistribute"], "public")
+                self.assertIn(model["source_repo"], public_sources)
+                for key in ("licence_url", "licence_checked"):
+                    self.assertTrue(model.get(key), key)
+                filled = crafted["fill"](model)
+                self.assertTrue(Path(filled["run_file"]).is_file(), filled["run_file"])
+                for blocked in BLOCKED_SOURCES:
+                    self.assertNotIn(blocked.lower(), str(model).lower())
+
+
 if __name__ == "__main__":
     unittest.main()

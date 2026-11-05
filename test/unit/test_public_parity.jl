@@ -21,8 +21,9 @@ using TIMES.Reference: canonical_from_jump, canonical_from_dump, compare_lp, eva
                        jump_name_key
 
 const PUBLIC_FIXTURES = TOML.parsefile(joinpath(FIXTURES, "public_fixtures.toml"))
-const SUITE_MODELS = Dict(m["name"] => m for m in
-                          TOML.parsefile(joinpath(@__DIR__, "..", "..", "reference", "suite.toml"))["model"])
+# the model suite and the crafted cases built on its open models (reference/crafted.toml)
+const SUITE_MODELS = Dict(m["name"] => m for f in ("suite.toml", "crafted.toml")
+                          for m in TOML.parsefile(joinpath(@__DIR__, "..", "..", "reference", f))["model"])
 
 fixture_path(fx, part) = joinpath(FIXTURES, fx["prefix"] * "_" * part)
 

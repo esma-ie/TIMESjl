@@ -1,0 +1,31 @@
+* TIMES.jl crafted case demo12_red17b (reference/crafted.toml, 5 Nov 2026): data added
+* to TIMES_Demo demo12 (etsap-TIMES/TIMES_Demo @ 962db86, CC BY 4.0) to reach two
+* REDUCE paths that demo12 itself does not (docs/m13-plan.md, change 17b):
+* - VDA_EMCB on OIL -> INDCO2 (init_ext.vda L98-103, ppm_ext.vda L17-29): an
+*   emission whose source flow is REFEOIL00's activity flow OIL (RPC_ACT, not
+*   vintaged), the VAR_ACT*PRC_ACTFLO term of cal_red.red L37-38.
+* - FLO_BND on REFEOIL00's OIL input: under REDUCE that flow is RPC_ACT, so
+*   bnd_flo.mod L37-39 bound VAR_ACT (LO by MAX, UP by MIN with the bounds
+*   set before; FX); with REDUCE off, bnd_flo.mod L25-27 bound VAR_FLO.
+*   REG1 2010 LO 9000 and REG1 2015 UP 12000 are not binding at demo12's
+*   optimum (10417, 8986); REG1 2020 UP 25000 is above the ACT_BND of
+*   refinery.dd (19584.21125), so the MIN keeps that; REG2 2030 FX is near
+*   demo12's level there (10436.11).
+$ONEMPTY
+$ONEPS
+$ONWARNING
+PARAMETER
+VDA_EMCB ' '/
+REG1.2005.OIL.INDCO2 0.1
+REG2.2005.OIL.INDCO2 0.1
+
+/
+
+PARAMETER
+FLO_BND ' '/
+REG1.2010.REFEOIL00.OIL.ANNUAL.LO 9000
+REG1.2015.REFEOIL00.OIL.ANNUAL.UP 12000
+REG1.2020.REFEOIL00.OIL.ANNUAL.UP 25000
+REG2.2030.REFEOIL00.OIL.ANNUAL.FX 10436.1
+
+/
