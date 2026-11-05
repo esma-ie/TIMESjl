@@ -2,10 +2,11 @@
 # generate it, and (when the run has a CONVERT export) whether the part it
 # can generate already matches GAMS.
 #
-#   julia --project=. scripts/m11_probe.jl <reference dir> [--root name=path ...] [<model> ...]
+#   julia --project=. scripts/m11_probe.jl <reference dir> [--variant as_run] [--root name=path ...] [<model> ...]
 #
-# <reference dir> holds <model>/<variant>/ runs from make_reference.py. Only
-# reduce_off runs are probed (REDUCE YES is not translated yet). Switches are
+# <reference dir> holds <model>/<variant>/ runs from make_reference.py. The
+# reduce_off runs are probed, or the as_run ones with `--variant as_run`
+# (%REDUCE% YES in the suite: cal_red.red, M1.3 change 17b). Switches are
 # read from the run file the harness generated (raw/ or _work/), so they
 # match the GAMS run; for zips from harness < 0.2.2, which hold no run file,
 # they are rebuilt from reference/suite.toml (--root fills the placeholders of
@@ -76,7 +77,8 @@ function probe(refdir, model; variant="reduce_off", roots=Dict{String,String}())
     rc == 0 || return (; model, status="GAMS pre-solve run failed (return code $rc; see raw/tjl_presolve.lst)")
     rf = runfile_of(refdir, model, variant)
     sw = rf === nothing ? suite_switches(model, m, roots) : run_switches(rf)
-    tm = TimesModel(joinpath(dir, "presolve"); switches=sw)
+    # %REDUCE% YES selects cal_red.red (pp_reduce.red L58-59; `$IF %REDUCE%==YES` compares case-sensitively)
+    tm = TimesModel(joinpath(dir, "presolve"); reduce=strip(get(sw, "REDUCE", "")) == "YES", switches=sw)
     u = untranslated_families(tm)
     size = get(get(get(m["runs"], "convert", Dict()), "solveinfo", Dict()), "numequ", nothing)
     hasmatrix = get(dumps, "matrix", nothing) !== nothing
@@ -208,10 +210,14 @@ function parse_probe_args(args)
 end
 
 function main(args)
+    args = collect(args)
+    variant = "reduce_off"
+    i = findfirst(==("--variant"), args)
+    i === nothing || (variant = args[i+1]; deleteat!(args, i:i+1))
     refdir, roots, models = parse_probe_args(args)
     for model in models
         res = try
-            probe(refdir, model; roots)
+            probe(refdir, model; roots, variant)
         catch e
             (; model, status="error", detail=sprint(showerror, e))
         end

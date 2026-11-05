@@ -10,9 +10,10 @@
 # eqdeclr.mod as EQ(l)_INSHR / EQ(l)_OUTSHR(R,ALLYEAR,ALLYEAR,P,C,CG,S).
 #
 # Macro expansions: %EQ% -> EQ, %VAR% -> VAR, %SOW%/%SWT% -> '' (setglobs.gms
-# L348); %R_V_T% -> 'R,V,T' (maindrv.mod L39); %cal_red% -> cal_nored.red
-# (cal_red.jl), used only on the RPG_RED branch, which is empty unless the
-# reduction ran (pp_reduce.red) and is not parity-checked yet. V = MODLYEAR,
+# L348); %R_V_T% -> 'R,V,T' (maindrv.mod L39); %cal_red% -> cal_nored.red,
+# or cal_red.red under REDUCE YES (cal_red.jl), used only on the RPG_RED
+# branch, which is empty unless the reduction ran (pp_reduce.red) and is not
+# parity-checked yet. V = MODLYEAR,
 # T = MILESTONYR.
 
 const FLOSHR_VARIANTS = (("L", "LO"), ("E", "FX"), ("G", "UP"))

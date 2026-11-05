@@ -497,3 +497,8 @@ those checks, their figures and their crafted cases are not published
   own start. Five crafted demo12 states against GAMS to the end of
   ppm_ext.vda (CI). Next: change 17b (cal_red.red, layer 2), then the M1.3
   gate (the chain from the input dump, CI on demo12, timings).
+- 5 Nov 2026: M1.3 (17b): cal_red.red, cal_fflo.mod L35-50 and
+  bnd_flo.mod L34-39, the model under %REDUCE% YES. demo12 as_run PASS on
+  layers 2 and 3 (now in CI as `demo12_red`); the other core models wait for
+  M1.1's untranslated equation families in both variants. Next: the M1.3
+  gate.

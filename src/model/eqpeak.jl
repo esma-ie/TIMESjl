@@ -32,7 +32,7 @@
 # - blending, L78 (BLE_OPR);
 # - elastic demand, L85 under %TIMESED% (COM_ELAST); VAR_DEM, L82 (RD_NLP);
 # - the IER extraction-condensing CHP adjustment, L49 (%PEAKCHP%);
-# - %IREAUXBAL% in cal_ire.mod L30; REDUCE YES in cal_fflo.mod.
+# - %IREAUXBAL% in cal_ire.mod L30. (REDUCE YES goes through cal_fflo_red!, M1.3 change 17b.)
 # The sets read (COM_PKTS, RPC_PKC, RPC_PKF, COEF_VNT, RTPCS_VARF, ...) come
 # from the pre-solve dump; pp_lvlpk.mod and pp_reduce.red L185 fill them.
 
