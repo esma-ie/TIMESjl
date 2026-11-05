@@ -465,3 +465,11 @@ those checks, their figures and their crafted cases are not published
   ppmain.mod L616-1226 and compares 185 symbols at L1226 (PASS, five core
   models, both variants). A crafted demo12 state covers the levelling paths
   (CI). Next: change 16 (ppmain.mod L1228-1336), blending.
+- 5 Nov 2026: M1.3 (16): ppmain.mod L1228-1333 (the blending block) as the
+  probe step ppmain_blend. Blending data (BL_TYPE, OPR) is refused; no
+  suite model has any, and without it only the REFUNIT default acts.
+  Compared at ppm on the 13 symbols the block writes (PASS, five core
+  models, both variants; demo12 in CI); the replay check now runs
+  ppmain.mod L616-1333 and compares 198 symbols at L1333 (PASS, five core
+  models, both variants). Next: change 17 (pp_reduce.red, dynslite.vda,
+  ppmain.mod L1336-1357; cal_red.red).
