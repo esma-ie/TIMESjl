@@ -27,7 +27,8 @@ using TIMES: DumpData, layer1, init_ext!, ppmain_head!, ppmain_head_symbols, ppm
              pp_prelv!, pp_prelv_symbols, pp_qafs!, pp_qafs_symbols, ppmain_dflt!, ppmain_dflt_symbols,
              ppmain_tsattr!, ppmain_tsattr_symbols, ppmain_flo!, ppmain_flo_symbols,
              ppmain_flofs!, ppmain_flofs_symbols, ppmain_ire!, ppmain_ire_symbols,
-             ppmain_bnd!, ppmain_bnd_symbols, ppmain_cum!, ppmain_cum_symbols
+             ppmain_bnd!, ppmain_bnd_symbols, ppmain_cum!, ppmain_cum_symbols,
+             ppmain_stg!, ppmain_stg_symbols
 using TIMES.Reference: ispass
 
 "The four segments: (first checkpoint, next checkpoint)."
@@ -58,6 +59,7 @@ const M13_STEPS = Tuple{String,String,Function,Vector{String},Function}[
     ("prelv", "ppmain_ire", ppmain_ire!, String[], ppmain_ire_symbols),   # ppmain.mod L846-933
     ("prelv", "ppmain_bnd", ppmain_bnd!, String[], ppmain_bnd_symbols),   # ppmain.mod L936-1001
     ("prelv", "ppmain_cum", ppmain_cum!, String[], ppmain_cum_symbols),   # ppmain.mod L1003-1056
+    ("prelv", "ppmain_stg", ppmain_stg!, String[], ppmain_stg_symbols),   # ppmain.mod L1058-1099
 ]
 
 function probe13(refdir, model; roots=Dict{String,String}(), variant="reduce_off", steps=M13_STEPS)
