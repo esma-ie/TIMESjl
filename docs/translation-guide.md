@@ -419,3 +419,11 @@ those checks, their figures and their crafted cases are not published
   (PASS, five core models, both variants). Two crafted demo12 states cover
   what the core models do not reach (CI). New GAMS semantics: G49. Next:
   change 12 (ppmain.mod L846-935), trade and marketplaces.
+- 5 Nov 2026: M1.3 (12): ppmain.mod L846-933 (the trade attributes
+  levelled, pp_lvlif.mod, the marketplaces) as the probe step ppmain_ire.
+  Compared at ppm on the 11 symbols nothing later changes (PASS, five core
+  models, both variants; demo12 in CI); the replay check now runs ppmain.mod
+  L616-933 and compares 112 symbols at L933 (PASS, five core models, both
+  variants). Two crafted demo12 states cover the marketplace and
+  distribution paths (CI). Next: change 13 (ppmain.mod L936-1056), in two
+  parts like 11.
