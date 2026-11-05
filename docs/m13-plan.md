@@ -431,6 +431,25 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   so PRC_ACT is empty after L821 until pp_reduce.red L10 sets it again.
   The step takes about 4 minutes on OTUS9r and 3 on OTCGEN (copying and
   sorting FLO_SUM and FLO_SHAR, not profiled).
+- (11b) ppmain.mod L823-843 is the probe step ppmain_flofs: pp_lvlff.mod
+  and pp_lvlfs.mod (FLO_FUNC and FLO_SUM levelled), FLO_SUM and IRE_FLOSUM
+  from PRC_ACTFLO for the processes in RPC_ACT, pp_lvlbr.mod for FLO_SHAR
+  (its general `lvlbr!` with %2 ',C,CG', %5 1, %6 0, %7 C,) and
+  eqflomrk.mod with RPC_NOFLO. At the ppm checkpoint it is compared on the
+  8-10 symbols nothing later changes (FLO_SUM only without VDA_EMCB,
+  ppm_ext.vda L20; IRE_FLOSUM only without records at %PGPRIM%, ppmain.mod
+  L924-926): PASS on the five core models, reduce_off and as_run, and on
+  demo12 in CI. The replay check now runs ppmain.mod L616-843 and compares
+  101 symbols at L843: PASS on the five core models, both variants. The
+  core models reach FLO_FUNC and the FLO_SUM levelling (OTUS9r), the
+  PRC_ACTFLO sums (all), FLO_SHAR below and above the flow timeslices (all)
+  and PRC_MARK from FLO_MARK (TIMES-NZ). Two crafted demo12 states ("ffs",
+  "mark", test/unit/ppmain_flofs_case.jl) cover the rest, 101 symbols each
+  at L843 (CI). The replay confirmed that eqflomrk.mod L27's `T--ORD(T)`
+  is the last milestone (G49). pp_lvlfs.mod L42 runs after L41 clears
+  FSCKS and so does nothing, in GAMS as here. The step is slow on the large
+  models: about 11-12 minutes on OTCGEN and 7.5 on OTUS9r (the FLO_SHAR
+  and FLO_SUM levelling; to be profiled).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

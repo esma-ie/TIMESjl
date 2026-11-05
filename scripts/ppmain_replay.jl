@@ -18,7 +18,8 @@ include(joinpath(@__DIR__, "gams_replay.jl"))
 "The files ppmain.mod L616-<last> includes, by the last line that needs them."
 const PPMAIN_REPLAY_SCAN = [682 => ["pp_qafs.mod", "pp_qaput.mod", "filshape.gms", "filparam.gms"],
                             797 => ["pp_lvlfc.mod", "pp_lvlbr.mod", "pp_lvlpk.mod"],
-                            821 => ["pp_chp.mod"]]
+                            821 => ["pp_chp.mod"],
+                            843 => ["pp_lvlff.mod", "pp_lvlfs.mod", "eqflomrk.mod"]]
 
 """
     ppmain_replay(tm, times_dir, last; outputs, declared, workdir, kw...) -> DumpData

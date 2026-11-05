@@ -411,3 +411,11 @@ those checks, their figures and their crafted cases are not published
   Three crafted demo12 states cover what the core models do not reach (CI).
   Next: change 11b (ppmain.mod L823-845), FLO_FUNC, FLO_SUM, FLO_SHAR and
   FLO_MARK.
+- 5 Nov 2026: M1.3 (11b): ppmain.mod L823-843 (pp_lvlff.mod, pp_lvlfs.mod,
+  the PRC_ACTFLO sums, pp_lvlbr.mod for FLO_SHAR, eqflomrk.mod) as the probe
+  step ppmain_flofs. Compared at ppm on the 8-10 symbols nothing later
+  changes (PASS, five core models, both variants; demo12 in CI); the replay
+  check now runs ppmain.mod L616-843 and compares 101 symbols at L843
+  (PASS, five core models, both variants). Two crafted demo12 states cover
+  what the core models do not reach (CI). New GAMS semantics: G49. Next:
+  change 12 (ppmain.mod L846-935), trade and marketplaces.
