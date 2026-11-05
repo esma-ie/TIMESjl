@@ -103,3 +103,28 @@ switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DU
 rows = 8695
 cols = 9669
 nonzeros = 31403
+
+# Crafted case TIMES_Demo-demo12_ips (reference/crafted.toml: demo12 + ips.dd), 5 Nov 2026
+# (GAMS 54.6.1 + CPLEX and HiGHS on James's workstation; TIMES v4.9.7 @ d9a6a25): an
+# inter-period storage process with an initial charge, losses and an auxiliary flow,
+# vintaged in one region (EQ_STGIPS, M1.3 change 19; EQ_STGAUX L25-32, change 19b).
+# Layers 2 and 3 only.
+[[fixture]]
+prefix   = "demo12_ips"
+model    = "TIMES_Demo-demo12_ips"
+variant  = "as_run"
+reduce   = true
+switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "YES", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "YES", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
+rows = 3310
+cols = 4599
+nonzeros = 18726
+
+[[fixture]]
+prefix   = "demo12_ips_off"
+model    = "TIMES_Demo-demo12_ips"
+variant  = "reduce_off"
+reduce   = false
+switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "NO", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "NO", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
+rows = 8772
+cols = 9783
+nonzeros = 31742

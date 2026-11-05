@@ -23,3 +23,17 @@ redistribute = "public"
 kind = "run"
 run_file = "{crafted}/demo12_red17b/demo12_red17b.run"
 idirs = ["{times_demo}/model", "{crafted}/demo12_red17b"]
+
+# TIMES_Demo demo12 + ips.dd (5 Nov 2026): M1.3 changes 19 and 19b (eqstgips.mod;
+# eqstgaux.mod L25-32), an inter-period storage process with an auxiliary flow.
+[[model]]
+name = "TIMES_Demo-demo12_ips"
+tier = "crafted"
+source_repo = "etsap-TIMES/TIMES_Demo"
+licence_url = "https://github.com/etsap-TIMES/TIMES_Demo/blob/master/NOTICE-CC-BY-4.0.txt"
+licence_checked = "2026-10-27"
+licence = "CC-BY-4.0"
+redistribute = "public"
+kind = "run"
+run_file = "{crafted}/demo12_ips/demo12_ips.run"
+idirs = ["{times_demo}/model", "{crafted}/demo12_ips"]

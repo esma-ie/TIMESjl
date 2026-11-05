@@ -156,6 +156,23 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 
 ## Findings so far
 
+- (19b) eqstgaux.mod L25-32, the inter-period storage terms of EQ_STGAUX:
+  the charging less the discharging of the stored commodities in the
+  latter half of the period (each year from M(T) weighted by
+  MIN(1,YEARVAL-M(T)+MAX(0,M(T)+D(T)/2-E(T))) and discounted for losses to
+  E(T), over PERIODYR(T,Y_EOH)) is taken off the level, and for an STK
+  process the bracket is scaled to the level in the middle of the period
+  (L32). Checked: EQ_STGAUX and EQ_STGIPS rows on OTCGEN (8,488 rows,
+  10,313 coefficients, both variants); a crafted case for CI,
+  TIMES_Demo-demo12_ips (`reference/dd/demo12_ips/`: an OIL store
+  STKOIL1 in both regions, vintaged in REG2, with STG_CHRG before the first
+  period, STG_LOSS 2% and an INDCO2 output tied to the level), which GAMS
+  gives 27 EQ_STGIPS rows (with both IN rows) and 25 EQ_STGAUX rows: layers
+  2-3 PASS on both variants (as_run 3,310 rows, 4,599 columns, 18,726
+  nonzeros; reduce_off 8,772, 9,783, 31,742; objective 23,960,094.02 by
+  CPLEX and HiGHS) and the M1.3 chain PASS; CI fixtures `demo12_ips` and
+  `demo12_ips_off`. Change 19 found a closure in eq_stgips! writing the
+  row counter (the returned count only), fixed here.
 - (19) eqstgips.mod, EQ_STGIPS (inter-period storage, `src/model/eqstgips.jl`):
   two kinds of row, as IPS = {IN, N} (setglobs.gms L154) and LIM =
   {LO, FX, UP, N}: N, for every RTP_VINTYR tuple of an STK process with

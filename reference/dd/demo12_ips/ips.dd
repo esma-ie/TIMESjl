@@ -1,0 +1,98 @@
+* TIMES.jl crafted case demo12_ips (reference/crafted.toml, 5 Nov 2026): an inter-period
+* storage process added to TIMES_Demo demo12 (etsap-TIMES/TIMES_Demo @ 962db86, CC BY 4.0),
+* for M1.3 changes 19 and 19b (docs/m13-plan.md):
+* - STKOIL1 stores crude OIL from period to period (PRC_MAP STK; OIL is its primary
+*   group, so ppmain.mod L80-96 makes it PRC_STGIPS): EQ_STGIPS (eqstgips.mod), N rows
+*   and, with STG_CHRG before the first period, the IN row.
+* - INDCO2 is an auxiliary output tied to the storage level (PRC_ACTFLO): EQ_STGAUX
+*   with the inter-period terms (eqstgaux.mod L25-32).
+* - REG1 is not vintaged, REG2 is (PRC_VINT): both branches of eqstgips.mod L22-23.
+* - STG_LOSS 2% a year: the loss factors of both equations.
+$ONEMPTY
+$ONEPS
+$ONWARNING
+SET PRC
+/
+STKOIL1
+/
+
+SET PRC_MAP
+/
+REG1.STK.STKOIL1
+REG2.STK.STKOIL1
+/
+
+SET PRC_TSL
+/
+REG1.STKOIL1.ANNUAL
+REG2.STKOIL1.ANNUAL
+/
+
+SET PRC_ACTUNT
+/
+REG1.STKOIL1.OIL.PJ
+REG2.STKOIL1.OIL.PJ
+/
+
+SET TOP
+/
+REG1.STKOIL1.OIL.IN
+REG1.STKOIL1.OIL.OUT
+REG1.STKOIL1.INDCO2.OUT
+REG2.STKOIL1.OIL.IN
+REG2.STKOIL1.OIL.OUT
+REG2.STKOIL1.INDCO2.OUT
+/
+
+SET PRC_VINT
+/
+REG2.STKOIL1
+/
+
+SET PRC_DESC
+/
+ REG1.STKOIL1 'Crafted: inter-period crude oil storage (TIMES.jl demo12_ips)'
+ REG2.STKOIL1 'Crafted: inter-period crude oil storage (TIMES.jl demo12_ips)'
+/
+
+PARAMETER
+NCAP_COST ' '/
+REG1.2005.STKOIL1.MEURO05 5
+REG2.2005.STKOIL1.MEURO05 5
+
+/
+
+PARAMETER
+NCAP_TLIFE ' '/
+REG1.2005.STKOIL1 30
+REG2.2005.STKOIL1 30
+
+/
+
+PARAMETER
+PRC_CAPACT ' '/
+REG1.STKOIL1 1
+REG2.STKOIL1 1
+
+/
+
+PARAMETER
+STG_LOSS ' '/
+REG1.2005.STKOIL1.ANNUAL 0.02
+REG2.2005.STKOIL1.ANNUAL 0.02
+
+/
+
+PARAMETER
+STG_CHRG ' '/
+REG1.2004.STKOIL1.ANNUAL 50
+REG2.2004.STKOIL1.ANNUAL 30
+
+/
+
+PARAMETER
+PRC_ACTFLO ' '/
+REG1.2005.STKOIL1.INDCO2 0.01
+REG2.2005.STKOIL1.INDCO2 0.01
+
+/
