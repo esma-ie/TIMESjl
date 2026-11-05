@@ -95,7 +95,8 @@ GAMS 54.6.1):
 | 16 | ppmain.mod: blending (refused unless needed; any non-blending statements in the block translated) | 1228-1333 | ppm |
 | 17a | ppmain.mod end with pp_reduce.red (dynslite.vda refused, as in 8b) | 1336-1357; 1-188 | ppm (reduce_off and as_run) |
 | 17b | cal_red.red: flows substituted by activities on the equation side | 1-59 | layer 2 (as_run) |
-| 18 | ppm_ext.dsc; ppm_ext.vda with pp_actef.vda, resloadc.vda, equcrtp.vda (PPM_EXT) | 1-16; 1-169 | ppm |
+| 18a | ppm_ext.dsc; ppm_ext.vda with pp_actef.vda (LVL): dispatching and partial loads, the VDA_EMCB sums, ACT_EFF prepared, inherited and levelled | 1-16; 11-58; 9-48 | ppm |
+| 18b | ppm_ext.vda with equcrtp.vda (PPM_EXT): shape indexes, flows kept from the reduction, commodity and CHP availabilities, NCAP_AFX/AFM options; the segment's all-symbols check (resloadc.vda refused, dynslite.vda refused) | 59-169; 64-72 | ppm |
 
 ## Parity (per change)
 
@@ -608,6 +609,33 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   ("yes") and %REDUCE% unset ("mid"), 216 symbols each (CI). In demo12 the
   dummy imports (IMPNRGZ) produce every commodity, so no commodity has a
   single producer and RTCS_SING ends empty.
+- (18a) ppm_ext.dsc and ppm_ext.vda L11-58 with pp_actef.vda LVL are the
+  probe step ppm_ext_actef: RP_UPL and RP_PL (ramping, partial loads), the
+  FLO_SUMs of the VDA_EMCB emissions, the auxiliary flows that may be
+  replaced (TRACKPG, FS_EMIT), ACT_EFF moved from ACT to the shadow group,
+  the ACT_EFF groups (RPG_ACE, RPG_PACE, the singleton groups RPG_1ACE),
+  ACT_EFF levelled to the process timeslices (UNCD7, the pp_lvlbr.mod
+  average) and copied down from ANNUAL. Change 18 is split like 11, 13, 15
+  and 17: 18b is ppm_ext.vda L59-169 with equcrtp.vda PPM_EXT, and ends the
+  segment with the all-symbols check. ppm_ext.dsc exits (%DSC% NO: discrete
+  capacities are refused at init_ext.dsc), and resloadc.vda (GR_VARGEN) is
+  refused as at prep_ext.vda L38. `SQRT(ABS(EPS))` is EPS (G50). At the ppm
+  checkpoint it is compared on the 20 symbols nothing later changes: PASS
+  on the five core models, both variants, and on demo12 in CI. The replay
+  check now runs ppmain.mod L616-1357 and ppm_ext.vda L11-58
+  (`ppm_ext_replay`: the ppm_ext lines in a second file included as
+  `VDA mod`, as main_ext.mod does) and compares 229 symbols at L58: PASS on
+  the five core models, both variants (OTNYC has ACT_EFF below ANNUAL and
+  on primary-group commodities, so the levelling and RPG_PACE are reached
+  on a core model). Two crafted demo12 states ("ace": ACT_EFF below the
+  process level, on a primary-group commodity and EPS on a shadow-group
+  commodity, a VDA_FLOP record at prelv; "upl": ACT_UPS, ACT_LOSPL and
+  NORTS) cover the rest, 229 symbols each (CI). pp_actef.vda L22 (SQRT of
+  ACT_EFF on a shadow-group commodity) is unreachable in v4.9.7: it needs an
+  RPG_ACE record whose group is a shadow-group commodity, which no line
+  writes. NORTS on a milestone also zeroes COM_FR there (ppmain.mod L720),
+  so the "upl" case sets it on a past vintage: on a milestone demo12's
+  COM_FR stops GAMS with a division by EPS (G48).
 
 - (0) The pre-solve run's dumps lack the report-only symbols (the reports are
   skipped at maindrv.mod L114), so the checkpoint `ppm/` has fewer symbols

@@ -78,6 +78,7 @@ include("prep/ppmain_uc.jl")
 include("prep/ppmain_ucmap.jl")
 include("prep/ppmain_blend.jl")
 include("prep/ppmain_reduce.jl")
+include("ext/vda/ppm_ext.jl")
 include("model/generate.jl")
 
 end # module TIMES
