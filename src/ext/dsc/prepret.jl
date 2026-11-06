@@ -129,6 +129,46 @@ function prepret_prep!(st::InterpState)
     return st
 end
 
+# M1.3 (20b-2): %RCAPSUB% and %RCAPSBM%, the retired capacity taken off the
+# capacity terms of the equations compiled after eqobj.mod L39 (prepret.dsc
+# EQOBJ is included there, before every other equation of eqmain.mod).
+#
+# GAMS: prepret.dsc L87-88, v4.9.7:
+#   $SETGLOBAL RCAPSUB -SUM(VNTRT(V,T),%VART%_SCAP(R,V,T,P%SWS%))$PRC_RCAP(R,P)
+#   $SETGLOBAL RCAPSBM -SUM(VNTRT(MODLYEAR,T),%VART%_SCAP(R,MODLYEAR,T,P%SWS%))$PRC_RCAP(R,P)
+# Without early retirement both are empty (setglobs.gms L351). Where V (or
+# MODLYEAR) is already controlled the SUM is a condition on it (G18), the
+# single term -VAR_SCAP(R,V,T,P) for VNTRT(V,T) (`rcapsub!`): eqcpt.mod L26,
+# eqcapact.mod L37 and L45, eqpeak.mod L24, and eqcaflac.vda L32 and L57,
+# whose SUM over RVP_KMAP(R,V,P,MODLYEAR(K)) controls MODLYEAR together with
+# K (docs/discrepancies.md G48: checked on the crafted case
+# TIMES_Demo-demo12_refit_afc, where reading MODLYEAR as free doubles the
+# coefficients). The other users (cal_cap.mod, cal_caps.mod, eqactups.vda,
+# eqlducs.vda, resloadc.vda) are refused with their files.
+
+"Early retirement on (VNRET defined), PRC_RCAP and VNTRT, cached."
+function rcap_ctx(tm::TimesModel)
+    get!(tm.cache, "RCAPSUB") do
+        on = Reference.has_symbol(tm.data.dump, "RP_RTF")
+        (; on, prc_rcap=on ? gset(tm, "PRC_RCAP") : gset_opt(tm.data, "PRC_RCAP", 2),
+           vntrt=on ? gset(tm, "VNTRT") : gset_opt(tm.data, "VNTRT", 2))
+    end
+end
+
+"""
+    rcapsub!(expr, c, tm, r, v, t, p) -> expr
+
+`c * %RCAPSUB%` with V and T controlled: `-c * VAR_SCAP(r,v,t,p)` when early
+retirement is on, PRC_RCAP(r,p) and VNTRT(v,t).
+
+GAMS: prepret.dsc L87 (and L88, %RCAPSBM%, with MODLYEAR controlled), v4.9.7.
+"""
+function rcapsub!(expr::JuMP.AffExpr, c::GNum, tm::TimesModel, r, v, t, p)
+    x = rcap_ctx(tm)
+    x.on && (r, p) in x.prc_rcap && (v, t) in x.vntrt && addterm!(expr, -c, tm, "VAR_SCAP", r, v, t, p)
+    return expr
+end
+
 # M1.3 (20b-1): the retirement and refit equations of the EQOBJ label,
 # generated at the SOLVE (mod_equa.mod L212, `$IF DEFINED VNRET`) from the
 # data as it stands then (the pre-solve dump: after the DECL label, L44-84,

@@ -18,7 +18,11 @@
 #
 # Macro expansions: %EQ% -> EQ, %VAR%/%VARM% -> VAR, %SOW%/%SWT%/%SWS% -> ''
 # (setglobs.gms L348); %R_V_T% -> 'R,V,T' (maindrv.mod L39); %4 = %MX% ->
-# '' and %RCAPSBM% -> '' (see eqcapact.jl), so COEF_AF%4 is COEF_AF; %RTS% ->
+# '' (see eqcapact.jl), so COEF_AF%4 is COEF_AF; %RCAPSBM% is the -VAR_SCAP
+# term of early retirement (prepret.dsc L88): RVP_KMAP(R,V,P,MODLYEAR(K))
+# controls MODLYEAR together with K, so it is -VAR_SCAP(R,K,T,P) for
+# VNTRT(K,T) in each K term (docs/discrepancies.md G48; `rcapsub!`, M1.3
+# change 20b-2); %RTS% ->
 # S (timslice.mod L31; S+NORTS(R,T,S) only with dynamic timeslices, refused);
 # %UPSCAP0% -> (%UPSCAPS%$PRC_TS(R,P,S))$RP_UPL(R,P,'FX') (equ_ext.vda L75), a
 # unit-commitment term: RP_UPL(R,P,'FX') data is refused (as for EQ_CAPACT),
@@ -96,6 +100,7 @@ function caflac_capacity!(rhs::JuMP.AffExpr, tm::TimesModel, r, v, t, p, f)
         c = gv(coef_vnt, (r, t, p, k)) * f(k)
         (k,) in milestonyr && addterm!(rhs, c, tm, "VAR_NCAP", r, k, p)
         (k,) in pastyear && addconst!(rhs, c * gv(ncap_pasti, (r, k, p)))
+        rcapsub!(rhs, c, tm, r, k, t, p)                        # %RCAPSBM%, MODLYEAR = K (G48; prepret.jl)
     end
     return rhs
 end

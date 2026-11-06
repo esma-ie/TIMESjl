@@ -79,3 +79,17 @@ redistribute = "public"
 kind = "run"
 run_file = "{crafted}/demo12_ucrt/demo12_ucrt.run"
 idirs = ["{times_demo}/model", "{crafted}/demo12_ucrt"]
+
+# TIMES_Demo demo12 + refit.dd + afc.dd (6 Nov 2026): M1.3 change 20b-2, the %RCAPSBM% term of
+# eqcaflac.vda L32 (an NCAP_AFC on the coal input of the retiring plant ELCTECOA00).
+[[model]]
+name = "TIMES_Demo-demo12_refit_afc"
+tier = "crafted"
+source_repo = "etsap-TIMES/TIMES_Demo"
+licence_url = "https://github.com/etsap-TIMES/TIMES_Demo/blob/master/NOTICE-CC-BY-4.0.txt"
+licence_checked = "2026-10-27"
+licence = "CC-BY-4.0"
+redistribute = "public"
+kind = "run"
+run_file = "{crafted}/demo12_refit_afc/demo12_refit_afc.run"
+idirs = ["{times_demo}/model", "{crafted}/demo12_refit", "{crafted}/demo12_refit_afc"]

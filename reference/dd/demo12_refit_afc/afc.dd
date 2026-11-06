@@ -1,0 +1,22 @@
+* TIMES.jl crafted case demo12_refit_afc (reference/crafted.toml, 6 Nov 2026): the refit case
+* demo12_refit (refit.dd) plus a commodity availability on the coal plant that retires,
+* for M1.3 change 20b-2 (docs/m13-plan.md): EQL_CAFLAC on the fuel input ELCCOA of ELCTECOA00
+* (not on ELC: an NCAP_AFC on the primary group becomes NCAP_AF, ppm_ext.vda), a PRC_RCAP process,
+* reaches the %RCAPSBM% term of eqcaflac.vda L32 (prepret.dsc L88), which no suite model
+* reaches. A second past vintage of ELCTECOA00 in REG1 (NCAP_PASTI 1995) puts two retiring
+* vintages in the same row, which tells the two readings of %RCAPSBM% apart there (MODLYEAR
+* summed over every vintage, or tied to K). TIMES_Demo demo12 (etsap-TIMES/TIMES_Demo @ 962db86,
+* CC BY 4.0).
+$ONEMPTY
+$ONEPS
+$ONWARNING
+PARAMETER
+NCAP_AFC ' '/
+REG1.2005.ELCTECOA00.ELCCOA.ANNUAL 2.5
+REG2.2005.ELCTECOA00.ELCCOA.ANNUAL 2.4
+/
+
+PARAMETER
+NCAP_PASTI ' '/
+REG1.1995.ELCTECOA00 3
+/

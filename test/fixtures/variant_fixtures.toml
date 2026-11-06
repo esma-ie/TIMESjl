@@ -37,5 +37,18 @@ variant  = "as_run"
 reduce   = true
 switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "YES", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "NO", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
 untranslated = ["EQ_DSCRET/EQ_CUMRET/EQL_SCAP/EQL_REFIT"]
-# M1.3 change 20b-1 (6 Nov 2026): the rows of these families vs demo12_refit_matrix
-partial = { generator = "eq_ret!", families = ["EQ_CUMRET", "EQL_SCAP", "EQL_REFIT"] }
+# M1.3 changes 20b-1 and 20b-2 (6 Nov 2026): the rows of these families vs demo12_refit_matrix
+# (the retirement equations; the capacity families with their -VAR_SCAP terms)
+partial = { generators = ["eq_ret!", "eq_cpt!", "eq_capact!", "eq_peak!", "eq_caflac!"], families = ["EQ_CUMRET", "EQL_SCAP", "EQL_REFIT", "EQE_CPT", "EQL_CAPACT", "EQ_PEAK"] }
+
+# Crafted case demo12_refit_afc (6 Nov 2026): demo12_refit plus an NCAP_AFC on the coal input of
+# the retiring plant ELCTECOA00 and a second past vintage of it in REG1, for M1.3 change 20b-2:
+# the %RCAPSBM% term of EQL_CAPFLO (eqcaflac.vda L57), with two retiring vintages in a row (G48).
+[[variant]]
+prefix   = "demo12_refit_afc"
+model    = "TIMES_Demo-demo12_refit_afc"
+variant  = "as_run"
+reduce   = true
+switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "YES", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "NO", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
+untranslated = ["EQ_DSCRET/EQ_CUMRET/EQL_SCAP/EQL_REFIT"]
+partial = { generators = ["eq_ret!", "eq_cpt!", "eq_capact!", "eq_peak!", "eq_caflac!"], families = ["EQ_CUMRET", "EQL_SCAP", "EQL_REFIT", "EQE_CPT", "EQL_CAPACT", "EQ_PEAK", "EQL_CAPFLO"] }

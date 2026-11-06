@@ -11,7 +11,8 @@
 # with those switches (generate.jl).
 #
 # Macro expansions: %EQ% -> EQ, %VAR%/%VARV% -> VAR, %SOW%/%SWT%/%SWS% -> ''
-# (setglobs.gms L348); %RCAPSUB% -> '' (docs/discrepancies.md D1). T =
+# (setglobs.gms L348); %RCAPSUB% is the -VAR_SCAP term of early retirement
+# (prepret.dsc L87, `rcapsub!`; M1.3 change 20b-2), empty without it. T =
 # MILESTONYR, V = MODLYEAR. CAP_BND is read as the SOLVE sees it, after
 # bndmain.mod L51 (bndmain.jl).
 
@@ -50,6 +51,7 @@ function eq_cpt!(tm::TimesModel)
             c = gv(coef_cpt, (r, v, t, p))
             (v,) in milestonyr && addterm!(expr, c, tm, "VAR_NCAP", r, v, p)
             (v,) in pastyear && addconst!(expr, c * gv(ncap_pasti, (r, v, p)))
+            rcapsub!(expr, c, tm, r, v, t, p)                       # %RCAPSUB% (prepret.jl)
         end
         return expr
     end
