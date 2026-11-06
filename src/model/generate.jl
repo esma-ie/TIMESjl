@@ -96,8 +96,6 @@ function untranslated_families(tm::TimesModel)
             ("eq_sdlogic/eq_sudupt/eq_sdslant", "eqlducs.vda L67-81", "RP_DPL", 3, :s),
             ("eq_sdminon/eq_sudload/eq_sudtime/eq_sudpll", "eqlducs.vda L94-118", "RP_DP", 2, :s),
             ("eq_sdind_1/eq_sdind_0", "eqlducs.vda L158-169", "DP_UNS", 7, :p),
-            ("EQ(l)_UCRTP", "equcrtp.vda L75", "PRC_DYNUC", 7, :p),
-            ("EQN_UCRTC", "equcrtp.vda L103", "UC_DYNBND", 2, :s),
             ("EQG_UCMAX/EQG_UCSUMAX", "ucbet.vda L46-125", "UC_GMAX", 5, :s),
             ("EQ_OBJBAL", "powerflo.vda (mod_ext.vda L42-43)", "COM_CSTBAL", 6, :p),
             ("EQ_RL_*", "resloadc.vda (mod_ext.vda L48-49)", "GR_VARGEN", 4, :p),
@@ -173,7 +171,7 @@ then generate the translated equation families, apply the bounds and set
 GAMS: eqmain.mod L34 (objective), L41 (EQ_ACTFLO), L47-49 (EQ(l)_ACTBND), L64-66 (EQ_CAPACT), L92
 (EQ_CUMFLO), L98-106 (EQ_COMBAL, EQE_COMPRD), L146 (EQ_IRE), L159 (EQ_PEAK), L164
 (EQ_PTRANS), L169 (EQ_STGIPS), L170 (EQ_STGAUX), L175 (EQ_STGTSS, EQ_STSBAL), L180-185 (EQ(l)_STGIN/STGOUT), L229 (EQE_UCT/UCRT/UCTS/UCRTS, the dynamic EQE_UCSU/UCRSU/UCRSUS/UCSUS and EQE_UCRS); equ_ext.vda L85 (EQE_ACTEFF);
-equ_ext.vda L88-89 (EQ(l)_CAFLAC, EQL_CAPFLO); equ_ext.vda L94-96 (EQ(l)_ASHAR); bndmain.mod; solve.mod L37, v4.9.7.
+equ_ext.vda L88-89 (EQ(l)_CAFLAC, EQL_CAPFLO); equ_ext.vda L94-96 (EQ(l)_ASHAR); equ_ext.vda L105-106 (EQN/EQE_UCRTP, EQN_UCRTC); bndmain.mod; solve.mod L37, v4.9.7.
 """
 function generate!(tm::TimesModel)
     u = untranslated_families(tm)
@@ -199,6 +197,7 @@ function generate!(tm::TimesModel)
     n += eq_acteff!(tm)              # VDA: equ_ext.vda L85 (pp_actef.vda L56)
     n += eq_caflac!(tm)              # VDA: equ_ext.vda L88-89
     n += eq_ashar!(tm)               # VDA: equ_ext.vda L94-96
+    n += eq_ucrtp!(tm)               # VDA: equ_ext.vda L105-106
     apply_bounds!(tm)                # maindrv.mod L92
     JuMP.@objective(tm.model, Min, getvar!(tm, "OBJZ"))   # solve.mod L37
     return n

@@ -1,0 +1,61 @@
+* TIMES.jl crafted case demo12_ucrt (reference/crafted.toml, 6 Nov 2026): dynamic process and
+* commodity bounds added to TIMES_Demo demo12 (etsap-TIMES/TIMES_Demo @ 962db86, CC BY 4.0),
+* for M1.3 change 20 (equcrtp.vda EQU_EXT, docs/m13-plan.md). OTUS9r reaches only ACT with
+* LO and UP; this case reaches the other branches:
+* - DYN_CAPUP: EQN_UCRTP on CAP, UP (ELCRNWIN01; REG1 with a growth factor and a constant,
+*   REG2 with a constant only, so the LHS default of 1, equcrtp.vda L51).
+* - DYN_NCAPLO: EQN_UCRTP on NCAP, LO (ELCRNSOL01, REG1; a negative constant).
+* - DYN_ACTFX: EQE_UCRTP on ACT, FX (ELCTNOIL01, REG2; the annual sum over PRC_TS).
+* - DYN_PRDUP, DYN_NETLO: EQN_UCRTC on COMPRD of GAS (UP) and COMNET of COA (LO) in REG1,
+*   both ANNUAL-level commodities (EQN_UCRTC is defined at ANNUAL only, equcrtp.vda L103).
+$ONEMPTY
+$ONEPS
+$ONWARNING
+SET UC_N
+/
+DYN_CAPUP 'Dynamic bound on wind capacity'
+DYN_NCAPLO 'Dynamic bound on solar investment'
+DYN_ACTFX 'Dynamic bound on oil-plant activity'
+DYN_PRDUP 'Dynamic bound on gas production'
+DYN_NETLO 'Dynamic bound on net coal'
+/
+
+SET UC_DYNBND
+/
+DYN_CAPUP.UP
+DYN_NCAPLO.LO
+DYN_ACTFX.FX
+DYN_PRDUP.UP
+DYN_NETLO.LO
+/
+
+PARAMETER
+UC_CAP ' '/
+DYN_CAPUP.LHS.REG1.2015.ELCRNWIN01 1.15
+DYN_CAPUP.RHS.REG1.2015.ELCRNWIN01 1
+DYN_CAPUP.RHS.REG2.2015.ELCRNWIN01 2
+/
+
+PARAMETER
+UC_NCAP ' '/
+DYN_NCAPLO.LHS.REG1.2015.ELCRNSOL01 0.5
+DYN_NCAPLO.RHS.REG1.2015.ELCRNSOL01 -0.5
+/
+
+PARAMETER
+UC_ACT ' '/
+DYN_ACTFX.LHS.REG2.2015.ELCTNOIL01.ANNUAL 1
+DYN_ACTFX.RHS.REG2.2015.ELCTNOIL01.ANNUAL 0.1
+/
+
+PARAMETER
+UC_COMPRD ' '/
+DYN_PRDUP.LHS.REG1.2015.GAS.ANNUAL 1.2
+DYN_PRDUP.RHS.REG1.2015.GAS.ANNUAL 1000
+/
+
+PARAMETER
+UC_COMNET ' '/
+DYN_NETLO.LHS.REG1.2015.COA.ANNUAL 0.9
+DYN_NETLO.RHS.REG1.2015.COA.ANNUAL -1000
+/
