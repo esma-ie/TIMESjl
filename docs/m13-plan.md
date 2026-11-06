@@ -184,8 +184,16 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   `demo12_refit_afc` (public_fixtures.toml). OTUS9r reference, the first
   time its whole model is generated: layer 2 PASS on both variants
   (reduce_off 2,174,010 rows, 2,776,359 columns, 9,925,588 nonzeros;
-  as_run 1,028,923, 1,647,278, 7,163,965; GAMS 54.6.1); layer 3 was
-  running at the time of writing (HiGHS).
+  as_run 1,028,923, 1,647,278, 7,163,965; GAMS 54.6.1). Layer 3, the
+  cross-evaluation (6 Nov 2026): CPLEX's optimum from the GAMS run, read
+  from its end-of-run dump, gives OBJz in TIMES.jl's model equal to GAMS's
+  (192,206,507,156.18 as_run, 192,206,392,884.71 reduce_off, relative
+  difference 0) and is exactly as feasible there as in GAMS's own CONVERT
+  matrix (worst row 2.7e-4 relative, EQ_OBJVAR, identical in both; bounds
+  within 1e-13). The other half of layer 3, a HiGHS optimum of TIMES.jl's
+  model, is open: HiGHS stopped with OTHER_ERROR on as_run and had not
+  finished reduce_off after an hour, and the reference has no GAMS/HiGHS
+  solve of OTUS9r to compare (CPLEX only, 310 s).
 - (20b-3) prepret.dsc L66-80, the VAR_RCAP and VAR_SCAP bounds of the
   DECL label (`ret_bounds!`, `src/ext/dsc/prepret.jl`, first in
   `bndmain`'s table as mod_vars.mod L94 comes before bndmain.mod). RVP and
