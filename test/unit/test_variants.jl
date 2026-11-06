@@ -12,8 +12,9 @@ using TIMES: TimesModel, DumpData, layer1, untranslated_families, generate!, Unp
              ppmain_topo!, ppmain_tslvl!, ppmain_life!, pp_prelv!, pp_qafs!, ppmain_dflt!, ppmain_tsattr!, ppmain_flo!,
              ppmain_flofs!, ppmain_ire!, ppmain_bnd!, ppmain_cum!, ppmain_stg!, ppmain_uc!, ppmain_ucmap!, ppmain_blend!,
              ppmain_reduce!, ppm_ext_actef!, ppm_ext!
-using TIMES.Reference: ispass
+using TIMES.Reference: ispass, canonical_from_jump, canonical_from_dump, family
 import TOML
+isdefined(@__MODULE__, :check_family_parity) || include("parity_helpers.jl")
 
 "Every preprocessing step, maindrv.mod L55-58 order (test_m13_chain.jl, M13_CHAIN)."
 const VARIANT_STEPS = (init_ext!, ppmain_head!, ppmain_years!, timslice!, ppmain_rtp!, preppm!, prep_ext!, preppm_shape!,
@@ -46,6 +47,19 @@ for vx in VARIANTS
             fams = unique(x.family for x in untranslated_families(tm))
             @test Set(fams) == Set(vx["untranslated"])
             isempty(vx["untranslated"]) || @test_throws UnportedError generate!(tm)
+        end
+        # Families translated while the model is still refused (a change in parts, such as
+        # 20b): their rows alone against the CONVERT export (layer 2, 1e-9).
+        if haskey(vx, "partial")
+            @testset "rows of $(join(vx["partial"]["families"], ", "))" begin
+                tm = TimesModel(fx("presolve"); reduce=get(vx, "reduce", false), switches=vx["switches"])
+                getfield(TIMES, Symbol(vx["partial"]["generator"]))(tm)
+                mine = canonical_from_jump(tm.model)
+                ref = canonical_from_dump(joinpath(fx("matrix"), "matrix"), joinpath(fx("matrix"), "dictmap"))
+                for fam in vx["partial"]["families"]
+                    @test check_family_parity(mine, ref, fam) > 0
+                end
+            end
         end
     end
 end

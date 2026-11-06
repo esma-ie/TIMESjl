@@ -37,3 +37,5 @@ variant  = "as_run"
 reduce   = true
 switches = { BOTIME = "1960", DATAGDX = "YES", DEBUG = "NO", DSCAUTO = "YES", DUMPSOL = "NO", OBJ = "MOD", REDUCE = "YES", RUN_NAME = "demo12", SOLVEDA = "YES", SOLVE_NOW = "NO", VAR_UC = "YES", VDA = "YES", VEDAVDD = "YES", XTQA = "YES" }
 untranslated = ["EQ_DSCRET/EQ_CUMRET/EQL_SCAP/EQL_REFIT"]
+# M1.3 change 20b-1 (6 Nov 2026): the rows of these families vs demo12_refit_matrix
+partial = { generator = "eq_ret!", families = ["EQ_CUMRET", "EQL_SCAP", "EQL_REFIT"] }

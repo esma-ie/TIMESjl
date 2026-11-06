@@ -128,3 +128,158 @@ function prepret_prep!(st::InterpState)
     gput!(tm, "RCAP_OCAP", ocap)
     return st
 end
+
+# M1.3 (20b-1): the retirement and refit equations of the EQOBJ label,
+# generated at the SOLVE (mod_equa.mod L212, `$IF DEFINED VNRET`) from the
+# data as it stands then (the pre-solve dump: after the DECL label, L44-84,
+# and the EQOBJ label's own clean-up, L121-131).
+#
+# GAMS: prepret.dsc L89-117, v4.9.7, included from eqobj.mod L39 as
+# `$IF DECLARED VNRET $BATINCLUDE prepret.dsc EQOBJ`.
+#
+#   EQ_CUMRET(R,VNTRT(V,K(T-(1-1$RP_RTF(R,P)))),P)$(RTP_CPTYR(R,V,T,P)$PRC_RCAP(R,P))..
+#     SUM(RTP_CPTYR(R,V,K,P), VAR_SCAP(R,V,T,P) - VAR_RCAP(R,V,T,P)) -
+#     SUM(RTP_CPTYR(R,V,MODLYEAR(Y(T-1)),P)$VNTRT(V,Y), VAR_SCAP(R,V,Y,P))  =E= 0;
+#
+#   EQL_SCAP(RTP(R,V(LL),P),IPS)$(((OBJ_SUMS(RTP)+(NOT PRC_VINT(R,P))$T(V))$RVPRL(RTP)$L(IPS)
+#                                  OR NCAP_OLIFE(RTP)$IO(IPS))$PRC_RCAP(R,P))..
+#     SUM(IO(IPS), SUM((RTP_CPTYR(R,V,TT,P),PRC_TS(R,P,S)), VAR_ACT(R,V,TT,P,S)*FPD(TT))/PRC_CAPACT(R,P)/NCAP_OLIFE(RTP)) +
+#     SUM(VNTRT(V,T(LL+RVPRL(RTP))), VAR_SCAP(R,V,T,P))$LIM(IPS)
+#     =L= VAR_NCAP(R,V,P)$T(V) + NCAP_PASTI(R,V,P) - VAR_SCAP(R,V,'0',P)$RVPRL(RTP);
+#
+#   EQL_REFIT(RTP_TT(R,TT,T,PRC),LNX(L))$((BD(L)+VNT(T,TT)$(RP_RTF(R,PRC)=3))$RT_PP(R,T))..
+#     SUM((V(TT),P)$((VNT(T,V) OR PRC_REFIT(R,PRC,P)<0)$PRC_REFIT(R,PRC,P)),
+#         COEF_CPT(R,V,T,P)*(VAR_NCAP(R,V,P) - SUM(VNTRT(V,T),VAR_SCAP(R,V,T,P))$PRC_RCAP(R,P)))
+#     + VAR_RCAP(R,T,TT,PRC)$(RP_RTF(R,PRC)$VNT(T,TT)$BD(L)<3)
+#     =E=
+#     SUM(VNRET(V,TT,PRC), COEF_CPT(R,V,T,PRC) * (VAR_RCAP(R,V,TT,PRC) -
+#         SUM(MODLYEAR(K(TT-1))$VNT(V,K), MIN(INF$MOD(RP_RTF(R,PRC),2), RTFORC(R,V,TT,PRC)-RTFORC(R,V,K,PRC))))) +
+#     SUM(K(TT-1)$RTP_TT(R,K,T,PRC), VAR_RCAP(R,T,K,PRC))$(RP_RTF(R,PRC)$BD(L)>0);
+#
+# Macro expansions: %EQ% -> EQ, %VAR%/%VARV%/%VART%/%VARTT%/%VARM% -> VAR,
+# %SOW%/%SWS%/%SWT% -> '' (setglobs.gms L348); %R_V_T% -> R,V,T
+# (maindrv.mod L39); %RCAPSUB% in EQL_REFIT is L87's
+# `-SUM(VNTRT(V,T),VAR_SCAP(R,V,T,P))$PRC_RCAP(R,P)`; VNRET(V,T,P) is the
+# L41 macro RTP_CPTYR(R,VNTRT(V,T),P). Sets: IPS = {IN, N}, LNX = {N, FX}
+# (setglobs.gms L154); L is LIM = {LO, FX, UP, N} and BD is BND_TYPE =
+# {LO, FX, UP} (initsys.mod L70-73), so EQL_SCAP's N rows are the LIM ones
+# and its IN rows the IO ones; EQL_REFIT has FX rows wherever RT_PP holds and
+# N rows only for VNT(T,TT) with RP_RTF = 3. Despite its name EQL_REFIT is
+# =E=. Leads and lags on milestone aliases (T-1, TT-1) move along the
+# milestones (G38); `LL+RVPRL` along ALLYEAR, by RVPRL rounded (G29, G34).
+# EPS is true in a `$`-condition (G3) and 0 in a comparison (G12); `$` binds
+# before the comparisons (as before `-` and `**`, G13, G38), so
+# `RP_RTF$VNT$BD<3` reads `(RP_RTF$VNT$BD) < 3`. `MOD(x,2)` keeps the sign
+# of x (G43), so a negative odd RP_RTF gives INF.
+#
+# Not translated yet; data that reaches them raises UnportedError:
+# - EQ_DSCRET (L92-95), rows only with RCAP_BLK, which L122 clears unless
+#   %MIP% (RCAP_BLK is refused: init_ext.jl);
+# - the IN rows of EQL_SCAP (NCAP_OLIFE, prepret.dsc L28-29), which no
+#   suite model reaches.
+
+"""
+    eq_ret!(tm::TimesModel) -> Int
+
+Generate every EQ_CUMRET, EQL_SCAP and EQL_REFIT row (mod_equa.mod L212)
+from `tm.data`: nothing unless early retirement is on (RP_RTF declared, the
+test `untranslated_families` uses for `\$IF DEFINED VNRET`). Returns the
+number of rows generated.
+
+GAMS: prepret.dsc L89-117, v4.9.7.
+"""
+function eq_ret!(tm::TimesModel)
+    d = tm.data
+    Reference.has_symbol(d.dump, "RP_RTF") || return 0
+    isempty(gparam_opt(d, "RCAP_BLK", 3).keys) ||
+        throw(UnportedError("EQ_DSCRET: retirements in blocks (RCAP_BLK, prepret.dsc L92-95)"))
+    prc_rcap, rp_rtf = gset(tm, "PRC_RCAP"), gparam(tm, "RP_RTF")
+    ncap_olife = gparam_opt(d, "NCAP_OLIFE", 3)
+    any(k -> (k[1], k[3]) in prc_rcap, ncap_olife.keys) &&
+        throw(UnportedError("EQL_SCAP IN rows: salvage limited by activity (NCAP_OLIFE, prepret.dsc L105-107)"))
+    one = GNum(1.0)
+    t_set = gset(tm, "MILESTONYR")
+    t_list = [k[1] for k in t_set.keys]
+    t_prev = Dict(t_list[i] => t_list[i-1] for i in 2:length(t_list))   # T-1 on the milestones (G38)
+    allyear = [k[1] for k in gset(tm, "ALLYEAR").keys]
+    ord = Dict(y => i for (i, y) in enumerate(allyear))
+    rtp_cptyr, vntrt, vnt = gset(tm, "RTP_CPTYR"), gset(tm, "VNTRT"), gset(tm, "VNT")
+    modlyear = gset(tm, "MODLYEAR")
+    n = 0
+
+    # EQ_CUMRET (L98-102)
+    for (r, v, t, p) in rtp_cptyr
+        ((r, p) in prc_rcap && (t,) in t_set) || continue
+        k = haskey(rp_rtf.values, (r, p)) ? t : get(t_prev, t, nothing)  # K(T-(1-1$RP_RTF))
+        (k !== nothing && (v, k) in vntrt) || continue
+        lhs = JuMP.AffExpr(0.0)
+        if (r, v, k, p) in rtp_cptyr
+            addterm!(lhs, one, tm, "VAR_SCAP", r, v, t, p)
+            addterm!(lhs, -one, tm, "VAR_RCAP", r, v, t, p)
+        end
+        y = get(t_prev, t, nothing)                                     # Y(T-1)
+        y !== nothing && (y,) in modlyear && (r, v, y, p) in rtp_cptyr && (v, y) in vntrt &&
+            addterm!(lhs, -one, tm, "VAR_SCAP", r, v, y, p)
+        gconstraint!(tm, "EQ_CUMRET", (r, v, k, p), "E", lhs, JuMP.AffExpr(0.0)) === nothing || (n += 1)
+    end
+
+    # EQL_SCAP, the N rows (L105-111)
+    rvprl, obj_sums, prc_vint = gparam(tm, "RVPRL"), gset(tm, "OBJ_SUMS"), gset(tm, "PRC_VINT")
+    ncap_pasti = gparam(tm, "NCAP_PASTI")
+    for (r, v, p) in gset(tm, "RTP")
+        (r, p) in prc_rcap || continue
+        haskey(rvprl.values, (r, v, p)) || continue                      # $RVPRL(RTP)
+        ((r, v, p) in obj_sums || (!((r, p) in prc_vint) && (v,) in t_set)) || continue
+        lhs = JuMP.AffExpr(0.0)
+        i = ord[v] + glead(gv(rvprl, (r, v, p)).v)                     # T(LL+RVPRL(RTP))
+        if 1 <= i <= length(allyear)
+            tl = allyear[i]
+            (tl,) in t_set && (v, tl) in vntrt && addterm!(lhs, one, tm, "VAR_SCAP", r, v, tl, p)
+        end
+        rhs = JuMP.AffExpr(0.0)
+        (v,) in t_set && addterm!(rhs, one, tm, "VAR_NCAP", r, v, p)
+        addconst!(rhs, gv(ncap_pasti, (r, v, p)))
+        addterm!(rhs, -one, tm, "VAR_SCAP", r, v, "0", p)
+        gconstraint!(tm, "EQL_SCAP", (r, v, p, "N"), "L", lhs, rhs) === nothing || (n += 1)
+    end
+
+    # EQL_REFIT (L113-117)
+    rt_pp, coef_cpt, rtforc = gset(tm, "RT_PP"), gparam(tm, "COEF_CPT"), gparam(tm, "RTFORC")
+    rtp_tt, prc_refit = gset(tm, "RTP_TT"), gparam(tm, "PRC_REFIT")
+    refit_of = indexby(prc_refit, (1, 2))                               # (r,prc) -> PRC_REFIT(r,prc,p)
+    vret_of = Dict{NTuple{3,String},Vector{String}}()                   # (r,tt,prc) -> V with VNRET(V,TT,PRC)
+    for (r, v, t, p) in rtp_cptyr
+        (v, t) in vntrt && push!(get!(vret_of, (r, t, p), String[]), v)
+    end
+    for (r, tt, t, prc) in rtp_tt, l in ("N", "FX")                    # RTP_TT(R,TT,T,PRC), LNX(L)
+        (r, t) in rt_pp || continue
+        rtf = gv(rp_rtf, (r, prc))
+        bdl = l == "FX"                                                 # BD(L)
+        vtt = (t, tt) in vnt                                            # VNT(T,TT)
+        (bdl || (vtt && rtf.v == 3)) || continue
+        lhs = JuMP.AffExpr(0.0)
+        for (_, _, p) in get(refit_of, (r, prc), NTuple{3,String}[])
+            (vtt || gv(prc_refit, (r, prc, p)).v < 0) || continue
+            c = gv(coef_cpt, (r, tt, t, p))
+            addterm!(lhs, c, tm, "VAR_NCAP", r, tt, p)
+            (r, p) in prc_rcap && (tt, t) in vntrt && addterm!(lhs, -c, tm, "VAR_SCAP", r, tt, t, p)   # %RCAPSUB%
+        end
+        ((vtt && bdl) ? rtf.v : 0.0) < 3 && addterm!(lhs, one, tm, "VAR_RCAP", r, t, tt, prc)
+        rhs = JuMP.AffExpr(0.0)
+        k = get(t_prev, tt, nothing)                                    # K(TT-1)
+        odd = rtf.v != 0 && rem(rtf.v, 2) != 0                          # MOD(RP_RTF,2) (G43)
+        for v in get(vret_of, (r, tt, prc), String[])
+            c = gv(coef_cpt, (r, v, t, prc))
+            addterm!(rhs, c, tm, "VAR_RCAP", r, v, tt, prc)
+            if k !== nothing && (k,) in modlyear && (v, k) in vnt
+                m = gmin(odd ? GNum(Inf) : GZERO, gv(rtforc, (r, v, tt, prc)) - gv(rtforc, (r, v, k, prc)))
+                addconst!(rhs, -(c * m))
+            end
+        end
+        if (bdl ? rtf.v : 0.0) > 0 && k !== nothing && (r, k, t, prc) in rtp_tt
+            addterm!(rhs, one, tm, "VAR_RCAP", r, t, k, prc)
+        end
+        gconstraint!(tm, "EQL_REFIT", (r, tt, t, prc, l), "E", lhs, rhs) === nothing || (n += 1)
+    end
+    return n
+end

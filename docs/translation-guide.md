@@ -546,3 +546,8 @@ those checks, their figures and their crafted cases are not published
   OTUS9r (15,962, both variants); the crafted case TIMES_Demo-demo12_ucrt
   reaches the other branches and passes layers 2-3 and the M1.3 chain.
   OTUS9r's whole model now needs only change 20b.
+- 6 Nov 2026: M1.3 (20b-1): prepret.dsc L89-117, the retirement and refit
+  rows (EQ_CUMRET, EQL_SCAP, EQL_REFIT) match GAMS on demo12_refit and
+  OTUS9r. Change 20b is done in four parts (equations, the -VAR_SCAP
+  capacity terms, the bounds, the objective); the family stays refused
+  until the last.
