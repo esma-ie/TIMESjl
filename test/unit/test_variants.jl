@@ -59,6 +59,20 @@ for vx in VARIANTS
                 for fam in vx["partial"]["families"]
                     @test check_family_parity(mine, ref, fam) > 0
                 end
+                # Column bounds of the listed variable families (bndmain.jl with ret_bounds!).
+                if haskey(vx["partial"], "bounds")
+                    TIMES.apply_bounds!(tm)
+                    mine = canonical_from_jump(tm.model)
+                    for vf in vx["partial"]["bounds"]
+                        ka = sort([k for k in keys(mine.cols) if family(k) == vf])
+                        kb = sort([k for k in keys(ref.cols) if family(k) == vf])
+                        @test !isempty(kb) && ka == kb
+                        for k in intersect(ka, kb)
+                            @test _same_bound(mine.cols[k].lb, ref.cols[k].lb; rtol=1e-9)
+                            @test _same_bound(mine.cols[k].ub, ref.cols[k].ub; rtol=1e-9)
+                        end
+                    end
+                end
             end
         end
     end

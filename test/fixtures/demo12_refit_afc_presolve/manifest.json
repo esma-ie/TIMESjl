@@ -2908,7 +2908,7 @@
     "LIM"
    ],
    "description": "Retirement bounds",
-   "records": 1,
+   "records": 6,
    "file": "RCAP_BND.arrow"
   },
   {
@@ -11586,7 +11586,7 @@
     "P"
    ],
    "description": "New retirements",
-   "records": 7,
+   "records": 10,
    "file": "VAR_RCAP.arrow"
   },
   {
