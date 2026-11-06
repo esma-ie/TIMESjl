@@ -3,8 +3,8 @@
 A Julia/JuMP translation of the IEA-ETSAP TIMES model generator, validated
 against the GAMS code for numerical parity.
 
-> **Status: early experiment, pre-MVP (Phase 1, milestone M1.2).** Not ready
-> for modelling use. TIMES.jl still builds models from data exported by GAMS
+> **Status: early experiment, pre-MVP (Phase 1, milestone M1.3; M1.0 to M1.2
+> passed).** Not ready for modelling use. TIMES.jl still builds models from data exported by GAMS
 > (it cannot read a TIMES model on its own until M1.4), it has no release, and
 > its interfaces will change. For analysis, use TIMES in GAMS.
 >
