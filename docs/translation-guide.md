@@ -561,3 +561,8 @@ those checks, their figures and their crafted cases are not published
   bounds; every retirement column's bounds match GAMS on OTUS9r,
   demo12_refit and demo12_refit_afc (now with RCAP_BND LO, FX and a
   negative 'N' option).
+- 6 Nov 2026: M1.3 (20b-4): prepret.dsc L134-162, the objective terms of
+  early retirement; `generate!` now builds models with early retirement.
+  demo12_refit and demo12_refit_afc pass layers 2-3 (CI fixtures, whole
+  model). OTUS9r's whole model is generated for the first time and passes
+  layer 2 on both variants (2,174,010 rows reduce_off).
