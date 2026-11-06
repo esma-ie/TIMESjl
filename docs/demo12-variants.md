@@ -35,7 +35,7 @@ MACRO, stochastics, ETL, climate and damage after M1.7.
 | # | Variant | Case | First release (Version.log) | GAMS | Status |
 | --- | --- | --- | --- | --- | --- |
 | 2 | Dispatching and unit commitment | `TIMES_Demo-demo12_uc` | 3.7.0, Aug 2014 (ramping, `eqactups.vda`); 3.9.0, Oct 2015 (linear dispatch); 3.9.7, Jul 2016 (unit commitment by start-up type, `eqlducs.vda`), announced 4.0.0 | `eqactups.vda`, `eqlducs.vda` | made (5 Nov 2026) |
-| 5 | Retrofits and lifetime extensions | `TIMES_Demo-demo12_refit` | 4.1.2, Mar 2017 (`PRC_REFIT`); 4.1.6, 4.6.4, 4.6.7-8, 4.7.1 | User Note `TIMES-Refits-Note.pdf`; `prepret.dsc`, `ppmain.mod` L484-487 | made (5 Nov 2026) |
+| 5 | Retrofits and lifetime extensions | `TIMES_Demo-demo12_refit` | 4.1.2, Mar 2017 (`PRC_REFIT`); 4.1.6, 4.6.4, 4.6.7-8, 4.7.1 | User Note `TIMES-Refits-Note.pdf`; `prepret.dsc`, `ppmain.mod` L484-487 | made (5 Nov 2026); translated, layers 2-3 PASS (M1.3 change 20b, 6 Nov 2026) |
 | 1 | Load shifting | | 4.3.0, Jan 2019 (`STG_SIFT`); 4.3.6 (asymmetric) | User Note `TIMES-Load-Shifting.pdf`; `eqactups.vda` | next (with M1.3 change 24) |
 | 4 | Dynamic time slices | | 4.3.2, Mar 2019 (varying cycles); 4.4.1, Feb 2020 (time-slice trees, `dynslite.vda`) | User Note `User_Note-TIMES-Dynamic-timeslices.docx` | |
 | 3 | Flexible time-slice storage (STSFLX) | | 4.5.8, Sep 2021 | User Note `TIMES-Experimental-STS-Variant.pdf` | |
@@ -102,3 +102,12 @@ when it defines VNRET. OTUS9r-reference has early retirement on (55 PRC_REFIT
 and 948 RCAP_BND records; 660 EQL_REFIT and 2,008 EQ_CUMRET rows in GAMS), so
 its model now also refuses for that reason, and needs the retirement
 equations (docs/m13-plan.md, change 20b).
+
+Translated by M1.3 change 20b (6 Nov 2026, in four parts: the retirement
+equations, the -VAR_SCAP capacity terms, the VAR_RCAP/VAR_SCAP bounds, the
+objective terms). The whole model passes layers 2 and 3 on both variants
+(as_run 3,351 rows, 4,627 columns, 19,246 nonzeros; reduce_off 8,893, 9,891,
+32,422; objective 23,926,037.11), and so does the crafted case
+TIMES_Demo-demo12_refit_afc, which adds the paths the variant does not reach
+(EQL_CAPFLO with two retiring vintages, RCAP_BND LO/FX and a negative 'N'
+option). CI fixtures `demo12_refit` and `demo12_refit_afc`, whole model.

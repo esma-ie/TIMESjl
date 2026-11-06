@@ -275,6 +275,124 @@ function ret_bounds!(bt::BoundTable, tm::TimesModel)
     return bt
 end
 
+# M1.3 (20b-4): the objective terms of early retirement, included at
+# eqobjfix.mod L214 (`$IF DEFINED VNRET $BATINCLUDE prepret.dsc OBJFIX`) in
+# EQ_OBJFIX and at eqobsalv.mod L105 (OBSALV) in EQ_OBJSALV.
+#
+# GAMS: prepret.dsc L134-162, v4.9.7:
+#   * Credit retired capacity for the avoided fixed costs                    (L136-147)
+#   SUM((OBJ_SUMIV(K_EOH,R,V,P,JOT,LIFE),VNTRT(V,T))$RVPRL(R,V,P),
+#     SUM((INVSPRED(K_EOH,JOT,LL,K),KTYAGE(LL,T,Y_EOH,AGE))$OPYEAR(LIFE,AGE),
+#       -OBJ_DISC(R,Y_EOH,CUR) * (1+RTP_CPX(R,V,P,T)$NCAP_CPX(R,V,P)) * %CAPWD%
+#       (OBJ_FOM(R,K,P,CUR) * (1+SUM(RTP_SHAPE(R,V,P,'1',J,JJ),SHAPE(J,AGE)*MULTI(JJ,Y_EOH)-1)) +
+#        OBJ_FTX(R,K,P,CUR) * (1+SUM(RTP_SHAPE(R,V,P,'2',J,JJ),...)) -
+#        OBJ_FSB(R,K,P,CUR) * (1+SUM(RTP_SHAPE(R,V,P,'3',J,JJ),...)))) *
+#     VAR_SCAP(R,V,T,P) / OBJ_DIVIV(R,V,P)) +
+#   * RESIDS require special handling                                         (L149-156)
+#   SUM(RTP_CPTYR(R,PYR_S(V(K)),T,P)$((NOT RVPRL(R,V,P))$PRC_RCAP(R,P)),
+#     SUM(PERIODYR(T,Y_EOH), -OBJ_DISC(R,Y_EOH,CUR) *
+#       (OBJ_FOM(R,K,P,CUR) * (1+SUM(RTP_SHAPE(R,V,P,'1',J,JJ),MULTI(JJ,Y_EOH)-1)) + ... )) *
+#     VAR_SCAP(R,V,T,P)) +
+#   * Discredit salvage value for retired capacity                            (L160-162)
+#   SUM(OBJ_SUMS(R,V,P)$((NOT NCAP_FDR(R,V,P)$RVPRL(R,'0',P))$RVPRL(R,V,P)),
+#     OBJSCC(R,V,P,CUR) * OBJ_DCEOH(R,CUR) *
+#     (VAR_SCAP(R,V,'0',P)-VAR_NCAP(R,V,P)$T(V)-NCAP_PASTI(R,V,P))) +
+#
+# OBJ_FOM/FTX/FSB are the OB_* macros (`obmac`), %CAPWD% the OBJ_WD factor of
+# eq_objfix! (`wd`). Controlling sets filter as in eqobj.jl (G8): K_EOH,
+# MODLYEAR (V), MILESTONYR (T), EACHYEAR (K), Y_EOH. `$` binds before NOT
+# (G46): the OBSALV term is left out only where NCAP_FDR(R,V,P) and
+# RVPRL(R,'0',P) both hold. RVPRL is read as the SOLVE sees it (after L79's
+# '0' records and L129's clean-up), as GAMS evaluates the equations then.
+# eqobsalv.mod L26 (`$IF NOT DEFINED VNRET` before the PFT line) changes
+# only the salvage sets eqobsalv.mod computes before its equation, which the
+# pre-solve dump holds.
+
+"""
+    objfix_ret!(lhs, tm, x, r, cur, wd, shaped) -> lhs
+
+The early-retirement terms of EQ_OBJFIX for region `r` and currency `cur`
+(nothing unless early retirement is on). `x` is `objective_context(tm)`;
+`wd` and `shaped` are eq_objfix!'s %CAPWD% and RTP_SHAPE factors.
+
+GAMS: prepret.dsc L134-156, v4.9.7.
+"""
+function objfix_ret!(lhs::JuMP.AffExpr, tm::TimesModel, x, r, cur, wd, shaped)
+    rc = rcap_ctx(tm)
+    rc.on || return lhs
+    rvprl = gparam(tm, "RVPRL")
+    t_of_v = indexby(rc.vntrt, (1,))
+    ktyage_of = get!(() -> indexby(gset(tm, "KTYAGE"), (1, 2)), tm.cache, "KTYAGE/llt")
+    opyear = get!(() -> Set(gset(tm, "OPYEAR").keys), tm.cache, "OPYEAR/set")
+    # L136-147
+    for (k_eoh, _, v, p, jot, life) in get(x.sumiv_of_r, (r,), NO6)
+        ((k_eoh,) in x.k_eoh && (v,) in x.v && haskey(rvprl.values, (r, v, p))) || continue
+        for (_, t) in get(t_of_v, (v,), NTuple{2,String}[])
+            (t,) in x.t || continue
+            cpx = 1 + gif(gv(x.rtp_cpx, (r, v, p, t)), haskey(x.ncap_cpx, (r, v, p)))
+            c = GZERO
+            for (_, _, ll, k) in get(x.invspred_of, (k_eoh, jot), NO4)
+                (k,) in x.k || continue
+                w = wd(r, cur, k_eoh, jot, k)
+                for (_, _, y, age) in get(ktyage_of, (ll, t), NO4)
+                    ((y,) in x.y_eoh && (life, age) in opyear) || continue
+                    c = c + (-gv(x.obj_disc, (r, y, cur))) * cpx * w *
+                            (obmac(x.ob_fom, r, k, p, cur) * shaped(r, v, p, "1", age, y) +
+                             obmac(x.ob_ftx, r, k, p, cur) * shaped(r, v, p, "2", age, y) -
+                             obmac(x.ob_fsb, r, k, p, cur) * shaped(r, v, p, "3", age, y))
+                end
+            end
+            addterm!(lhs, c / gv(x.obj_diviv, (r, v, p)), tm, "VAR_SCAP", r, v, t, p)
+        end
+    end
+    # L149-156: residual vintages without RVPRL.
+    pyr_s = gset(tm, "PYR_S")
+    periodyr_of_t = get!(() -> indexby(gset(tm, "PERIODYR"), (1,)), tm.cache, "PERIODYR/t")
+    function multi(v, p, cls, y)
+        s = GZERO
+        for (_, _, _, _, _, jj) in get(x.shape_of, (r, v, p, cls), NO6)
+            s = s + (gv(x.multi, (jj, y)) - 1)
+        end
+        return 1 + s
+    end
+    for (r2, v, t, p) in gset(tm, "RTP_CPTYR")
+        (r2 == r && (v,) in pyr_s && (v,) in x.v && (v,) in x.k && (t,) in x.t) || continue
+        ((r, p) in rc.prc_rcap && !haskey(rvprl.values, (r, v, p))) || continue
+        c = GZERO
+        for (_, y) in get(periodyr_of_t, (t,), NTuple{2,String}[])
+            (y,) in x.y_eoh || continue
+            c = c + (-gv(x.obj_disc, (r, y, cur))) *
+                    (obmac(x.ob_fom, r, v, p, cur) * multi(v, p, "1", y) +
+                     obmac(x.ob_ftx, r, v, p, cur) * multi(v, p, "2", y) -
+                     obmac(x.ob_fsb, r, v, p, cur) * multi(v, p, "3", y))
+        end
+        addterm!(lhs, c, tm, "VAR_SCAP", r, v, t, p)
+    end
+    return lhs
+end
+
+"""
+    objsalv_ret!(lhs, tm, x, r, cur, dceoh) -> lhs
+
+The early-retirement term of EQ_OBJSALV for region `r` and currency `cur`
+(nothing unless early retirement is on).
+
+GAMS: prepret.dsc L158-162, v4.9.7.
+"""
+function objsalv_ret!(lhs::JuMP.AffExpr, tm::TimesModel, x, r, cur, dceoh::GNum)
+    rcap_ctx(tm).on || return lhs
+    rvprl, ncap_fdr = gparam(tm, "RVPRL"), gparam(tm, "NCAP_FDR")
+    for (_, v, p) in get(x.sums_of_r, (r,), NTuple{3,String}[])
+        ((v,) in x.v && haskey(rvprl.values, (r, v, p))) || continue
+        (haskey(ncap_fdr.values, (r, v, p)) && haskey(rvprl.values, (r, "0", p))) && continue
+        k = gv(x.objscc, (r, v, p, cur)) * dceoh
+        addterm!(lhs, k, tm, "VAR_SCAP", r, v, "0", p)
+        (v,) in x.t && addterm!(lhs, -k, tm, "VAR_NCAP", r, v, p)
+        addconst!(lhs, -(k * gv(x.ncap_pasti, (r, v, p))))
+    end
+    return lhs
+end
+
 # M1.3 (20b-2): %RCAPSUB% and %RCAPSBM%, the retired capacity taken off the
 # capacity terms of the equations compiled after eqobj.mod L39 (prepret.dsc
 # EQOBJ is included there, before every other equation of eqmain.mod).

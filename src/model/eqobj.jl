@@ -41,9 +41,11 @@
 #   (docs/discrepancies.md G7).
 # - %VART%/%VARV%/%VARM% -> VAR, %SWS%/%SOW% -> '' (setglobs.gms L348).
 #
+# Early retirement (VNRET: prepret.dsc OBJFIX and OBSALV, eqobjfix.mod L214,
+# eqobsalv.mod L105) is in `objfix_ret!` and `objsalv_ret!` (prepret.jl).
+#
 # Not translated yet; data or switches that need them raise UnportedError:
-# MACRO (eqobj.tm), OBJANN (eqobjann.tm), ETL, early retirement (VNRET,
-# prepret.dsc), elastic demand (RCJ: eqobjels.mod and EQ_OBJ L89-90), damage
+# MACRO (eqobj.tm), OBJANN (eqobjann.tm), ETL, elastic demand (RCJ: eqobjels.mod and EQ_OBJ L89-90), damage
 # costs (DAM_COST: eqdamage.mod changes OBV and SUM_OBJ), unit-commitment
 # costs (RP_UPS/RP_UPT/RP_UPR), capacity-related flow costs (cal_caps.mod: RPC_CAPFLO/NCAP_COM), blending (BLE_OPR),
 # VALIDATE, STAGES.
@@ -75,9 +77,6 @@ function objective_unported(tm::TimesModel)
     yes("ETL") && throw(UnportedError("ETL terms in the objective (eqobjinv.mod L292, eqobsalv.mod L102-103)"))
     yes("VALIDATE") && throw(UnportedError("VALIDATE branches of the objective"))
     yes("STAGES") && throw(UnportedError("stochastic objective (STAGES)"))
-    # VNRET is a $MACRO (prepret.dsc L41), so the dump never holds it; RP_RTF (prepret.dsc L22)
-    # is declared exactly when it is defined (generate.jl, untranslated_families).
-    Reference.has_symbol(d.dump, "RP_RTF") && throw(UnportedError("early retirement terms (prepret.dsc via VNRET)"))
     isempty(gparam_opt(d, "DAM_COST", 4)) || throw(UnportedError("damage costs (eqdamage.mod via eqmain.mod L262)"))
     isempty(gset_opt(d, "RCJ", 4)) || throw(UnportedError("elastic demand costs (eqobjels.mod, EQ_OBJ L89-90)"))
     for (name, N) in (("RP_UPS", 4), ("RP_UPT", 4), ("RP_UPR", 3))
@@ -286,7 +285,8 @@ end
 
 `Y_EOH(LL+(ORD(AGE)-1))` is the year ORD(AGE)-1 places after LL in ALLYEAR,
 taken only if it is in Y_EOH (G8). GAMS: eqobjfix.mod L182-225, v4.9.7 (the
-VALIDATE lines L205-207 and the VNRET hook L214 are refused; the shaped
+VALIDATE lines L205-207 are refused; the VNRET hook L214 is `objfix_ret!`,
+M1.3 change 20b-4; the shaped
 branch for RTP_ISHPR is translated but no test model exercises it yet).
 """
 function eq_objfix!(tm::TimesModel)
@@ -337,6 +337,7 @@ function eq_objfix!(tm::TimesModel)
             c = gv(x.obj_disc, (r, y, cur)) * obmac(x.ob_dlc, r, k, p, cur)
             add_ncap_or_pasti!(lhs, tm, x, c, r, v, p; pasti=(r, v, p) in x.obj_2a)
         end
+        objfix_ret!(lhs, tm, x, r, cur, wd, shaped)                 # L214: prepret.dsc OBJFIX (prepret.jl)
         gconstraint!(tm, "EQ_OBJFIX", (r, cur), "E", lhs, obj_component_rhs(tm, x, r, cur, "OBJFIX")) === nothing || (n += 1)
     end
     return n
@@ -546,8 +547,8 @@ end
           (VAR_NCAP(R,V,P)\$MILESTONYR(V) + NCAP_PASTI(R,V,P)\$PASTYEAR(V)) * NCAP_OCOM(R,V,P,COM) / OBJ_DIVIII(R,V,P))
       =E= VAR_OBJ(R,'OBJSAL',CUR);
 
-GAMS: eqobsalv.mod L92-140, v4.9.7 (ETL L102-103 and the VNRET hook L105
-are refused).
+GAMS: eqobsalv.mod L92-140, v4.9.7 (ETL L102-103 is refused; the VNRET hook
+L105 is `objsalv_ret!`, M1.3 change 20b-4).
 """
 function eq_objsalv!(tm::TimesModel)
     x = objective_context(tm)
@@ -560,6 +561,7 @@ function eq_objsalv!(tm::TimesModel)
             (v,) in x.t && addterm!(lhs, k * dceoh, tm, "VAR_NCAP", r, v, p)
             (v,) in x.v && (v,) in x.pyr && addconst!(lhs, k * gv(x.ncap_pasti, (r, v, p)) * dceoh)
         end
+        objsalv_ret!(lhs, tm, x, r, cur, dceoh)                     # L105: prepret.dsc OBSALV (prepret.jl)
         for (_, v, p) in get(x.sums3_of_r, (r,), NTuple{3,String}[])
             k = gv(x.salv_dec, (r, v, p, cur))
             (v,) in x.t && addterm!(lhs, k * dceoh, tm, "VAR_NCAP", r, v, p)

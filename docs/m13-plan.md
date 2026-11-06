@@ -105,7 +105,7 @@ GAMS 54.6.1):
 | 20b-1 | prepret.dsc EQOBJ: EQ_CUMRET, EQL_SCAP, EQL_REFIT (EQ_DSCRET and the EQL_SCAP IN rows refused) | 89-117 | the rows of the three families, OTUS9r and demo12_refit |
 | 20b-2 | %RCAPSUB%/%RCAPSBM% (prepret.dsc L87-88): the -VAR_SCAP terms in the translated capacity equations (eqcpt.mod, eqcapact.mod, eqpeak.mod, eqcaflac.vda; cal_cap.mod and cal_caps.mod stay refused with their files) | 87-88 | the rows of those families, OTUS9r, demo12_refit, crafted case demo12_refit_afc |
 | 20b-3 | prepret.dsc DECL: the VAR_RCAP and VAR_SCAP bounds (and VAR_DRCAP, refused) | 66-80 | column bounds vs CONVERT: OTUS9r, demo12_refit, demo12_refit_afc |
-| 20b-4 | prepret.dsc OBJFIX and OBSALV, the objective terms (eqobj.mod L39, eqobjfix.mod L214, eqobsalv.mod L26, L105); the refusal lifted | 134-162 | layers 2-3 OTUS9r and demo12_refit (CI) |
+| 20b-4 | prepret.dsc OBJFIX and OBSALV, the objective terms (eqobj.mod L39, eqobjfix.mod L214, eqobsalv.mod L26, L105); the refusal lifted | 134-162 | layers 2-3 OTUS9r; demo12_refit and demo12_refit_afc (CI, whole model) |
 | 21 | equserco.mod: dynamic user constraints in the RHS direction (UC_DYNDIR 'RHS', uc_pasti.mod) | 80-106 | TIMES-NZ, OTCGEN |
 | 22 | uc_*.mod: user-constraint attributes other than GROWTH (CAP, SYNC, ...) | | TIMES-NZ |
 | 23 | eqflomrk.mod: EQ(l)_FLOMRK, market-share flow constraints | | TIMES-NZ |
@@ -166,6 +166,26 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 
 ## Findings so far
 
+- (20b-4) prepret.dsc L134-162, the objective terms of early retirement
+  (`objfix_ret!`, `objsalv_ret!`, `src/ext/dsc/prepret.jl`): in EQ_OBJFIX
+  the fixed costs avoided by retired capacity (each VAR_SCAP credited with
+  the FOM, FTX and FSB of its remaining years, KTYAGE, and the residual
+  vintages without RVPRL over PERIODYR); in EQ_OBJSALV the salvage of
+  retired capacity, OBJSCC*OBJ_DCEOH*(VAR_SCAP(R,V,'0',P)-VAR_NCAP-NCAP_PASTI)
+  unless NCAP_FDR and RVPRL(R,'0',P) both hold (`$` before NOT, G46).
+  eqobsalv.mod L26 changes only the salvage sets, which the pre-solve dump
+  holds (change 25 will have to compute them). With this part `generate!`
+  calls `eq_ret!` and no longer refuses early retirement (EQ_DSCRET and the
+  EQL_SCAP IN rows stay refused). Checked, whole model, layers 2-3, both
+  variants: demo12_refit (as_run 3,351 rows, 4,627 columns, 19,246
+  nonzeros; reduce_off 8,893, 9,891, 32,422; objective 23,926,037.11 by
+  CPLEX and HiGHS) and demo12_refit_afc (3,365, 4,635, 19,333; 8,907,
+  9,899, 32,509; 23,924,506.51), CI fixtures `demo12_refit` and
+  `demo12_refit_afc` (public_fixtures.toml). OTUS9r reference, the first
+  time its whole model is generated: layer 2 PASS on both variants
+  (reduce_off 2,174,010 rows, 2,776,359 columns, 9,925,588 nonzeros;
+  as_run 1,028,923, 1,647,278, 7,163,965; GAMS 54.6.1); layer 3 was
+  running at the time of writing (HiGHS).
 - (20b-3) prepret.dsc L66-80, the VAR_RCAP and VAR_SCAP bounds of the
   DECL label (`ret_bounds!`, `src/ext/dsc/prepret.jl`, first in
   `bndmain`'s table as mod_vars.mod L94 comes before bndmain.mod). RVP and
