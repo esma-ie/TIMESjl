@@ -129,6 +129,152 @@ function prepret_prep!(st::InterpState)
     return st
 end
 
+# M1.3 (20b-3): the VAR_RCAP and VAR_SCAP bounds of the DECL label, set in
+# mod_vars.mod L94 (`$IF DECLARED VNRET $BATINCLUDE prepret.dsc DECL`),
+# before bndmain.mod, which does not touch them (its compile-time
+# `$CLEAR %VAR%_SCAP`, L15, leaves execution-time bounds alone: the CONVERT
+# export keeps them).
+#
+# GAMS: prepret.dsc L66-80, v4.9.7:
+#   RCAP_BND(R,T,P,BDNEQ) $= RCAP_BND(R,T,P,'FX');                                         (L66)
+#   PASTSUM(RVP(R,V,P))$RCAP_BND(RVP,'N') = -(B(V)+NCAP_ILED(RVP)+ABS(RCAP_BND(RVP,'N')));  (L67)
+#   PASTSUM(RVP)$((RCAP_BND(RVP,'N')<0)+MAPVAL(RCAP_BLK(RVP))) = MAX(1,ABS(PASTSUM(RVP)));  (L68)
+#   LOOP(TT(T--1),Z=ORD(T)-1;                                                              (L69)
+#    VAR_RCAP.LO(VNRET(V,T,P))$RVP(R,V,P) = RCAP_BND(R,T,P,'LO')$(NOT MAPVAL(RCAP_BLK(R,V,P)))
+#                                           +MIN(0,RTFORC(R,V,T,P)-RTFORC(R,V,TT,P)$Z);     (L70)
+#    VAR_RCAP.UP(VNRET(V,T,P))$RCAP_BND(R,T,P,'UP') =
+#      MIN(SMIN(PASTMILE(V),NCAP_PASTI(R,V,P)),RCAP_BND(R,T,P,'UP')+MAX(0,RTFORC(R,V,T,P)-RTFORC(R,V,TT,P)$Z)));  (L71-72)
+#   VAR_SCAP.LO(VNRET(V,T,P))$RVP(R,V,P) = MAX(RCAP_BND(R,T,P,'LO'),RTFORC(R,V,T,P));     (L73)
+#   VAR_SCAP.UP(RTP_CPTYR(R,PASTMILE(V),T,P))$RVP(R,V,P) = MAX(RTFORC(R,V,T,P),NCAP_PASTI(R,V,P));  (L74)
+#   LOOP(RVP(R,V,P),Z=1;LOOP(VNRET(V,T,P)$Z,Z=0;
+#     VAR_SCAP.UP(R,V,T,P)=MIN(VAR_RCAP.UP(R,V,T,P),VAR_SCAP.UP(R,V,T,P))));              (L75)
+#   VAR_SCAP.FX(RTP_CPTYR(R,V,T,P))$(((M(T) LT ABS(PASTSUM(R,V,P)))+((M(T)-LEAD(T))/PASTSUM(R,V,P) GE 1))$PASTSUM(R,V,P))
+#     = RTFORC(R,V,T,P);                                                                   (L76)
+#   PRC_YMAX(PRC_RCAP(RP)) = MIN(0,SUM(P$PRC_REFIT(RP,P),MAX(EPS,3-ABS(PRC_REFIT(RP,P)))));  (L78)
+#   VAR_RCAP.UP(RTP_TT(R,T(TT++1),T,P))$((RP_RTF(R,P)<3)$PRC_YMAX(R,P)) =
+#     MAX(0,SUM(RTP(R,PYR_S(V),P),RTFORC(R,V,T,P)-RTFORC(R,V,TT,P))$VNT(TT,T)$(MOD(RP_RTF(R,P),2)=0));  (L80)
+#   OPTION CLEAR=TRACKP,CLEAR=PASTSUM,CLEAR=RVP;                                           (L81)
+#
+# The state is the pre-solve dump's. RVP and PASTSUM are scratch: empty
+# before DECL and cleared at L81 (both empty in the coef and pre-solve
+# dumps), so RVP is rebuilt as L61 makes it, the members of RVPRL as L60
+# computes it, `MAX(0,SMAX(VNRET(V,T,P),YEARVAL(T))-YEARVAL(V))` > 0 (the
+# dump's RVPRL has L79's '0' records and lost L129's PYR_S ones). RCAP_BND
+# is read after L66 and NCAP_ILED after L62 (+EPS), as the dump has them; RCAP_BLK
+# is refused (init_ext.jl), so MAPVAL(RCAP_BLK) is 0. PRC_YMAX is rebuilt
+# (L78; it is scratch later). The LOOP of L69 closes after L72: TT is the
+# previous milestone, circularly, and Z = 0 in the first period. In L80 the
+# domain RTP_TT(R,T(TT++1),T,P) puts T at both year positions. VAR_DRCAP
+# (L46, %MIP%) is refused with RCAP_BLK.
+
+"""
+    ret_bounds!(bt, tm) -> bt
+
+The VAR_RCAP and VAR_SCAP bounds of early retirement (nothing unless it is
+on), into the bound table before bndmain.mod's.
+
+GAMS: prepret.dsc L66-80, v4.9.7.
+"""
+function ret_bounds!(bt::BoundTable, tm::TimesModel)
+    rcap_ctx(tm).on || return bt
+    prc_rcap = rcap_ctx(tm).prc_rcap
+    vntrt, vnt = gset(tm, "VNTRT"), gset(tm, "VNT")
+    rtp_cptyr, rtp = gset(tm, "RTP_CPTYR"), gset(tm, "RTP")
+    yearval, pB, pM, lead = gparam(tm, "YEARVAL"), gparam(tm, "B"), gparam(tm, "M"), gparam(tm, "LEAD")
+    rcap_bnd, rtforc = gparam(tm, "RCAP_BND"), gparam(tm, "RTFORC")
+    ncap_pasti, ncap_iled = gparam(tm, "NCAP_PASTI"), gparam(tm, "NCAP_ILED")
+    pastmile, pyr_s = gset(tm, "PASTMILE"), gset(tm, "PYR_S")
+    rp_rtf, prc_refit = gparam(tm, "RP_RTF"), gparam(tm, "PRC_REFIT")
+    t_list = [k[1] for k in gset(tm, "MILESTONYR").keys]
+    t_pos = Dict(t => i for (i, t) in enumerate(t_list))
+    tt_of(t) = t_list[mod1(t_pos[t] - 1, length(t_list))]              # TT(T--1), circular
+    vnret = [(r, v, t, p) for (r, v, t, p) in rtp_cptyr if (v, t) in vntrt]
+    sort!(vnret; by=k -> t_pos[k[3]])                                   # LOOP order: T outermost
+    rf(r, v, t, p) = gv(rtforc, (r, v, t, p))
+
+    # L60-61: RVP = the RVPRL members of the DECL label.
+    smax = Dict{NTuple{3,String},Float64}()
+    for (r, v, t, p) in vnret
+        y = gv(yearval, (t,)).v
+        smax[(r, v, p)] = max(get(smax, (r, v, p), -Inf), y)
+    end
+    rvp = Set{NTuple{3,String}}()
+    for (r, v, p) in rtp
+        (r, p) in prc_rcap || continue
+        get(smax, (r, v, p), -Inf) - gv(yearval, (v,)).v > 0 && push!(rvp, (r, v, p))
+    end
+    # L67-68: PASTSUM.
+    pastsum = Dict{NTuple{3,String},GNum}()
+    for (r, v, p) in rvp
+        haskey(rcap_bnd.values, (r, v, p, "N")) || continue
+        n = gv(rcap_bnd, (r, v, p, "N"))
+        x = -(gv(pB, (v,)) + gv(ncap_iled, (r, v, p)) + abs(n))
+        n.v < 0 && (x = gmax(GNum(1.0), abs(x)))
+        iszero(x) || (pastsum[(r, v, p)] = x)
+    end
+    # L69-72: the VAR_RCAP bounds, T by T.
+    for (r, v, t, p) in vnret
+        tt = tt_of(t)
+        z = t_pos[t] > 1                                                # Z = ORD(T)-1
+        d = rf(r, v, t, p) - (z ? rf(r, v, tt, p) : GZERO)
+        if (r, v, p) in rvp
+            setbound!(bt, tm, "VAR_RCAP", (r, v, t, p), :lo, gv(rcap_bnd, (r, t, p, "LO")) + gmin(GZERO, d))
+        end
+        if haskey(rcap_bnd.values, (r, t, p, "UP"))
+            cap = (v,) in pastmile ? gv(ncap_pasti, (r, v, p)) : GNum(Inf)  # SMIN(PASTMILE(V),...)
+            setbound!(bt, tm, "VAR_RCAP", (r, v, t, p), :up, gmin(cap, gv(rcap_bnd, (r, t, p, "UP")) + gmax(GZERO, d)))
+        end
+    end
+    # L73-74: the VAR_SCAP bounds.
+    for (r, v, t, p) in vnret
+        (r, v, p) in rvp && setbound!(bt, tm, "VAR_SCAP", (r, v, t, p), :lo, gmax(gv(rcap_bnd, (r, t, p, "LO")), rf(r, v, t, p)))
+    end
+    for (r, v, t, p) in rtp_cptyr
+        ((v,) in pastmile && (r, v, p) in rvp) || continue
+        setbound!(bt, tm, "VAR_SCAP", (r, v, t, p), :up, gmax(rf(r, v, t, p), gv(ncap_pasti, (r, v, p))))
+    end
+    # L75: in the first period of VNRET, SCAP.UP = MIN(RCAP.UP, SCAP.UP).
+    done = Set{NTuple{3,String}}()
+    for (r, v, t, p) in vnret
+        ((r, v, p) in rvp && !((r, v, p) in done)) || continue
+        push!(done, (r, v, p))
+        up = min(bounds(bt, tm, "VAR_RCAP", (r, v, t, p))[2], bounds(bt, tm, "VAR_SCAP", (r, v, t, p))[2])
+        setbound!(bt, tm, "VAR_SCAP", (r, v, t, p), :up, GNum(up))
+    end
+    # L76: VAR_SCAP fixed to RTFORC where the PASTSUM test holds.
+    for (r, v, t, p) in rtp_cptyr
+        ps = get(pastsum, (r, v, p), nothing)
+        ps === nothing && continue
+        m = gv(pM, (t,)).v
+        (m < abs(ps.v) || (m - gv(lead, (t,)).v) / ps.v >= 1) || continue
+        setbound!(bt, tm, "VAR_SCAP", (r, v, t, p), :fx, rf(r, v, t, p))
+    end
+    # L78: PRC_YMAX (EPS when every refit option has |PRC_REFIT| >= 3).
+    refit_of = indexby(prc_refit, (1, 2))
+    ymax = Set{NTuple{2,String}}()
+    for (r, p) in prc_rcap
+        s = GZERO
+        for k in get(refit_of, (r, p), NTuple{3,String}[])
+            s = s + gmax(GEPS, GNum(3.0) - abs(gv(prc_refit, k)))
+        end
+        iszero(gmin(GZERO, s)) || push!(ymax, (r, p))
+    end
+    # L80: VAR_RCAP.UP(R,T,T,P) of the refit hosts.
+    for (r, v, t, p) in gset(tm, "RTP_TT")
+        v == t || continue                                              # RTP_TT(R,T(TT++1),T,P)
+        ((r, p) in ymax && gv(rp_rtf, (r, p)).v < 3) || continue
+        tt = tt_of(t)
+        x = GZERO
+        if (tt, t) in vnt && rem(gv(rp_rtf, (r, p)).v, 2) == 0
+            for (y,) in pyr_s
+                (r, y, p) in rtp && (x = x + (rf(r, y, t, p) - rf(r, y, tt, p)))
+            end
+        end
+        setbound!(bt, tm, "VAR_RCAP", (r, t, t, p), :up, gmax(GZERO, x))
+    end
+    return bt
+end
+
 # M1.3 (20b-2): %RCAPSUB% and %RCAPSBM%, the retired capacity taken off the
 # capacity terms of the equations compiled after eqobj.mod L39 (prepret.dsc
 # EQOBJ is included there, before every other equation of eqmain.mod).

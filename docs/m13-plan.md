@@ -104,7 +104,7 @@ GAMS 54.6.1):
 | 20b | prepret.dsc: early retirement and refits — DSC code that OTUS9r uses (found 5 Nov 2026 by demo12 variant 5; brought into M1.3 by James, 5 Nov 2026). In four parts (6 Nov 2026); the family stays refused until the last: | | layers 2-3 OTUS9r; demo12_refit (CI) |
 | 20b-1 | prepret.dsc EQOBJ: EQ_CUMRET, EQL_SCAP, EQL_REFIT (EQ_DSCRET and the EQL_SCAP IN rows refused) | 89-117 | the rows of the three families, OTUS9r and demo12_refit |
 | 20b-2 | %RCAPSUB%/%RCAPSBM% (prepret.dsc L87-88): the -VAR_SCAP terms in the translated capacity equations (eqcpt.mod, eqcapact.mod, eqpeak.mod, eqcaflac.vda; cal_cap.mod and cal_caps.mod stay refused with their files) | 87-88 | the rows of those families, OTUS9r, demo12_refit, crafted case demo12_refit_afc |
-| 20b-3 | prepret.dsc DECL: the VAR_RCAP and VAR_SCAP bounds (and VAR_DRCAP, refused) | 44-84 | bounds vs the pre-solve dump and CONVERT |
+| 20b-3 | prepret.dsc DECL: the VAR_RCAP and VAR_SCAP bounds (and VAR_DRCAP, refused) | 66-80 | column bounds vs CONVERT: OTUS9r, demo12_refit, demo12_refit_afc |
 | 20b-4 | prepret.dsc OBJFIX and OBSALV, the objective terms (eqobj.mod L39, eqobjfix.mod L214, eqobsalv.mod L26, L105); the refusal lifted | 134-162 | layers 2-3 OTUS9r and demo12_refit (CI) |
 | 21 | equserco.mod: dynamic user constraints in the RHS direction (UC_DYNDIR 'RHS', uc_pasti.mod) | 80-106 | TIMES-NZ, OTCGEN |
 | 22 | uc_*.mod: user-constraint attributes other than GROWTH (CAP, SYNC, ...) | | TIMES-NZ |
@@ -166,6 +166,25 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 
 ## Findings so far
 
+- (20b-3) prepret.dsc L66-80, the VAR_RCAP and VAR_SCAP bounds of the
+  DECL label (`ret_bounds!`, `src/ext/dsc/prepret.jl`, first in
+  `bndmain`'s table as mod_vars.mod L94 comes before bndmain.mod). RVP and
+  PASTSUM are scratch, empty in both the coef and the pre-solve dumps, so
+  RVP is rebuilt as L60-61 make it (RVPRL > 0) and PASTSUM from L67-68;
+  PRC_YMAX (L78) is rebuilt too. The LOOP of L69 ends after L72 (TT the
+  previous milestone, circularly; Z = 0 in the first period); L80's domain
+  RTP_TT(R,T(TT++1),T,P) puts T at both year positions. bndmain.mod L15's
+  `$CLEAR %VAR%_SCAP` is compile-time and leaves these bounds: the CONVERT
+  export has them. Checked: every VAR_RCAP and VAR_SCAP column's bounds
+  against the CONVERT export, both variants, with the columns the
+  translated rows create (the same set as GAMS's): OTUS9r reference (4,676
+  columns, 3,145 with bounds; RCAP_BND 'N' options, L67 and L76),
+  demo12_refit (72, 16; the refit hosts' bound, L80) and demo12_refit_afc,
+  to which `afc.dd` now adds RCAP_BND LO and FX in REG1 and a negative 'N'
+  option in REG2 (L66, L68, the LO terms of L70 and L73; 80 columns, 23
+  with bounds). CI: `test_variants.jl` compares the VAR_RCAP and VAR_SCAP
+  column bounds on the demo12_refit and demo12_refit_afc fixtures
+  (`partial.bounds`). VAR_DRCAP (L46, %MIP%) is refused with RCAP_BLK.
 - (20b-2) prepret.dsc L87-88, %RCAPSUB% and %RCAPSBM% (`rcapsub!`,
   `src/ext/dsc/prepret.jl`): with early retirement on, the capacity of a
   PRC_RCAP process loses its cumulative retirements, -VAR_SCAP(R,V,T,P)

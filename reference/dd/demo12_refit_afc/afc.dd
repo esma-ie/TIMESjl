@@ -7,6 +7,8 @@
 * vintages in the same row, which tells the two readings of %RCAPSBM% apart there (MODLYEAR
 * summed over every vintage, or tied to K). TIMES_Demo demo12 (etsap-TIMES/TIMES_Demo @ 962db86,
 * CC BY 4.0).
+* Change 20b-3 (prepret.dsc L66-76): retirement bounds no suite model has, RCAP_BND LO and FX
+* (L66, L70, L73) on ELCTECOA00 in REG1 and a negative 'N' option (L68, L76) in REG2.
 $ONEMPTY
 $ONEPS
 $ONWARNING
@@ -19,4 +21,11 @@ REG2.2005.ELCTECOA00.ELCCOA.ANNUAL 2.4
 PARAMETER
 NCAP_PASTI ' '/
 REG1.1995.ELCTECOA00 3
+/
+
+PARAMETER
+RCAP_BND ' '/
+REG1.2015.ELCTECOA00.LO 0.5
+REG1.2030.ELCTECOA00.FX 1
+REG2.0.ELCTECOA00.N -5
 /

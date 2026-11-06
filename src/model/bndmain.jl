@@ -631,6 +631,7 @@ function bndmain(tm::TimesModel)
     get!(tm.cache, "BOUNDS") do
         bounds_unported(tm)
         bt = BoundTable()
+        ret_bounds!(bt, tm)       # mod_vars.mod L94: prepret.dsc DECL (early retirement), before bndmain
         bnd_act!(bt, tm)          # L26
         bnd_flo!(bt, tm)          # L31
         bnd_stg!(bt, tm, "VAR_SIN", "IN", GNum(0.0))       # L36

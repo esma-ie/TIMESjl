@@ -557,3 +557,7 @@ those checks, their figures and their crafted cases are not published
   new crafted case demo12_refit_afc. Discrepancy D1 withdrawn (the
   documentation's VAR_SCAP term is in GAMS after all); new GAMS semantics
   note G48.
+- 6 Nov 2026: M1.3 (20b-3): prepret.dsc L66-80, the VAR_RCAP and VAR_SCAP
+  bounds; every retirement column's bounds match GAMS on OTUS9r,
+  demo12_refit and demo12_refit_afc (now with RCAP_BND LO, FX and a
+  negative 'N' option).
