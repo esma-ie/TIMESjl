@@ -101,12 +101,13 @@ GAMS 54.6.1):
 | 19 | eqstgips.mod: EQ_STGIPS, inter-period storage (James, 5 Nov 2026: the families M1.1 left untranslated become M1.3 changes) | 13-44 | layers 2-3 OTNYC (both variants); EQ_STGIPS rows on OTCGEN |
 | 19b | eqstgaux.mod: the inter-period storage terms of EQ_STGAUX | 25-32 | EQ_STGAUX rows on OTCGEN; crafted demo12 case (CI) |
 | 20 | equcrtp.vda (EQU_EXT): EQ(l)_UCRTP and EQN_UCRTC, dynamic process and commodity bounds | 73-123 | layers 2-3 OTUS9r |
-| 20b | prepret.dsc: early retirement and refits (EQ_DSCRET, EQ_CUMRET, EQL_SCAP, EQL_REFIT; the VAR_RCAP/VAR_SCAP terms of the objective, eqobj.mod L39, eqobjfix.mod L214, eqobsalv.mod L105) — DSC code that OTUS9r uses (found 5 Nov 2026 by demo12 variant 5) | | layers 2-3 OTUS9r; demo12_refit (CI) |
+| 20b | prepret.dsc: early retirement and refits (EQ_DSCRET, EQ_CUMRET, EQL_SCAP, EQL_REFIT; the VAR_RCAP/VAR_SCAP terms of the objective, eqobj.mod L39, eqobjfix.mod L214, eqobsalv.mod L105) — DSC code that OTUS9r uses (found 5 Nov 2026 by demo12 variant 5; brought into M1.3 by James, 5 Nov 2026) | | layers 2-3 OTUS9r; demo12_refit (CI) |
 | 21 | equserco.mod: dynamic user constraints in the RHS direction (UC_DYNDIR 'RHS', uc_pasti.mod) | 80-106 | TIMES-NZ, OTCGEN |
 | 22 | uc_*.mod: user-constraint attributes other than GROWTH (CAP, SYNC, ...) | | TIMES-NZ |
 | 23 | eqflomrk.mod: EQ(l)_FLOMRK, market-share flow constraints | | TIMES-NZ |
 | 24 | eqactups.vda: EQ_SLSIFT, load shifting (with the demo12 load-shifting variant) | 131- | layers 2-3 TIMES-NZ (both variants) |
-| 25 | eqmain.mod preparation and pp_qack.mod: the coef -> pre-solve step, so the CI chain runs end to end | | presolve (demo12 in CI) |
+| 25 | eqmain.mod preparation and pp_qack.mod: the coef -> pre-solve step, so the CI chain runs end to end (in M1.3, not M1.5: James, 5 Nov 2026) | | presolve (demo12 in CI) |
+| 25b | pp_qaput.mod: the QA log (QA_CHECK.LOG) and its scalars PUTOUT, PUTGRP and ERRLEV, at every pp_qaput call translated so far, and the ERRLEV abort of pp_qack.mod L376-386 (ERRLEV 33: the run goes on with an alert; above 33: stop). TIMES.jl checks errors as GAMS does until JuMP-side checks are added in Phase 2 (James, 6 Nov 2026). The harness does not keep QA_CHECK.LOG yet (harness change, then a GAMS rerun) | 1-16; 376-386 | log text and scalars at init, prep, prelv, ppm; crafted demo12 states for the WARNING, ERROR and FATAL paths (CI) |
 
 ## Parity (per change)
 
@@ -134,6 +135,10 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 - In CI on demo12: input, preprocessing, coefficients and the model, with the
   matrix (layer 2) and the objective (layer 3), REDUCE off and on.
 - Preprocessing timed against GAMS (docs/timings.md).
+- The QA log and the ERRLEV abort as GAMS (change 25b): QA_CHECK.LOG and
+  PUTOUT, PUTGRP, ERRLEV compared at each checkpoint.
+- TIM-bau runs on James's machine only; its results stay there (James,
+  6 Nov 2026).
 
 ### Gate checks, 5 Nov 2026 (changes 0-18b and 17b in review)
 
@@ -779,9 +784,11 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   warning when year fractions are normalised, and L101-104, a FATAL line,
   ERRLEV 99, for a timeslice with several parents, which pp_qack.mod L378
   acts on; ppmain.mod L213 resets PUTGRP and L229-230 warn when a delayed
-  process has past investment). TIMES.jl does not write the log yet; decide where it is
-  translated, and whether ERRLEV aborts are checked, before the M1.3 gate.
-  Until then the scalars are not compared.
+  process has past investment). TIMES.jl does not write the log yet. Decided (James, 6 Nov 2026):
+  TIMES.jl writes the log and checks errors as GAMS does, ERRLEV aborts
+  included, until JuMP-side checks are added; change 25b. Until it merges
+  the scalars are not compared. Open within 25b: the `$IF WARNINGS` line
+  (ppmain.mod L35) depends on GAMS compile warnings no dump records.
 - Scratch scalars of changes 2-5: ppmain_rtp! and timslice! do not keep Z
   and MY_F (ppmain.mod L215, timslice.mod L67-78). Later loops overwrite
   them in every suite model; only a run with G_NOINTERP and neither a
