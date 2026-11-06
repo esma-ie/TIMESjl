@@ -101,7 +101,11 @@ GAMS 54.6.1):
 | 19 | eqstgips.mod: EQ_STGIPS, inter-period storage (James, 5 Nov 2026: the families M1.1 left untranslated become M1.3 changes) | 13-44 | layers 2-3 OTNYC (both variants); EQ_STGIPS rows on OTCGEN |
 | 19b | eqstgaux.mod: the inter-period storage terms of EQ_STGAUX | 25-32 | EQ_STGAUX rows on OTCGEN; crafted demo12 case (CI) |
 | 20 | equcrtp.vda (EQU_EXT): EQ(l)_UCRTP and EQN_UCRTC, dynamic process and commodity bounds | 73-123 | layers 2-3 OTUS9r |
-| 20b | prepret.dsc: early retirement and refits (EQ_DSCRET, EQ_CUMRET, EQL_SCAP, EQL_REFIT; the VAR_RCAP/VAR_SCAP terms of the objective, eqobj.mod L39, eqobjfix.mod L214, eqobsalv.mod L105) — DSC code that OTUS9r uses (found 5 Nov 2026 by demo12 variant 5; brought into M1.3 by James, 5 Nov 2026) | | layers 2-3 OTUS9r; demo12_refit (CI) |
+| 20b | prepret.dsc: early retirement and refits — DSC code that OTUS9r uses (found 5 Nov 2026 by demo12 variant 5; brought into M1.3 by James, 5 Nov 2026). In four parts (6 Nov 2026); the family stays refused until the last: | | layers 2-3 OTUS9r; demo12_refit (CI) |
+| 20b-1 | prepret.dsc EQOBJ: EQ_CUMRET, EQL_SCAP, EQL_REFIT (EQ_DSCRET and the EQL_SCAP IN rows refused) | 89-117 | the rows of the three families, OTUS9r and demo12_refit |
+| 20b-2 | %RCAPSUB%/%RCAPSBM% (prepret.dsc L87-88): the -VAR_SCAP terms in the translated capacity equations (eqcpt.mod, eqcapact.mod, eqpeak.mod, cal_cap.mod, cal_caps.mod, eqcaflac.vda) | | the rows of those families |
+| 20b-3 | prepret.dsc DECL: the VAR_RCAP and VAR_SCAP bounds (and VAR_DRCAP, refused) | 44-84 | bounds vs the pre-solve dump and CONVERT |
+| 20b-4 | prepret.dsc OBJFIX and OBSALV, the objective terms (eqobj.mod L39, eqobjfix.mod L214, eqobsalv.mod L26, L105); the refusal lifted | 134-162 | layers 2-3 OTUS9r and demo12_refit (CI) |
 | 21 | equserco.mod: dynamic user constraints in the RHS direction (UC_DYNDIR 'RHS', uc_pasti.mod) | 80-106 | TIMES-NZ, OTCGEN |
 | 22 | uc_*.mod: user-constraint attributes other than GROWTH (CAP, SYNC, ...) | | TIMES-NZ |
 | 23 | eqflomrk.mod: EQ(l)_FLOMRK, market-share flow constraints | | TIMES-NZ |
@@ -162,6 +166,26 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 
 ## Findings so far
 
+- (20b-1) prepret.dsc L89-117, the retirement and refit rows (`eq_ret!`,
+  `src/ext/dsc/prepret.jl`): EQ_CUMRET (cumulative retirements: SCAP(T) =
+  RCAP(T) + SCAP(T-1), the row dated T, or T-1 for a process without
+  RP_RTF), EQL_SCAP's N rows (cumulative retirement by the end of life
+  of the investment, the cap on its salvage) and EQL_REFIT (=E= despite its name: refit and
+  life-extension investment against the host's retirements; FX rows, N rows
+  only for RP_RTF = 3). Generated from the pre-solve dump, as GAMS
+  generates them at the SOLVE from the data after the DECL and EQOBJ
+  clean-ups. `$` binds before the comparisons: `RP_RTF$VNT$BD<3` is
+  `(RP_RTF$VNT$BD) < 3`, so the VAR_RCAP(R,T,TT,PRC) term is kept unless
+  VNT(T,TT), BD(L) and RP_RTF >= 3 all hold (the matrix check agrees on
+  every row reached).
+  Checked: the rows of the three families against the CONVERT export,
+  demo12_refit (17 EQ_CUMRET, 7 EQL_SCAP, 24 EQL_REFIT; 161 coefficients)
+  and OTUS9r reference (2,008 EQ_CUMRET, 660 EQL_REFIT, 8,955 coefficients;
+  no EQL_SCAP), both
+  variants; in CI on the demo12_refit fixture (`test_variants.jl`,
+  `partial`). Refused: EQ_DSCRET (RCAP_BLK, cleared unless %MIP%) and the
+  EQL_SCAP IN rows (NCAP_OLIFE), which no suite model reaches. Not yet
+  called by `generate!`: the family stays refused until 20b-4.
 - (20) equcrtp.vda L73-121 (EQU_EXT), dynamic process and commodity
   bounds (`eq_ucrtp!`, `src/ext/vda/equcrtp.jl`): EQN_UCRTP (=L=, LO and
   UP), EQE_UCRTP (=E=, FX) and EQN_UCRTC (=L=, LO and UP; no EQE_UCRTC,
