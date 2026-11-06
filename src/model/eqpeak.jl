@@ -16,8 +16,8 @@
 #
 # Macro expansions: %EQ% -> EQ, %VAR%/%VARV% -> VAR, %SOW%/%SWT%/%SWS% -> ''
 # (setglobs.gms L348); %R_T% -> 'R,T' (maindrv.mod L39); RTS(SL) -> SL
-# (timslice.mod L39; NORTS refused, see eqptrans.jl); %RCAPSUB% -> '' (see
-# eqcapact.jl, docs/discrepancies.md D1); COM_FR%MX% -> COM_FR (the $SET MX of
+# (timslice.mod L39; NORTS refused, see eqptrans.jl); %RCAPSUB% is the -VAR_SCAP
+# term of early retirement (prepret.dsc L87, `rcapsub!`; M1.3 change 20b-2); COM_FR%MX% -> COM_FR (the $SET MX of
 # cal_ire.mod L16 is scoped to that include). Index sets: T = MILESTONYR
 # (initmty.mod L94), V = MODLYEAR (setglobs.gms L147), SL = ALL_TS
 # (initmty.mod L89), CG2 = COM_GRP (initsys.mod L96).
@@ -158,6 +158,7 @@ function eq_peak!(tm::TimesModel)
                                        gv(ncap_pkcnt, (r, v, p, s))))
                     (v,) in milestonyr && addterm!(lhs, k, tm, "VAR_NCAP", r, v, p)
                     (v,) in pastyear && addconst!(lhs, k * gv(ncap_pasti, (r, v, p)))
+                    rcapsub!(lhs, k, tm, r, v, t, p)                  # %RCAPSUB% (prepret.jl)
                 end
             end
             pkcnt = (p, v, ts) -> gv(ncap_pkcnt, (r, v, p, s))

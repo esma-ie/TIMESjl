@@ -12,12 +12,14 @@
 # Macro expansions:
 # - %EQ% -> EQ, %VAR%/%VARM%/%VARV% -> VAR, %SWT%/%SOW%/%SWS% -> ''
 #   (setglobs.gms L348, SW_NOTAGS).
-# - %MX%, %RCAPSUB%, %RCAPSBM% -> '': setglobs.gms is included with X1='1'
-#   (maindrv.mod L23), which only checks that the user set none of these, and
-#   then re-runs itself with X1='' (setglobs.gms L374 -> L341), setting them
-#   all to ''; maindrv.mod L30 then re-empties MX (readbprice.mod L20-23 only
-#   uses MX to carry a MACRO switch). No other file sets RCAPSUB/RCAPSBM. So
-#   COEF_AF%3 is COEF_AF in all three variants.
+# - %MX% -> '': setglobs.gms is included with X1='1' (maindrv.mod L23), which
+#   only checks that the user set none of MX, RCAPSUB, RCAPSBM, and then
+#   re-runs itself with X1='' (setglobs.gms L374 -> L341), setting them all
+#   to ''; maindrv.mod L30 then re-empties MX (readbprice.mod L20-23 only uses
+#   MX to carry a MACRO switch). So COEF_AF%3 is COEF_AF in all three
+#   variants. %RCAPSBM% (L37) and %RCAPSUB% (L45) are set by prepret.dsc
+#   L87-88 when early retirement is on: the -VAR_SCAP term (`rcapsub!`, M1.3
+#   change 20b-2; docs/discrepancies.md D1, withdrawn).
 # - %R_V_T% -> 'R,V,T' (maindrv.mod L39).
 # - %PASS% (L15-16) becomes `*(NOT RPS_CAFLAC(R,P,S,'%2'))` when RPS_CAFLAC is
 #   DEFINED. With VDA it is (init_ext.vda L23 declares it, ppm_ext.vda L133
@@ -208,10 +210,12 @@ function eq_capact!(tm::TimesModel, eqtype::AbstractString, bd::AbstractString, 
         push!(get!(() -> String[], k_of_rtp, (r, t, p)), k)
     end
 
-    # One capacity term, coefficient `c`: VAR_NCAP(r,k,p)$T(k) + NCAP_PASTI(r,k,p)$PASTYEAR(k).
-    function add_capacity!(rhs, r, k, p, c::GNum)
+    # One capacity term, coefficient `c`: VAR_NCAP(r,k,p)$T(k) + NCAP_PASTI(r,k,p)$PASTYEAR(k)
+    # with %RCAPSBM% (L37) or %RCAPSUB% (L45), k controlled in both (prepret.jl).
+    function add_capacity!(rhs, r, k, t, p, c::GNum)
         (k,) in milestonyr && addterm!(rhs, c, tm, "VAR_NCAP", r, k, p)
         (k,) in pastyear && addconst!(rhs, c * gv(ncap_pasti, (r, k, p)))
+        rcapsub!(rhs, c, tm, r, k, t, p)
         return rhs
     end
 
@@ -248,11 +252,11 @@ function eq_capact!(tm::TimesModel, eqtype::AbstractString, bd::AbstractString, 
             if !((r, p) in prc_vint)
                 for k in get(k_of_rtp, (r, t, p), String[])
                     c = gv(coef_cpt, (r, k, t, p)) * gv(coef_af, (r, k, t, p, s, bd)) * capact * yrfr
-                    add_capacity!(rhs, r, k, p, c)
+                    add_capacity!(rhs, r, k, t, p, c)
                 end
             else
                 c = gv(coef_af, (r, v, t, p, s, bd)) * gv(coef_cpt, (r, v, t, p)) * capact * yrfr
-                add_capacity!(rhs, r, v, p, c)
+                add_capacity!(rhs, r, v, t, p, c)
             end
 
             gconstraint!(tm, name, (r, v, t, p, s), eqtype, lhs, rhs) === nothing || (n += 1)

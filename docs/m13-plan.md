@@ -103,7 +103,7 @@ GAMS 54.6.1):
 | 20 | equcrtp.vda (EQU_EXT): EQ(l)_UCRTP and EQN_UCRTC, dynamic process and commodity bounds | 73-123 | layers 2-3 OTUS9r |
 | 20b | prepret.dsc: early retirement and refits — DSC code that OTUS9r uses (found 5 Nov 2026 by demo12 variant 5; brought into M1.3 by James, 5 Nov 2026). In four parts (6 Nov 2026); the family stays refused until the last: | | layers 2-3 OTUS9r; demo12_refit (CI) |
 | 20b-1 | prepret.dsc EQOBJ: EQ_CUMRET, EQL_SCAP, EQL_REFIT (EQ_DSCRET and the EQL_SCAP IN rows refused) | 89-117 | the rows of the three families, OTUS9r and demo12_refit |
-| 20b-2 | %RCAPSUB%/%RCAPSBM% (prepret.dsc L87-88): the -VAR_SCAP terms in the translated capacity equations (eqcpt.mod, eqcapact.mod, eqpeak.mod, cal_cap.mod, cal_caps.mod, eqcaflac.vda) | | the rows of those families |
+| 20b-2 | %RCAPSUB%/%RCAPSBM% (prepret.dsc L87-88): the -VAR_SCAP terms in the translated capacity equations (eqcpt.mod, eqcapact.mod, eqpeak.mod, eqcaflac.vda; cal_cap.mod and cal_caps.mod stay refused with their files) | 87-88 | the rows of those families, OTUS9r, demo12_refit, crafted case demo12_refit_afc |
 | 20b-3 | prepret.dsc DECL: the VAR_RCAP and VAR_SCAP bounds (and VAR_DRCAP, refused) | 44-84 | bounds vs the pre-solve dump and CONVERT |
 | 20b-4 | prepret.dsc OBJFIX and OBSALV, the objective terms (eqobj.mod L39, eqobjfix.mod L214, eqobsalv.mod L26, L105); the refusal lifted | 134-162 | layers 2-3 OTUS9r and demo12_refit (CI) |
 | 21 | equserco.mod: dynamic user constraints in the RHS direction (UC_DYNDIR 'RHS', uc_pasti.mod) | 80-106 | TIMES-NZ, OTCGEN |
@@ -161,6 +161,30 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 
 ## Findings so far
 
+- (20b-2) prepret.dsc L87-88, %RCAPSUB% and %RCAPSBM% (`rcapsub!`,
+  `src/ext/dsc/prepret.jl`): with early retirement on, the capacity of a
+  PRC_RCAP process loses its cumulative retirements, -VAR_SCAP(R,V,T,P)
+  for VNTRT(V,T), wherever a capacity term is built: EQ(l)_CPT (eqcpt.mod
+  L26), EQ(l)_CAPACT (eqcapact.mod L37, L45), EQ_PEAK (eqpeak.mod L24),
+  EQ(l)_CAFLAC and EQL_CAPFLO (eqcaflac.vda L32, L57). M1.1 recorded these
+  macros as always empty (docs/discrepancies.md D1, now withdrawn: Part II
+  was right). In eqcaflac.vda the SUM over RVP_KMAP(R,V,P,MODLYEAR(K))
+  controls MODLYEAR with K (G48): the first reading, a sum over every
+  vintage, gave twice the coefficients on the crafted case
+  TIMES_Demo-demo12_refit_afc (`reference/dd/demo12_refit_afc/`: an
+  NCAP_AFC on the coal input of the retiring ELCTECOA00 and a second past
+  vintage, so that one EQL_CAPFLO row has two retiring vintages), and was
+  corrected before commit. Checked: the rows of the capacity families
+  (EQ(l)_CPT, EQ(l)_CAPACT, EQ_PEAK, EQ(l)_CAFLAC, EQL_CAPFLO) against the
+  CONVERT export, both variants: OTUS9r reference (462,456 rows and
+  3,048,139 coefficients reduce_off, 337,122 and 2,477,660 as_run; 44,176
+  VAR_SCAP coefficients), demo12_refit (2,568 rows, 122 VAR_SCAP),
+  demo12_refit_afc (2,578 rows, 168 VAR_SCAP, 10 EQL_CAPFLO rows with the
+  term); CI on the demo12_refit and demo12_refit_afc fixtures
+  (`test_variants.jl`, `partial`), which also runs preprocessing input ->
+  ppm on the new case. cal_cap.mod and cal_caps.mod (capacity-related
+  flows, which carry VAR_SCAP and VAR_RCAP terms of their own) stay
+  refused with their files.
 - (20b-1) prepret.dsc L89-117, the retirement and refit rows (`eq_ret!`,
   `src/ext/dsc/prepret.jl`): EQ_CUMRET (cumulative retirements: SCAP(T) =
   RCAP(T) + SCAP(T-1), the row dated T, or T-1 for a process without

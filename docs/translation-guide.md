@@ -551,3 +551,9 @@ those checks, their figures and their crafted cases are not published
   OTUS9r. Change 20b is done in four parts (equations, the -VAR_SCAP
   capacity terms, the bounds, the objective); the family stays refused
   until the last.
+- 6 Nov 2026: M1.3 (20b-2): prepret.dsc L87-88, the -VAR_SCAP terms of
+  early retirement in the capacity equations (EQ_CPT, EQ_CAPACT, EQ_PEAK,
+  EQ_CAFLAC, EQL_CAPFLO); rows match GAMS on OTUS9r, demo12_refit and the
+  new crafted case demo12_refit_afc. Discrepancy D1 withdrawn (the
+  documentation's VAR_SCAP term is in GAMS after all); new GAMS semantics
+  note G48.

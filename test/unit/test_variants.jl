@@ -53,7 +53,7 @@ for vx in VARIANTS
         if haskey(vx, "partial")
             @testset "rows of $(join(vx["partial"]["families"], ", "))" begin
                 tm = TimesModel(fx("presolve"); reduce=get(vx, "reduce", false), switches=vx["switches"])
-                getfield(TIMES, Symbol(vx["partial"]["generator"]))(tm)
+                foreach(g -> getfield(TIMES, Symbol(g))(tm), vx["partial"]["generators"])
                 mine = canonical_from_jump(tm.model)
                 ref = canonical_from_dump(joinpath(fx("matrix"), "matrix"), joinpath(fx("matrix"), "dictmap"))
                 for fam in vx["partial"]["families"]
