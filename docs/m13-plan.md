@@ -162,6 +162,28 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 
 ## Findings so far
 
+- (20) equcrtp.vda L73-121 (EQU_EXT), dynamic process and commodity
+  bounds (`eq_ucrtp!`, `src/ext/vda/equcrtp.jl`): EQN_UCRTP (=L=, LO and
+  UP), EQE_UCRTP (=E=, FX) and EQN_UCRTC (=L=, LO and UP; no EQE_UCRTC,
+  L101), from equ_ext.vda L105-106. Each row bounds x(T) against
+  POWER(LHS(T),LEAD(T)) * x(T-1) plus RHS(T)*LEAD(T), x being VAR_CAP,
+  VAR_NCAP, the annual sum of VAR_ACT over RTP_VINTYR and PRC_TS, or
+  VAR_COMNET/VAR_COMPRD where RHS_COMBAL/RHS_COMPRD hold; in the first
+  period only the -x(T) term. Checked: OTUS9r, the only core model with
+  dynamic bounds (8 UC_DYNBND, all on ACT): 15,962 EQN_UCRTP rows match the
+  CONVERT export on both variants (31,881 coefficients reduce_off, 31,549
+  as_run); its whole model now waits only for change 20b. A crafted case
+  for the branches OTUS9r does not reach, TIMES_Demo-demo12_ucrt
+  (`reference/dd/demo12_ucrt/`: CAP UP in both regions, NCAP LO, ACT FX,
+  GAS COMPRD UP, COA COMNET LO): 21 rows (9 EQN_UCRTP, 4 EQE_UCRTP,
+  8 EQN_UCRTC), layers 2-3 PASS on both variants (as_run 3,270 rows,
+  4,513 columns, 18,499 nonzeros; reduce_off 8,732, 9,697, 31,515;
+  objective 23,962,064.98 by CPLEX and HiGHS) and the M1.3 chain PASS
+  (GAMS 54.6.1); CI fixtures `demo12_ucrt` and `demo12_ucrt_off`. Found
+  while making the case: EQN_UCRTC is defined at ANNUAL only, so a bound
+  on a commodity tracked by timeslice (ELC, DAYNITE) has no VAR_COMNET or
+  VAR_COMPRD term; GAMS drops these empty rows and so does TIMES.jl
+  (`gconstraint!`). The case uses ANNUAL-level commodities instead.
 - (19b) eqstgaux.mod L25-32, the inter-period storage terms of EQ_STGAUX:
   the charging less the discharging of the stored commodities in the
   latter half of the period (each year from M(T) weighted by

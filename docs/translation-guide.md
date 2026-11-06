@@ -541,3 +541,8 @@ those checks, their figures and their crafted cases are not published
   retirements was built without its retirement rows; now keyed on RP_RTF.
   OTUS9r uses early retirement and refits, so M1.3 gains change 20b
   (prepret.dsc equations).
+- 6 Nov 2026: M1.3 (20): equcrtp.vda L73-121, the dynamic process and
+  commodity bounds (EQN_UCRTP, EQE_UCRTP, EQN_UCRTC). Rows match GAMS on
+  OTUS9r (15,962, both variants); the crafted case TIMES_Demo-demo12_ucrt
+  reaches the other branches and passes layers 2-3 and the M1.3 chain.
+  OTUS9r's whole model now needs only change 20b.
