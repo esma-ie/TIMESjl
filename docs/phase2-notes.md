@@ -9,6 +9,7 @@ robustness). Phase 1 changes none of them unless a parity check needs it.
 | --- | --- | --- | --- |
 | P2-1 | Tighter solver and parity tolerances | 21 Oct 2026, James (with K1) | 1e-6 is loose for optimality. Run the GAMS references with tighter CPLEX tolerances (feasibility and optimality, e.g. `eprhs`/`epopt` 1e-9) and HiGHS likewise, then tighten the layer-3 cross-evaluation and retire K1's "as feasible as in its own LP" rule (scripts/m11_probe.jl `as_feasible_as`). |
 | P2-2 | Coefficient-stage speed | 31 Oct 2026 (M1.2 timings) | On OTNYC (0.5 M rows) the coefficient stage takes 119 s warm against 0.79 s in GAMS on one machine (docs/timings.md); coef_ext, coef_ptr and coef_cpt lead. The same data access as the slow generators (below): string-tuple keys, per-record dictionaries; integer labels and columnar sets would serve both. |
+| P2-3 | Multi-threaded equation generation | 31 Oct 2026, James | A JuMP model is built on one thread, so thread the work around it: index construction and coefficient arithmetic per equation family (or region) on separate tasks, each into its own buffer; then add the rows on one thread, or merge the buffers into one triplet matrix for a single hand-off to the solver. Needs the data fixes first (concrete types, integer labels). Details in "Multi-threaded equation generation (P2-3)" below. |
 
 ## Model generation: where the time goes (21 Oct 2026)
 
@@ -62,6 +63,71 @@ Smaller, everywhere:
 6. **Lazy dump reads inside generators.** The first generator to use a set
    or parameter reads it from Arrow (`read_symbol`), so read time lands in
    whichever generator comes first (usually eq_combal!). Phase 2 can load once, in columnar form, with integer labels.
+
+## Multi-threaded equation generation (P2-3, 31 Oct 2026)
+
+What can run in parallel:
+
+- **The JuMP model: no.** JuMP models are not thread-safe, and one model
+  must be built sequentially on a single thread (JuMP's parallelism
+  tutorial, https://jump.dev/JuMP.jl/stable/tutorials/algorithms/parallelism/).
+- **Everything before the JuMP call: yes.** Reading sets and parameters,
+  building each equation's row domain and term lists, and computing
+  coefficients are plain Julia. They can run as separate tasks per equation
+  family (eq_combal!, eq_acteff!, eq_floshr!, eq_capact!, ...) or per
+  region.
+- **The solve: separately.** The solver's own `threads` attribute is set per
+  run and is independent of Julia's threads.
+
+Two designs to try:
+
+1. **Parallel prepare, serial add.** Each family fills a typed row buffer
+   (row key, column ids, coefficients, sense, right-hand side) on its own
+   task. One thread then adds the rows to JuMP in GAMS order. This keeps
+   JuMP references and names. The serial add is the floor on the speed-up.
+2. **Parallel triplets, one hand-off.** Each task writes (I, J, V) and row
+   bounds into its own buffers, using row-id ranges reserved per family.
+   The buffers are merged and the whole LP goes to the solver in one call
+   (as scripts/m11_large.jl already does with `Highs_passLp`), or is loaded
+   through MOI. This removes the serial JuMP add, at the cost of JuMP-level
+   modification unless references are rebuilt. It goes with the direct
+   mode and triplets items already planned for Phase 2.
+
+Prerequisites:
+
+- Concrete types in the generator contexts and integer labels (above).
+  Without them, threads mostly contend on allocation and garbage
+  collection.
+- Stable column ids before rows are built in parallel. Today `getvar!`
+  creates a column on first reference, so column order follows generator
+  order. Create all columns first, or reserve id ranges per family, and
+  keep the resulting column order identical to today's.
+- No shared mutable state across tasks. `tm.cache` and the EPS set
+  (`_eps_exprs`) are shared today and would need to become per-task, then
+  merged.
+
+Parity and determinism:
+
+- The generated LP must stay identical, so layer-2 matrix parity is the
+  gate. The comparison is by name, so row order does not affect it.
+  Keep rows in GAMS order (`gams_sort!`) anyway, so solves stay
+  reproducible.
+- Each coefficient must be computed by the same arithmetic as now. Threads
+  change which task computes a coefficient, never the order of operations
+  within it: no parallel reductions inside one coefficient.
+
+Measurement:
+
+- Per-stage wall time and allocations at 1, 4, 8 and 12 Julia threads
+  (`julia -t N`) on demo12, TIMES-NZ, OTUS9r and JRC-EU-TIMES. The serial
+  fraction shows which design pays. Consider `--gcthreads` for the
+  allocation-heavy stages.
+- Run limits apply (CLAUDE.md): at most 12 threads per run, at most 4 heavy
+  runs at a time. Generation and solve run one after the other, so each
+  stage can use up to 12.
+- Unconfirmed, to check: GAMS appears to generate on one thread. If so, this
+  is where TIMES.jl could beat GAMS's generation time rather than only
+  match it.
 
 ## Memory
 
