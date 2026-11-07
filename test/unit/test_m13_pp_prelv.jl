@@ -72,3 +72,21 @@ end
     tm = TimesModel(joinpath(FIXTURES, "demo12_off_prep"); switches=merge(fx["switches"], Dict("POWERFLO" => "YES")))
     @test any(s -> occursin("L114", s), pp_prelv_unported(tm))
 end
+
+# init_ext.vda L134-135: %POWERFLO% YES comes from the data, not the run file, and a
+# dump does not keep it; a model built from a later checkpoint must derive it again
+# (m13-plan.md finding of 7 Nov 2026: JRC-EU-TIMES-cli_ll's probe showed FAIL instead
+# of the POWERFLO refusal).
+@testset "POWERFLO derived from the data (init_ext.vda L134-135)" begin
+    fx = only(filter(f -> f["prefix"] == "demo12_off", TOML.parsefile(joinpath(FIXTURES, "public_fixtures.toml"))["fixture"]))
+    tm = TimesModel(joinpath(FIXTURES, "demo12_off_prep"); switches=fx["switches"])
+    @test TIMES.gswitch(tm, "POWERFLO", "") == ""                    # demo12 has no PRC_REACT, GR_PTDF or GG_KGF
+    @test "MY_F" in TIMES.preppm_shape_symbols(tm)
+    @test "RXX" in TIMES.ppmain_life_symbols(tm)
+    TIMES.gput!(tm, "PRC_REACT", Dict{NTuple{3,String},Float64}(("REG1", "2005", "ELCTECOA00") => 0.1))
+    TIMES.data_switches!(tm)
+    @test TIMES.gswitch(tm, "POWERFLO", "") == "YES"
+    @test any(s -> occursin("L114", s), pp_prelv_unported(tm))
+    @test !("MY_F" in TIMES.preppm_shape_symbols(tm))               # powerflo.vda L80 assigns it again
+    @test !("RXX" in TIMES.ppmain_life_symbols(tm))                 # powerflo.vda L121-122
+end

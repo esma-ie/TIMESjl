@@ -15,7 +15,8 @@
 #
 # Refused: %INTEXT_ONLY% YES (L10, L218: prepxtra.mod XTIE and POST) and
 # %PREP_ANS% YES (L12-13); currency conversion (L27-28, curex.gms, when
-# G_CUREX or R_CUREX has data: no suite model has it); %RETIRE% other than YES
+# G_CUREX or R_CUREX has data: no core model has it, JRC-EU-TIMES-cli_ll
+# does; M1.3 change 26); %RETIRE% other than YES
 # (prepret.jl). L11 (%DATAGDX% YES, every suite run) runs prepxtra.mod SAVE:
 # it sets the scratch Z to the length of "%GDXPATH%%RUN_NAME%" plus 16 (CARD
 # of a string, G41) and renames the data GDX file with a shell command, which
@@ -428,9 +429,14 @@ prelv segment changes (for the layer-1 check at the prelv checkpoint): the
 twelve preshape parameters, PRC_MARK, DATAYEAR and the preshape.gms scratch
 but Z and F (ppmain.mod L335 assigns them). UNCD7 and RXX are left out:
 pp_lvlfc.mod (pp_prelv.vda L101) and ppmain.mod L335 clear them again.
+MY_F is left out with %POWERFLO% YES: powerflo.vda L80 (pp_prelv.vda L114)
+assigns it again.
 """
-preppm_shape_symbols(tm) = vcat(PRESHAPE_PARAMS, ["PRC_MARK", "DATAYEAR", "MY_ARRAY", "DFUNC", "LAST_VAL", "FIRST_VAL",
-                                                  "MY_FYEAR", "MY_F"])
+function preppm_shape_symbols(tm)
+    out = vcat(PRESHAPE_PARAMS, ["PRC_MARK", "DATAYEAR", "MY_ARRAY", "DFUNC", "LAST_VAL", "FIRST_VAL", "MY_FYEAR"])
+    uppercase(gswitch(tm, "POWERFLO", "")) == "YES" || push!(out, "MY_F")
+    return out
+end
 
 "The parameters of the preshape.gms calls, preppm.mod L222-233."
 const PRESHAPE_PARAMS = ["NCAP_AFX", "NCAP_AFSX", "NCAP_AFM", "NCAP_FOMX", "NCAP_FSUBX", "NCAP_FTAXX", "FLO_FUNCX",

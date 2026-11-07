@@ -28,13 +28,15 @@ The symbols ppmain.mod L461-611 settles that nothing later in the prep ->
 prelv segment changes (for the layer-1 check at the prelv checkpoint). Left
 out: NCAP_TLIFE (pp_prelv.vda L11), PRC_ACTFLO (pp_prelv.vda L66), TRACKP,
 TRACKPC and the scratch F, Z and PUTGRP (pp_prelv.vda uses them again); RVP
-when TS_OFF has data (dynslite.vda, pp_prelv.vda L125).
+when TS_OFF has data (dynslite.vda, pp_prelv.vda L125); RXX with %POWERFLO%
+YES (powerflo.vda L121-122, from pp_prelv.vda L114, clears and fills it).
 """
 function ppmain_life_symbols(tm)
-    out = ["RXX", "G_ILEDNO", "COEF_ILED", "NCAP_ILED", "PRC_REFIT", "RTP_OFF", "NCAP_ELIFE", "COEF_RPTI", "VNT", "YKVAL",
+    out = ["G_ILEDNO", "COEF_ILED", "NCAP_ILED", "PRC_REFIT", "RTP_OFF", "NCAP_ELIFE", "COEF_RPTI", "VNT", "YKVAL",
            "RTP_CPTYR", "PASTSUM", "COEF_RTP", "CAP_BND", "RCAP_BND", "NCAP_BND", "RTP_VARP", "NO_RVP", "RTP", "RTP_VARA", "MY_FIL",
            "RTPC", "RTPCS_OUT", "RPC_PG", "RP_STD", "RPC_ACT", "CHP", "PRC_CAPACT", "RP_PGACT"]
     isempty(gset_opt(tm.data, "TS_OFF", 4).keys) && push!(out, "RVP")
+    uppercase(gswitch(tm, "POWERFLO", "")) == "YES" || pushfirst!(out, "RXX")
     return out
 end
 

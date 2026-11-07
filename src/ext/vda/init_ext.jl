@@ -378,8 +378,8 @@ function init_ext_vda!(tm)
         gput!(tm, "UC_GMAP_P", gmap_p)
     end
     # L134-135: $IF DEFINED PRC_REACT / $IFE CARD(GR_PTDF)+CARD(GG_KGF): $SETGLOBAL POWERFLO YES
-    any(n -> !isempty(gparam_opt(tm.data, n[1], n[2])), (("PRC_REACT", 3), ("GR_PTDF", 6), ("GG_KGF", 4))) &&
-        (tm.switches["POWERFLO"] = "YES")
+    # (the TimesModel constructor has already applied it; repeated here where GAMS has it)
+    data_switches!(tm)
 
     # --- Exogenous trade from an earlier run (L137-156) -------------------------
     # L153-156: remove the originally exogenous trade flows (RPC_IREIN holds data only with GDX_IREBND/GDX_IPRIC, refused)

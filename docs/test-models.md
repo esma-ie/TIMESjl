@@ -97,7 +97,10 @@ change reaches a feature only those cases have. OTUS9r-tax1_wo_mou is paused
 there: its REDUCE-on CPLEX solve did not leave crossover in 9 h, and its
 REDUCE-off optimum has unscaled infeasibilities. It stays paused, and
 JRC-EU-TIMES-cli_ll is deferred, until later Phase 1 milestones (James, 31 Oct
-2026); neither ran for the M1.2 gate.
+2026); neither ran for the M1.2 gate. JRC-EU-TIMES-cli_ll's checkpoints run
+nightly from 5 Nov 2026, and its two untranslated features, currency
+conversion and the power-flow grid, are M1.3 changes 26 and 27 (James,
+7 Nov 2026).
 
 ### Primary test models
 
