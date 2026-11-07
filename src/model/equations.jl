@@ -158,7 +158,9 @@ the suite's `as_run` variants to `reduce=true` (cal_red.red, M1.3 change 17b).
 (`\$SET OBJ AUTO`, ...), by upper-case name, as strings; `gswitch` reads them
 with the default the GAMS source applies when the run sets nothing. The run
 file reader (M1.5) fills them; until then tests pass the reference run's
-values.
+values. The constructor also sets the switches TIMES derives from the data
+rather than the run file (`data_switches!`), because a dump keeps the data
+but not the compile-time switches set from it.
 
 `cache` holds incidence maps shared by several generators (e.g. the flow
 expression of cal_red.jl), built once per model on first use.
@@ -176,7 +178,34 @@ end
 function TimesModel(data::DumpData; reduce::Bool=false, switches=Dict{String,String}())
     model = JuMP.Model()
     sw = Dict{String,String}(uppercase(String(k)) => String(v) for (k, v) in switches)
-    return TimesModel(model, VariableStore(model), EquationStore(), data, reduce, sw, Dict{String,Any}())
+    tm = TimesModel(model, VariableStore(model), EquationStore(), data, reduce, sw, Dict{String,Any}())
+    return data_switches!(tm)
+end
+
+"""
+    data_switches!(tm) -> tm
+
+Set the compile-time switches TIMES derives from the model's data, not from
+the run file:
+
+    \$ IF DEFINED PRC_REACT           \$SETGLOBAL POWERFLO YES
+    \$ IFE CARD(GR_PTDF)+CARD(GG_KGF) \$SETGLOBAL POWERFLO YES
+
+GAMS: init_ext.vda L134-135, v4.9.7. `\$IF DEFINED` is true only when the
+symbol has data (G35). GAMS sets the switch while compiling init_ext.vda,
+before any code that reads %POWERFLO% (prep_ext.vda L37, pp_prelv.vda L114,
+mod_ext.vda L45, equ_ext.vda L101). A dump keeps the data but not the
+switch, so a model built from any checkpoint (`input` to `presolve`) must
+derive it again, or the POWERFLO refusals would not fire. `init_ext!` calls
+this too. Not confirmed for every model: powerflo.vda zeroes PRC_REACT
+entries (L40: processes outside the grid; L65: values <= 0), so a model
+whose PRC_REACT it emptied would lose the switch in the dumps after
+`prelv` (JRC-EU-TIMES-cli_ll keeps some there).
+"""
+function data_switches!(tm)
+    any(n -> !isempty(gparam_opt(tm.data, n[1], n[2])), (("PRC_REACT", 3), ("GR_PTDF", 6), ("GG_KGF", 4))) &&
+        (tm.switches["POWERFLO"] = "YES")
+    return tm
 end
 
 """

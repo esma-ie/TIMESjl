@@ -112,6 +112,11 @@ GAMS 54.6.1):
 | 24 | eqactups.vda: EQ_SLSIFT, load shifting (with the demo12 load-shifting variant) | 131- | layers 2-3 TIMES-NZ (both variants) |
 | 25 | eqmain.mod preparation and pp_qack.mod: the coef -> pre-solve step, so the CI chain runs end to end (in M1.3, not M1.5: James, 5 Nov 2026) | | presolve (demo12 in CI) |
 | 25b | pp_qaput.mod: the QA log (QA_CHECK.LOG) and its scalars PUTOUT, PUTGRP and ERRLEV, at every pp_qaput call translated so far, and the ERRLEV abort of pp_qack.mod L376-386 (ERRLEV 33: the run goes on with an alert; above 33: stop). TIMES.jl checks errors as GAMS does until JuMP-side checks are added in Phase 2 (James, 6 Nov 2026). The harness does not keep QA_CHECK.LOG yet (harness change, then a GAMS rerun) | 1-16; 376-386 | log text and scalars at init, prep, prelv, ppm; crafted demo12 states for the WARNING, ERROR and FATAL paths (CI) |
+| 26 | curex.gms (preppm.mod L27-28): currency conversion from G_CUREX and R_CUREX into each region's currency. JRC-EU-TIMES-cli_ll has G_CUREX data (found 7 Nov 2026 by the nightly run; brought into M1.3 by James, 7 Nov 2026) | 1-84 | prep: JRC-EU-TIMES-cli_ll on James's machine (verdicts only, docs/test-models.md); crafted case demo12_curex, G_CUREX and R_CUREX in a second currency (CI) |
+| 27 | powerflo.vda: the power-flow (PTDF) grid extension, %POWERFLO% YES, which init_ext.vda L134-135 sets when PRC_REACT, GR_PTDF or GG_KGF has data. JRC-EU-TIMES-cli_ll has PRC_REACT data (found 7 Nov 2026; brought into M1.3 by James, 7 Nov 2026). In three parts; the switch stays refused until the last: | | JRC-EU-TIMES-cli_ll on James's machine (verdicts only); demo12 variant 6, PTDF power grid (docs/demo12-variants.md; CI) |
+| 27a | powerflo.vda main block (pp_prelv.vda L114: the grid topology, GR_* sets and parameters, PRC_REACT, COM_LIM) and PREP (prep_ext.vda L37) | 1-204 | prelv and prep checkpoints |
+| 27b | powerflo.vda DECL (mod_vars.mod L95), POWFLO (equ_ext.vda L101, mod_ext.vda L45) and IREAUX (%IREAUXBAL%, L221): the power-flow variables, bounds and equations; CSTBAL and OBJBAL (L372-435) stay refused with COM_CSTBAL data, which neither case has | 206-370 | layers 2-3 |
+| 27c | powerflo.vda RPTB (cost_ann.rpt L175): the reporting block, translated with M1.6 and listed here so the file is tracked | 437-462 | M1.6 |
 
 ## Parity (per change)
 
@@ -143,6 +148,10 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   PUTOUT, PUTGRP, ERRLEV compared at each checkpoint.
 - TIM-bau runs on James's machine only; its results stay there (James,
   6 Nov 2026).
+- JRC-EU-TIMES-cli_ll (milestone tier), once changes 26-27b merge: the
+  chain from the input dump to ppm, reduce_off and as_run, on James's
+  machine; only the verdicts are published (`redistribute = "summary"`).
+  Proposed with changes 26-27 (7 Nov 2026), to confirm with James.
 
 ### Gate checks, 5 Nov 2026 (changes 0-18b and 17b in review)
 
@@ -166,6 +175,22 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 
 ## Findings so far
 
+- (7 Nov 2026, probe) JRC-EU-TIMES-cli_ll in the nightly runs of 5 and
+  6 Nov: the chain stopped, as it should, at the curex.gms refusal
+  (preppm.mod L27-28), but `m13_probe.jl` showed FAIL on the steps of the
+  prep -> prelv segment (preppm_shape, ppmain_life, pp_prelv) where it
+  should have shown the POWERFLO refusal. The probe starts each segment from
+  a GAMS dump, with the switches of the run file; %POWERFLO% is not in the
+  run file but set by init_ext.vda L134-135 from the data (PRC_REACT), and a
+  dump does not keep it. So pp_prelv.vda L114 ran without powerflo.vda and
+  every symbol powerflo.vda writes differed. Fixed: the TimesModel
+  constructor derives the switch from the data (`data_switches!`), so every
+  model built from a dump refuses POWERFLO (the probe, and also bndmain and
+  model generation from a pre-solve dump); `init_ext!` calls the same
+  function. With %POWERFLO% YES the earlier steps leave out the scratch that
+  powerflo.vda assigns again (MY_F in preppm_shape, RXX in ppmain_life), as
+  preppm already left out RTP and RVP. JRC's two features become changes 26
+  (curex.gms) and 27 (powerflo.vda).
 - (20b-4) prepret.dsc L134-162, the objective terms of early retirement
   (`objfix_ret!`, `objsalv_ret!`, `src/ext/dsc/prepret.jl`): in EQ_OBJFIX
   the fixed costs avoided by retired capacity (each VAR_SCAP credited with
@@ -437,8 +462,8 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
   data statement makes a symbol DEFINED (G40: with PRC_REFIT data,
   prepret.dsc runs on without retirement bounds) and that CARD of a string is
   its length (G41); the GAMS replay now declares such symbols without data
-  (`bare`). Refused: currency conversion (curex.gms, no suite model has
-  it), %INTEXT_ONLY% and %PREP_ANS% YES, %RETIRE% other than YES. On OTUS9r
+  (`bare`). Refused: currency conversion (curex.gms; no core model has
+  it, JRC-EU-TIMES-cli_ll does: change 26), %INTEXT_ONLY% and %PREP_ANS% YES, %RETIRE% other than YES. On OTUS9r
   the step takes about 105 s.
 - (6b) preppm.mod L213-217 (main_ext.mod prep_ext: prep_ext.dsc exits, then
   prep_ext.vda with equcrtp.vda PREP_EXT) ends the init -> prep segment: from
