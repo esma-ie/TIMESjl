@@ -4,6 +4,7 @@
 #
 #   julia --project=test scripts/parity_report.jl <out.json> [--fixtures] [--embed]   # the public fixtures
 #   julia --project=test scripts/parity_report.jl <out.json> --ref <dir> [--root name=path ...] [<model> ...]
+#   ... [--no-solve]: layer 3 by cross-evaluating the GAMS optima only, no HiGHS solve
 #
 # `--embed` also writes the report into docs/dashboard/index.html (the parity
 # dashboard), which is how the committed page is refreshed: the public fixtures
@@ -36,10 +37,15 @@ using TIMES.Reference: canonical_from_jump, canonical_from_dump, compare_lp, eva
                        solution_levels
 
 const REPO = dirname(@__DIR__)
+# --no-solve: layer 3 by cross-evaluating each GAMS optimum in our LP, without the
+# HiGHS solve (for models HiGHS does not solve in reasonable time, e.g. OTUS9r)
+const NO_SOLVE = Ref(false)
 include(joinpath(@__DIR__, "m12_probe.jl"))        # M12_STEPS; via m11_probe.jl: run_switches, runfile_of,
                                                     # suite_switches, parse_probe_args, as_feasible_as, own_violation
 
-const SUITE = Dict(m["name"] => m for m in TOML.parsefile(joinpath(REPO, "reference", "suite.toml"))["model"])
+# the suite models and the crafted demo12 cases (reference/crafted.toml), whose fixtures CI also holds
+const SUITE = Dict(m["name"] => m for f in ("suite.toml", "crafted.toml")
+                   for m in TOML.parsefile(joinpath(REPO, "reference", f))["model"])
 
 function layer1_checks!(checks, run, ppm, coef, switches)
     tm = TimesModel(ppm; switches)
@@ -163,6 +169,32 @@ function layer23_checks!(checks, runrec, run, presolve, matrix, dictmap, points,
         gref = g.feasible ? g : evaluate_point(ref, x; nworst=typemax(Int))
         gpts[p.solver] = (; g, gref, ok=as_feasible_as(g, gref) && isapprox(g.objective, p.objective; rtol=1e-6))
     end
+    if NO_SOLVE[]
+        # --no-solve: layer 3 by cross-evaluation only (scripts/m13_cross_eval.jl; OTUS9r, PR #61):
+        # each GAMS optimum's objective in our LP against GAMS's, and its feasibility here
+        # as in GAMS's own matrix. No HiGHS solve, so no "ours in GAMS's matrix" check.
+        for p in live
+            rec = Dict{String,Any}("run" => run, "layer" => 3, "unit" => p.solver, "gams_objective" => p.objective,
+                                   "julia_solver" => "none (GAMS optimum cross-evaluated, --no-solve)",
+                                   "n_excluded" => 0, "n_compared" => 1)
+            if haskey(gpts, p.solver)
+                gp = gpts[p.solver]
+                rec["julia_objective"] = gp.g.objective
+                rec["rel_diff"] = abs(gp.g.objective - p.objective) / abs(p.objective)
+                rec["gams_in_mine_violation"] = max(gp.g.max_row_violation, gp.g.max_bound_violation)
+                rec["gams_in_mine_ok"] = gp.ok
+                rec["status"] = gp.ok ? "pass" : "fail"
+                rec["detail"] = ["cross-evaluation only (no HiGHS solve)"]
+                gp.ok && !gp.g.feasible && push!(rec["detail"], own_violation(gp.gref))
+            else
+                rec["status"] = "fail"
+                rec["detail"] = ["cross-evaluation only: no GAMS levels for $(p.solver)"]
+            end
+            rec["n_mismatch"] = rec["status"] == "pass" ? 0 : 1
+            push!(checks, rec)
+        end
+        return
+    end
     mine = nothing
     empty!(tm.cache); empty!(tm.data.sets); empty!(tm.data.params)
     GC.gc(true)
@@ -191,6 +223,7 @@ function layer23_checks!(checks, runrec, run, presolve, matrix, dictmap, points,
             gp = gpts[p.solver]
             rec["gams_in_mine_violation"] = max(gp.g.max_row_violation, gp.g.max_bound_violation)
             rec["gams_point_objective_in_mine"] = gp.g.objective
+            rec["gams_in_mine_ok"] = gp.ok
             push!(feas, gp.ok)
             # a GAMS optimum outside its own model's tolerance, violated identically here (known-differences.md K1)
             gp.ok && !gp.g.feasible && push!(detail, own_violation(gp.gref))
@@ -268,6 +301,10 @@ function main(args)
     if "--embed" in rest
         embed_id = "report"
         rest = filter(!=("--embed"), rest)
+    end
+    if "--no-solve" in rest
+        NO_SOLVE[] = true
+        rest = filter(!=("--no-solve"), rest)
     end
     i = findfirst(==("--embed-as"), rest)
     if i !== nothing

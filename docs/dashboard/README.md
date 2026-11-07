@@ -45,10 +45,22 @@ or as the private artifact James keeps.
   | `suite-public-otc.json` | `report-suite-otc` | OTCGEN gc_ref, OTNYC s1_nyc_ref (core tier) | 2fde1e3, 31 Oct 00:12 |
   | `suite-public-weekend.json` | `report-suite-weekend` | demo12, TIMES-NZ steady and shift, OTCGEN gc_ref, OTNYC s1_nyc_ref, OTUS9r reference, on the GAMS 54 references (`run_weekend_gams54_v2.ps1`) | a7bff7f, 31 Oct 13:48 |
 
+  | `suite-public-m13.json` | `report-suite-m13` | demo12, TIMES-NZ steady, OTCGEN gc_ref, OTNYC s1_nyc_ref (core tier, after M1.3 changes 17b-20b-4) | 9df68b2, 7 Nov 10:54 |
+  | `suite-public-otus.json` | `report-suite-otus` | OTUS9r reference (core tier), layer 3 by cross-evaluation (`--no-solve`) | 9df68b2, 7 Nov 10:54 |
+
   `src/` is the same at 6f3d91e and 2fde1e3. The weekend report supersedes
-  the earlier ones for its six runs. OTUS9r tax1_wo_mou (milestone tier,
-  paused) shows its 30 Oct 05:51 result until a milestone run probes it
-  again.
+  the earlier ones for its six runs, and the 7 Nov reports supersede it for
+  the five core models (TIMES-NZ shift keeps its 31 Oct result). OTUS9r
+  tax1_wo_mou (milestone tier, paused) shows its 30 Oct 05:51 result until a
+  milestone run probes it again.
+
+  `--no-solve` records layer 3 without the HiGHS solve: each GAMS optimum
+  cross-evaluated in TIMES.jl's model (objective, and feasibility as in
+  GAMS's own matrix), as `scripts/m13_cross_eval.jl` does. It is used for
+  OTUS9r, which HiGHS does not solve in reasonable time (docs/m13-plan.md,
+  finding 20b-4):
+
+      julia --project=test scripts/parity_report.jl docs/dashboard/suite-public-otus.json --no-solve --ref ../timesjl-reference --root otus=../timesjl-sources/OTUS9r OTUS9r-reference
 
 - Local runs (TIM, on James's machine) are reported the same way from a
   reference directory and loaded into the open page with its "Load results
