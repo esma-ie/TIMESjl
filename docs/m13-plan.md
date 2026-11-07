@@ -151,7 +151,7 @@ workstation stays the reference of record (`run_references.ps1 -Checkpoints`).
 - JRC-EU-TIMES-cli_ll (milestone tier), once changes 26-27b merge: the
   chain from the input dump to ppm, reduce_off and as_run, on James's
   machine; only the verdicts are published (`redistribute = "summary"`).
-  Proposed with changes 26-27 (7 Nov 2026), to confirm with James.
+  Agreed by James, 7 Nov 2026.
 
 ### Gate checks, 5 Nov 2026 (changes 0-18b and 17b in review)
 
